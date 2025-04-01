@@ -1,0 +1,30 @@
+export const Teams = [
+  { name: "Ittihad Tanger", arabicName: "اتحاد طنجة", id: 87180 },
+  { name: "RS Berkane", arabicName: "نهضة بركان", id: 80395 },
+  {
+    name: "Difaâ Hassani El-Jadidi",
+    arabicName: "الدفاع الحسني الجديدي",
+    id: 55043,
+  },
+  { name: "Wydad Casablanca", arabicName: "الوداد الرياضي", id: 36268 },
+  { name: "MAS de Fès", arabicName: "المغرب الفاسي", id: 55035 },
+  { name: "Renaissance Zemamra", arabicName: "نهضة الزمامرة", id: 263373 },
+  { name: "AS FAR Rabat", arabicName: "الجيش الملكي", id: 24394 },
+  {
+    name: "Union Touarga Sport",
+    arabicName: "اتحاد تواركة الرياضي",
+    id: 118834,
+  },
+  { name: "Raja Club Athletic", arabicName: "الرجاء الرياضي", id: 41757 },
+  { name: "Fath Union Sport", arabicName: "الفتح الرباطي", id: 55027 },
+  {
+    name: "Jeunesse Sportive Soualem",
+    arabicName: "الشباب الرياضي السالمي",
+    id: 297607,
+  },
+  { name: "Olympic Safi", arabicName: "أولمبيك آسفي", id: 55037 },
+  { name: "Moghreb Tétouan", arabicName: "المغرب التطواني", id: 55049 },
+  { name: "Hassania d'Agadir", arabicName: "حسنية أكادير", id: 55039 },
+  { name: "CODM Meknès", arabicName: "النادي المكناسي", id: 55025 },
+  { name: "SC Chabab Mohammédia", arabicName: "شباب المحمدية", id: 327830 },
+];
