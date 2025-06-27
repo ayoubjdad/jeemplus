@@ -67,9 +67,11 @@ export default function Home() {
   const enrichedGames = useMemo(() => {
     return games.map((game) => {
       const homeTeamData =
-        teamQueries.find((q) => q.queryKey[1] === game.homeTeam.id)?.data || {};
+        teamQueries.find((q) => q.queryKey?.[1] === game.homeTeam.id)?.data ||
+        {};
       const awayTeamData =
-        teamQueries.find((q) => q.queryKey[1] === game.awayTeam.id)?.data || {};
+        teamQueries.find((q) => q.queryKey?.[1] === game.awayTeam.id)?.data ||
+        {};
       return {
         ...game,
         homeTeam: { ...game.homeTeam, ...homeTeamData },
@@ -84,7 +86,7 @@ export default function Home() {
       .filter(
         (game) =>
           tournamentsPriority.some(
-            (t) => t.id === game.tournament.uniqueTournament.id
+            (t) => t?.id === game?.tournament?.uniqueTournament?.id
           ) && isToday(date, game.startTimestamp)
       )
       .sort(

@@ -1,7 +1,7 @@
-import { QueryClient, QueryClientProvider } from "react-query";
 import Home from "./pages/home/Home";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "./themes/overrides";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
   const queryClient = new QueryClient();
