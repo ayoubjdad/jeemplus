@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import axios from "axios";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { gamesUrl } from "../../api/data";
 import { gamesFormatDate } from "../../helpers/global.helper";
 import styles from "./Home.module.scss";
@@ -13,102 +13,75 @@ const isToday = (date, timestamp) => {
   return startTime.toLocaleDateString() === date.toLocaleDateString();
 };
 
-// Fetch Games
-const fetchGames = async (date) => {
+const fetchGames = async ({ queryKey }) => {
+  const [, date] = queryKey;
   try {
-    const url = gamesUrl + gamesFormatDate(date);
-    const { data } = await axios.get(url);
-    return data?.events || [];
+    const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
+    return response?.data?.events || [];
   } catch (error) {
     console.error("❌ Error fetching games:", error);
-    throw error;
+    return [];
   }
 };
 
-// Fetch Team Players
-const fetchTeamPlayers = async (teamId) => {
+const fetchTeamPlayers = async ({ queryKey }) => {
+  const [, teamId] = queryKey;
   try {
-    const { data } = await axios.get(
+    const response = await axios.get(
       `https://www.sofascore.com/api/v1/team/${teamId}/players`
     );
-    return data || {};
-  } catch (error) {
-    console.error(`❌ Error fetching team ${teamId}:`, error);
-    throw error;
+    return response?.data || {};
+  } catch (err) {
+    console.error(`❌ Error fetching team ${teamId}:`, err);
+    return {};
   }
 };
 
-export default function Home() {
-  const [date, setDate] = useState(new Date());
+const getMoroccanPlayers = (homePlayers, awayPlayers) => {
+  const isMoroccan = (p) => p?.player?.country?.name === "Morocco";
+  return [
+    ...homePlayers?.filter(isMoroccan),
+    ...awayPlayers?.filter(isMoroccan),
+  ];
+};
 
-  // Fetch games using TanStack Query
-  const { data: games = [], isLoading: gamesLoading } = useQuery({
-    queryKey: ["games", date],
-    queryFn: () => fetchGames(date),
-  });
+const renderPlayerCard = ({ player }) => (
+  <div key={player.id} className={styles.playerCard}>
+    {player.jerseyNumber && (
+      <p className={styles.jerseyNumber}>{player.jerseyNumber}</p>
+    )}
+    <img
+      src={`https://img.sofascore.com/api/v1/player/${player.id}/image`}
+      alt={player.name}
+      className={styles.playerImage}
+    />
+    <p className={styles.playerName}>{player.name}</p>
+  </div>
+);
 
-  // Fetch all team players for games
-  const teamQueries = useQueries({
-    queries: games.flatMap((game) => [
-      {
-        queryKey: ["team", game.homeTeam.id],
-        queryFn: () => fetchTeamPlayers(game.homeTeam.id),
-        staleTime: 600000,
-      },
-      {
-        queryKey: ["team", game.awayTeam.id],
-        queryFn: () => fetchTeamPlayers(game.awayTeam.id),
-        staleTime: 600000,
-      },
-    ]),
-  });
-
-  // Extract fetched player data
-  const enrichedGames = useMemo(() => {
-    return games.map((game) => {
-      const homeTeamData =
-        teamQueries.find((q) => q.queryKey?.[1] === game.homeTeam.id)?.data ||
-        {};
-      const awayTeamData =
-        teamQueries.find((q) => q.queryKey?.[1] === game.awayTeam.id)?.data ||
-        {};
-      return {
-        ...game,
-        homeTeam: { ...game.homeTeam, ...homeTeamData },
-        awayTeam: { ...game.awayTeam, ...awayTeamData },
-      };
-    });
-  }, [games, teamQueries]);
-
-  // Filter highlighted games
-  const highlightedGames = useMemo(() => {
-    return games
-      .filter(
-        (game) =>
-          tournamentsPriority.some(
-            (t) => t?.id === game?.tournament?.uniqueTournament?.id
-          ) && isToday(date, game.startTimestamp)
-      )
-      .sort(
-        (a, b) =>
-          a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id
-      );
-  }, [games, date]);
-
-  if (gamesLoading) return <Loader />;
-
+const DatePicker = ({ date, setDate }) => {
+  const dateString = gamesFormatDate(date).split("-");
+  const month = dateString[1];
+  const day = dateString[2];
   return (
-    <section className={styles.main}>
-      <DatePicker date={date} setDate={setDate} />
-      <h4>أهم مباريات اليوم</h4>
-      <div className={styles.container}>
-        {highlightedGames.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
-      </div>
-    </section>
+    <div className={styles.datePicker}>
+      <Box
+        component="i"
+        className={`fi fi-rr-angle-left ${styles.arrow}`}
+        onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
+      />
+      <Box component="i" className="fi fi-rr-calendar-day" />
+      <p>
+        {day}/{month}
+      </p>
+      <Box
+        component="i"
+        className={`fi fi-rr-angle-right ${styles.arrow}`}
+        onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
+      />
+    </div>
   );
-}
+};
 
 const GameCard = ({ game }) => {
   const timeString = (timestamp) => {
@@ -119,47 +92,118 @@ const GameCard = ({ game }) => {
     });
   };
 
+  const tournamentImage = `https://img.sofascore.com/api/v1/unique-tournament/${game?.tournament?.uniqueTournament?.id}/image`;
+  const score =
+    game.status.type === "finished"
+      ? `${game.homeScore.display} - ${game.awayScore.display}`
+      : timeString(game?.startTimestamp);
+
   return (
     <div className={styles.matchHeader}>
       <Team team={game.homeTeam} />
       <div className={styles.time}>
         <img
-          src={`https://img.sofascore.com/api/v1/unique-tournament/${game?.tournament?.uniqueTournament?.id}/image`}
+          src={tournamentImage}
           alt={game?.tournament?.uniqueTournament?.name}
         />
-        <h5>{timeString(game.startTimestamp)}</h5>
+        <h5>{score}</h5>
       </div>
       <Team team={game.awayTeam} />
     </div>
   );
 };
 
-const Team = ({ team }) => (
+export default function Data() {
+  const [date, setDate] = useState(new Date());
+
+  const { data: games = [], isLoading: gamesLoading } = useQuery({
+    queryKey: ["games", date],
+    queryFn: fetchGames,
+    // ...options,
+  });
+
+  const highlightedGames = useMemo(() => {
+    return games
+      .filter(
+        (game) =>
+          tournamentsPriority.some(
+            (t) => t?.id === game?.tournament?.uniqueTournament?.id
+          ) && isToday(date, game?.startTimestamp)
+      )
+      .sort(
+        (a, b) =>
+          a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id
+      );
+  }, [games, date]);
+
+  const { data: enrichedGames = [], isLoading: playersLoading } = useQuery({
+    queryKey: ["enrichedGames", games],
+    queryFn: async () => {
+      return Promise.all(
+        games.map(async (game) => {
+          const [home, away] = await Promise.all([
+            fetchTeamPlayers({ queryKey: ["teamPlayers", game.homeTeam.id] }),
+            fetchTeamPlayers({ queryKey: ["teamPlayers", game.awayTeam.id] }),
+          ]);
+
+          return {
+            id: game.id,
+            game,
+            homeTeam: { team: game.homeTeam, ...home },
+            awayTeam: { team: game.awayTeam, ...away },
+          };
+        })
+      );
+    },
+    enabled: games.length > 0,
+  });
+
+  if (gamesLoading || playersLoading) return <Loader />;
+
+  return (
+    <section className={styles.main}>
+      <DatePicker date={date} setDate={setDate} />
+      <h4>أهم مباريات اليوم</h4>
+      <div className={styles.container}>
+        {highlightedGames.map((game) => (
+          <GameCard key={game.id} game={game} />
+        ))}
+      </div>
+      <h4>اللاعبين الدوليين</h4>
+      <div className={styles.container}>
+        {enrichedGames.map((game) => {
+          const moroccanPlayers = getMoroccanPlayers(
+            game.homeTeam.players || [],
+            game.awayTeam.players || []
+          );
+          if (moroccanPlayers.length === 0) return null;
+
+          return (
+            <div key={game.id} className={styles.playersBlock}>
+              <GameCard game={game.game} />
+              <div className={styles.playersList}>
+                {moroccanPlayers.map((playerObj) =>
+                  renderPlayerCard(playerObj)
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// Reuse existing components
+const Team = ({ team, fromGame = false }) => (
   <div className={styles.team}>
     <img
       src={`https://img.sofascore.com/api/v1/team/${team?.id}/image`}
       alt={team?.name}
       className={styles.teamImage}
     />
-    <p className={styles.teamName}>{team?.name}</p>
+    <p className={styles.teamName} style={{ height: fromGame && "auto" }}>
+      {team?.name}
+    </p>
   </div>
 );
-
-const DatePicker = ({ date, setDate }) => {
-  return (
-    <div className={styles.datePicker}>
-      <Box
-        component="i"
-        className={`fi fi-rr-angle-left ${styles.arrow}`}
-        onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
-      />
-      <Box component="i" className="fi fi-rr-calendar-day" />
-      <p>{gamesFormatDate(date)}</p>
-      <Box
-        component="i"
-        className={`fi fi-rr-angle-right ${styles.arrow}`}
-        onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
-      />
-    </div>
-  );
-};

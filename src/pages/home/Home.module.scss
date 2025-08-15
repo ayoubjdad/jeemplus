@@ -29,6 +29,12 @@
   align-items: center;
   padding-bottom: 12px;
   justify-content: space-between;
+
+  //  padding: 1rem;
+  // margin-bottom: 2rem;
+  // border-radius: 12px;
+  // border: 1px solid #ddd;
+  // background-color: #f9f9f9;
 }
 
 .time {
@@ -142,6 +148,22 @@
       background-color: #e0e0e0;
     }
   }
+}
+
+.playersBlock {
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.playersList {
+  gap: 12px;
+  display: grid;
+  overflow-y: auto;
+  max-height: 130px;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
 }
 
 @media (max-width: 768px) {
