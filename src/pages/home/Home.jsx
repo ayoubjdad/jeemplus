@@ -32,7 +32,6 @@ const fetchTeamPlayers = async ({ queryKey }) => {
     );
     return response?.data || {};
   } catch (err) {
-    console.error(`❌ Error fetching team ${teamId}:`, err);
     return {};
   }
 };
@@ -124,12 +123,15 @@ export default function Data() {
 
   const highlightedGames = useMemo(() => {
     return games
-      .filter(
-        (game) =>
-          tournamentsPriority.some(
-            (t) => t?.id === game?.tournament?.uniqueTournament?.id
-          ) && isToday(date, game?.startTimestamp)
-      )
+      .filter((game) => {
+        const isTopTeam = topTeams.some(
+          (t) => t.id === game.homeTeam.id || t.id === game.awayTeam.id
+        );
+        const isFromBotola = game.tournament.uniqueTournament.id === 937;
+        return (
+          (isTopTeam || isFromBotola) && isToday(date, game?.startTimestamp)
+        );
+      })
       .sort(
         (a, b) =>
           a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id
@@ -139,8 +141,18 @@ export default function Data() {
   const { data: enrichedGames = [], isLoading: playersLoading } = useQuery({
     queryKey: ["enrichedGames", games],
     queryFn: async () => {
+      const prioritizedGames = [...games].filter(
+        (g) =>
+          tournamentsPriority.some(
+            (t) => t.id === g.tournament.uniqueTournament.id
+          ) &&
+          isToday(date, g?.startTimestamp) &&
+          g.awayTeam.country.name !== "Morocco" &&
+          g.homeTeam.country.name !== "Morocco"
+      );
+
       return Promise.all(
-        games.map(async (game) => {
+        prioritizedGames.map(async (game) => {
           const [home, away] = await Promise.all([
             fetchTeamPlayers({ queryKey: ["teamPlayers", game.homeTeam.id] }),
             fetchTeamPlayers({ queryKey: ["teamPlayers", game.awayTeam.id] }),

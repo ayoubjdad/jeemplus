@@ -104,11 +104,6 @@ export const tournamentsPriority = [
 ];
 
 export const topTeams = [
-  // * Brazil
-  { name: "Palmeiras", id: 46 },
-  { name: "Flamengo", id: 47 },
-  { name: "Corinthians", id: 48 },
-
   // * Morocco
   { name: "Wydad AC", id: 36268 },
   { name: "Raja CA", id: 41757 },
@@ -117,16 +112,13 @@ export const topTeams = [
   { name: "AS FAR", id: 24394 },
 
   // * Germany
-  { name: "Bayern Munich", id: 21 },
-  { name: "Borussia Dortmund", id: 22 },
-  { name: "RB Leipzig", id: 23 },
-  { name: "Bayer Leverkusen", id: 24 },
+  { name: "Bayern Munich", id: 2672 },
+  { name: "Borussia Dortmund", id: 2673 },
 
   // * France
   { id: 1644, name: "Paris Saint-Germain" },
   { id: 1653, name: "AS Monaco" },
   { id: 1641, name: "Olympique de Marseille" },
-  { id: 1649, name: "Olympique Lyonnais" },
 
   // * England
   { name: "Liverpool", id: 44 },
@@ -135,7 +127,7 @@ export const topTeams = [
   { name: "Manchester City", id: 17 },
   { name: "Newcastle United", id: 39 },
   { name: "Manchester United", id: 35 },
-  { name: "Tottenham Hotspur", id: 33 },
+  // { name: "Tottenham Hotspur", id: 33 },
 
   // * Spain
   { name: "Barcelona", id: 2817 },
@@ -148,11 +140,11 @@ export const topTeams = [
   // * Italy
   { id: 2697, name: "Inter" },
   { id: 2714, name: "Napoli" },
-  { id: 2686, name: "Atalanta" },
+  // { id: 2686, name: "Atalanta" },
   { id: 2687, name: "Juventus" },
   { id: 2702, name: "Roma" },
-  { id: 2693, name: "Fiorentina" },
-  { id: 2699, name: "Lazio" },
+  // { id: 2693, name: "Fiorentina" },
+  // { id: 2699, name: "Lazio" },
   { id: 2692, name: "Milan" },
 ];
 
