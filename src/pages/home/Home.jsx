@@ -178,7 +178,9 @@ export default function Data() {
       <h4>أهم مباريات اليوم</h4>
       <div className={styles.container}>
         {highlightedGames.map((game) => (
-          <GameCard key={game.id} game={game} />
+          <div key={game.id} className={styles.card}>
+            <GameCard key={game.id} game={game} />
+          </div>
         ))}
       </div>
       <h4>اللاعبين الدوليين</h4>
