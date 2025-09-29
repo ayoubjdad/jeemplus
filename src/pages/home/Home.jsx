@@ -216,8 +216,8 @@ const Team = ({ team, fromGame = false }) => (
       alt={team?.name}
       className={styles.teamImage}
     />
-    <p className={styles.teamName} style={{ height: fromGame && "auto" }}>
+    {/* <p className={styles.teamName} style={{ height: fromGame && "auto" }}>
       {team?.name}
-    </p>
+    </p> */}
   </div>
 );

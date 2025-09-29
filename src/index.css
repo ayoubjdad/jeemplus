@@ -1,6 +1,72 @@
 /* Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap");
 
+/* Roobert Font Faces */
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-Regular-BF67243fd53fdf2.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-Medium-BF67243fd53e059.otf")
+    format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-SemiBold-BF67243fd54213d.otf")
+    format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-Bold-BF67243fd540abb.otf")
+    format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-Heavy-BF67243fd53e164.otf")
+    format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-Light-BF67243fd502239.otf")
+    format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-RegularItalic-BF67243fd5414aa.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Roobert";
+  src: url("./assets/fonts/RoobertTRIAL-BoldItalic-BF67243fd540e4b.otf")
+    format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* Icons */
 @import url("https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css");
 @import url("https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css");
@@ -13,7 +79,7 @@ body {
   direction: rtl;
   font-size: 14px;
   font-style: normal;
-  font-family: "Alexandria", sans-serif;
+  font-family: "Roobert", sans-serif;
   line-height: 1.3rem;
 }
 
