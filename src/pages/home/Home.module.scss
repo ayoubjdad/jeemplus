@@ -3,15 +3,16 @@
   padding: 16px;
   display: grid;
   color: #222226;
-  background-color: #edf1f6;
+  height: 100vh;
+  // background-color: #edf1f6;
 }
 
 .container {
   gap: 16px;
   display: grid;
   color: #222226;
-  background-color: #edf1f6;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  // background-color: #edf1f6;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
 .card {
@@ -143,13 +144,13 @@
   }
 }
 
-.playersBlock {
-  padding: 1rem;
-  margin-bottom: 2rem;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  background-color: #f9f9f9;
-}
+// .playersBlock {
+//   padding: 1rem;
+//   margin-bottom: 2rem;
+//   border-radius: 12px;
+//   border: 1px solid #ddd;
+//   background-color: #f9f9f9;
+// }
 
 .playersList {
   gap: 12px;

@@ -7,6 +7,9 @@ import styles from "./Home.module.scss";
 import { topTeams, tournamentsPriority } from "../../data/Tournaments";
 import Loader from "../../layouts/loader/Loader";
 import { Box } from "@mui/material";
+import { palette } from "../../themes/palette";
+import GameCard from "../../components/game-card/GameCard";
+import PlayerCard from "../../components/player-card/PlayerCard";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
@@ -44,20 +47,6 @@ const getMoroccanPlayers = (homePlayers, awayPlayers) => {
   ];
 };
 
-const renderPlayerCard = ({ player }) => (
-  <div key={player.id} className={styles.playerCard}>
-    {player.jerseyNumber && (
-      <p className={styles.jerseyNumber}>{player.jerseyNumber}</p>
-    )}
-    <img
-      src={`https://img.sofascore.com/api/v1/player/${player.id}/image`}
-      alt={player.name}
-      className={styles.playerImage}
-    />
-    <p className={styles.playerName}>{player.name}</p>
-  </div>
-);
-
 const DatePicker = ({ date, setDate }) => {
   const dateString = gamesFormatDate(date).split("-");
   const month = dateString[1];
@@ -78,36 +67,6 @@ const DatePicker = ({ date, setDate }) => {
         className={`fi fi-rr-angle-right ${styles.arrow}`}
         onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
       />
-    </div>
-  );
-};
-
-const GameCard = ({ game }) => {
-  const timeString = (timestamp) => {
-    const startTime = new Date(timestamp * 1000);
-    return startTime.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const tournamentImage = `https://img.sofascore.com/api/v1/unique-tournament/${game?.tournament?.uniqueTournament?.id}/image`;
-  const score =
-    game.status.type === "finished"
-      ? `${game.homeScore.display} - ${game.awayScore.display}`
-      : timeString(game?.startTimestamp);
-
-  return (
-    <div className={styles.matchHeader}>
-      <Team team={game.homeTeam} />
-      <div className={styles.time}>
-        <img
-          src={tournamentImage}
-          alt={game?.tournament?.uniqueTournament?.name}
-        />
-        <h5>{score}</h5>
-      </div>
-      <Team team={game.awayTeam} />
     </div>
   );
 };
@@ -170,20 +129,22 @@ export default function Data() {
     enabled: games.length > 0,
   });
 
-  if (gamesLoading || playersLoading) return <Loader />;
+  // if (gamesLoading || playersLoading) return <Loader />;
 
   return (
-    <section className={styles.main}>
-      <DatePicker date={date} setDate={setDate} />
-      <h4>أهم مباريات اليوم</h4>
+    <section
+      className={styles.main}
+      style={{ backgroundColor: palette.gray.light }}
+    >
+      <h1>Matchs du jour</h1>
+      {/* <DatePicker date={date} setDate={setDate} /> */}
       <div className={styles.container}>
         {highlightedGames.map((game) => (
-          <div key={game.id} className={styles.card}>
-            <GameCard key={game.id} game={game} />
-          </div>
+          <GameCard key={game.id} game={game} />
         ))}
       </div>
-      <h4>اللاعبين الدوليين</h4>
+
+      <h1>Internationaux</h1>
       <div className={styles.container}>
         {enrichedGames.map((game) => {
           const moroccanPlayers = getMoroccanPlayers(
@@ -192,32 +153,9 @@ export default function Data() {
           );
           if (moroccanPlayers.length === 0) return null;
 
-          return (
-            <div key={game.id} className={styles.playersBlock}>
-              <GameCard game={game.game} />
-              <div className={styles.playersList}>
-                {moroccanPlayers.map((playerObj) =>
-                  renderPlayerCard(playerObj)
-                )}
-              </div>
-            </div>
-          );
+          return <GameCard game={game.game} players={moroccanPlayers} />;
         })}
       </div>
     </section>
   );
 }
-
-// Reuse existing components
-const Team = ({ team, fromGame = false }) => (
-  <div className={styles.team}>
-    <img
-      src={`https://img.sofascore.com/api/v1/team/${team?.id}/image`}
-      alt={team?.name}
-      className={styles.teamImage}
-    />
-    {/* <p className={styles.teamName} style={{ height: fromGame && "auto" }}>
-      {team?.name}
-    </p> */}
-  </div>
-);

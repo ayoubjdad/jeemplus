@@ -76,11 +76,12 @@
 
 body {
   margin: 0;
-  direction: rtl;
+  /* direction: rtl; */
   font-size: 14px;
   font-style: normal;
   font-family: "Roobert", sans-serif;
   line-height: 1.3rem;
+  /* letter-spacing: -0.75px; */
 }
 
 p,
