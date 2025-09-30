@@ -15,11 +15,6 @@ const GameCard = ({ game = {}, players = [] }) => {
   // const tournamentImage = `https://img.sofascore.com/api/v1/unique-tournament/${game?.tournament?.uniqueTournament?.id}/image`;
 
   const getStatusLabel = () => {
-    const now = Date.now() / 1000;
-    const elapsed = Math.floor(
-      (now - game.time.currentPeriodStartTimestamp) / 60
-    );
-
     switch (game?.status?.type) {
       case "finished":
         return "Finished";

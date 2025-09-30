@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { gamesUrl } from "../../api/data";
@@ -6,10 +6,9 @@ import { gamesFormatDate } from "../../helpers/global.helper";
 import styles from "./Home.module.scss";
 import { topTeams, tournamentsPriority } from "../../data/Tournaments";
 import Loader from "../../layouts/loader/Loader";
-import { Box } from "@mui/material";
 import { palette } from "../../themes/palette";
 import GameCard from "../../components/game-card/GameCard";
-import PlayerCard from "../../components/player-card/PlayerCard";
+import DatePicker from "../../components/date-picker/DatePicker";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
@@ -45,30 +44,6 @@ const getMoroccanPlayers = (homePlayers, awayPlayers) => {
     ...homePlayers?.filter(isMoroccan),
     ...awayPlayers?.filter(isMoroccan),
   ];
-};
-
-const DatePicker = ({ date, setDate }) => {
-  const dateString = gamesFormatDate(date).split("-");
-  const month = dateString[1];
-  const day = dateString[2];
-  return (
-    <div className={styles.datePicker}>
-      <Box
-        component="i"
-        className={`fi fi-rr-angle-left ${styles.arrow}`}
-        onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
-      />
-      <Box component="i" className="fi fi-rr-calendar-day" />
-      <p>
-        {day}/{month}
-      </p>
-      <Box
-        component="i"
-        className={`fi fi-rr-angle-right ${styles.arrow}`}
-        onClick={() => setDate(new Date(date.setDate(date.getDate() + 1)))}
-      />
-    </div>
-  );
 };
 
 export default function Data() {
@@ -129,15 +104,24 @@ export default function Data() {
     enabled: games.length > 0,
   });
 
-  // if (gamesLoading || playersLoading) return <Loader />;
+  if (gamesLoading || playersLoading) return <Loader />;
 
   return (
     <section
       className={styles.main}
       style={{ backgroundColor: palette.gray.light }}
     >
-      <h1>Matchs du jour</h1>
-      {/* <DatePicker date={date} setDate={setDate} /> */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <h1>Matchs du jour</h1>
+        <DatePicker date={date} setDate={setDate} />
+      </div>
+
       <div className={styles.container}>
         {highlightedGames.map((game) => (
           <GameCard key={game.id} game={game} />
