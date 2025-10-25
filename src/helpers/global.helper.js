@@ -41,8 +41,8 @@ export function convertDateToArarbic(dateString) {
   const hours = String(date.getUTCHours()).padStart(2, "0");
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
 
-  // return `${day} ${month} ${year} - ${hours}:${minutes}`;
-  return `${day} ${month} ${year}`;
+  return `${day} ${month} ${year} - ${hours}:${minutes}`;
+  // return `${day} ${month} ${year}`;
 }
 
 // * Convert from 2024-10-19T15:17:25.174Z to 19/10/2024

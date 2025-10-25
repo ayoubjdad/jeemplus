@@ -11,9 +11,10 @@ export const standingsUrls = [
   "https://www.sofascore.com/api/v1/unique-tournament/23/season/63515/standings/total", // Serie A
   "https://www.sofascore.com/api/v1/unique-tournament/35/season/63516/standings/total", // Bundesliga
 ];
-const teamLogo = "https://api.sofascore.app/api/v1/team/${team.id}/image";
-const tournamentLogo =
-  "https://api.sofascore.app/api/v1/unique-tournament/${id}/image/dark";
+export const teamLogo = (teamId) =>
+  `https://api.sofascore.app/api/v1/team/${teamId}/image`;
+export const tournamentLogo = (id) =>
+  `https://api.sofascore.app/api/v1/unique-tournament/${id}/image/dark`;
 
 export const team = "https://www.sofascore.com/api/v1/team/";
 // https://www.sofascore.com/api/v1/team/3145/players
