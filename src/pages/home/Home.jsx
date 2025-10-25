@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { gamesUrl } from "../../api/data";
 import { gamesFormatDate } from "../../helpers/global.helper";
@@ -8,7 +9,6 @@ import Loader from "../../layouts/loader/Loader";
 import { palette } from "../../themes/palette";
 import GameCard from "../../components/game-card/GameCard";
 import DatePicker from "../../components/date-picker/DatePicker";
-import { fetchWithProxy } from "../../api/proxy";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
@@ -18,10 +18,8 @@ const isToday = (date, timestamp) => {
 const fetchGames = async ({ queryKey }) => {
   const [, date] = queryKey;
   try {
-    const response = await fetchWithProxy(
-      `${gamesUrl}${gamesFormatDate(date)}`
-    );
-    return response?.events || [];
+    const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
+    return response?.data?.events || [];
   } catch (error) {
     console.error("❌ Error fetching games:", error);
     return [];
@@ -31,11 +29,11 @@ const fetchGames = async ({ queryKey }) => {
 const fetchTeamPlayers = async ({ queryKey }) => {
   const [, teamId] = queryKey;
   try {
-    const response = await fetchWithProxy(
+    const response = await axios.get(
       `https://www.sofascore.com/api/v1/team/${teamId}/players`
     );
-    return response || {};
-  } catch {
+    return response?.data || {};
+  } catch (err) {
     return {};
   }
 };
