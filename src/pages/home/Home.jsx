@@ -1,145 +1,70 @@
-import { useMemo, useState } from "react";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
-import { gamesUrl } from "../../api/data";
-import { gamesFormatDate } from "../../helpers/global.helper";
-import styles from "./Home.module.scss";
-import { topTeams, tournamentsPriority } from "../../data/Tournaments";
-import Loader from "../../layouts/loader/Loader";
-import { palette } from "../../themes/palette";
-import GameCard from "../../components/game-card/GameCard";
-import DatePicker from "../../components/date-picker/DatePicker";
+import * as React from "react";
+import PropTypes from "prop-types";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+import Games from "../games/Games";
+import GamesOfTheDay from "../games/games-of-the-day/GamesOfTheDay";
+import MoroccanPlayers from "../games/moroccan-players/MoroccanPlayers";
 
-const isToday = (date, timestamp) => {
-  const startTime = new Date(timestamp * 1000);
-  return startTime.toLocaleDateString() === date.toLocaleDateString();
-};
-
-const fetchGames = async ({ queryKey }) => {
-  const [, date] = queryKey;
-  try {
-    const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
-    return response?.data?.events || [];
-  } catch (error) {
-    console.error("❌ Error fetching games:", error);
-    return [];
-  }
-};
-
-const fetchTeamPlayers = async ({ queryKey }) => {
-  const [, teamId] = queryKey;
-  try {
-    const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}/players`
-    );
-    return response?.data || {};
-  } catch (err) {
-    return {};
-  }
-};
-
-const getMoroccanPlayers = (homePlayers, awayPlayers) => {
-  const isMoroccan = (p) => p?.player?.country?.name === "Morocco";
-  return [
-    ...homePlayers?.filter(isMoroccan),
-    ...awayPlayers?.filter(isMoroccan),
-  ];
-};
-
-export default function Data() {
-  const [date, setDate] = useState(new Date());
-
-  const { data: games = [], isLoading: gamesLoading } = useQuery({
-    queryKey: ["games", date],
-    queryFn: fetchGames,
-    // ...options,
-  });
-
-  const highlightedGames = useMemo(() => {
-    return games
-      .filter((game) => {
-        const isTopTeam = topTeams.some(
-          (t) => t.id === game.homeTeam.id || t.id === game.awayTeam.id
-        );
-        const isFromBotola = game.tournament.uniqueTournament.id === 937;
-        return (
-          (isTopTeam || isFromBotola) && isToday(date, game?.startTimestamp)
-        );
-      })
-      .sort(
-        (a, b) =>
-          a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id
-      );
-  }, [games, date]);
-
-  const { data: enrichedGames = [], isLoading: playersLoading } = useQuery({
-    queryKey: ["enrichedGames", games],
-    queryFn: async () => {
-      const prioritizedGames = [...games].filter(
-        (g) =>
-          tournamentsPriority.some(
-            (t) => t.id === g.tournament.uniqueTournament.id
-          ) &&
-          isToday(date, g?.startTimestamp) &&
-          g.awayTeam.country.name !== "Morocco" &&
-          g.homeTeam.country.name !== "Morocco"
-      );
-
-      return Promise.all(
-        prioritizedGames.map(async (game) => {
-          const [home, away] = await Promise.all([
-            fetchTeamPlayers({ queryKey: ["teamPlayers", game.homeTeam.id] }),
-            fetchTeamPlayers({ queryKey: ["teamPlayers", game.awayTeam.id] }),
-          ]);
-
-          return {
-            id: game.id,
-            game,
-            homeTeam: { team: game.homeTeam, ...home },
-            awayTeam: { team: game.awayTeam, ...away },
-          };
-        })
-      );
-    },
-    enabled: games.length > 0,
-  });
-
-  if (gamesLoading || playersLoading) return <Loader />;
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
 
   return (
-    <section
-      className={styles.main}
-      style={{ backgroundColor: palette.gray.light }}
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <h1>Matchs du jour</h1>
-        <DatePicker date={date} setDate={setDate} />
-      </div>
+      {value === index && <div>{children}</div>}
+    </div>
+  );
+}
 
-      <div className={styles.container}>
-        {highlightedGames.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
-      </div>
+CustomTabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
 
-      <h1>Internationaux</h1>
-      <div className={styles.container}>
-        {enrichedGames.map((game) => {
-          const moroccanPlayers = getMoroccanPlayers(
-            game.homeTeam.players || [],
-            game.awayTeam.players || []
-          );
-          if (moroccanPlayers.length === 0) return null;
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 
-          return <GameCard game={game.game} players={moroccanPlayers} />;
-        })}
-      </div>
-    </section>
+export default function Home() {
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="basic tabs example"
+        >
+          <Tab label="Matchs du jour" {...a11yProps(0)} />
+          <Tab label="Internationaux Marocains" {...a11yProps(1)} />
+          <Tab label="Statistiques Botola" {...a11yProps(2)} />
+        </Tabs>
+      </Box>
+      <CustomTabPanel value={value} index={0}>
+        <GamesOfTheDay />
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={1}>
+        <MoroccanPlayers />
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={2}>
+        Item Three
+      </CustomTabPanel>
+    </Box>
   );
 }
