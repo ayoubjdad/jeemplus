@@ -54,10 +54,7 @@ export default function GamesOfTheDay() {
   if (gamesLoading) return <Loader />;
 
   return (
-    <section
-      className={styles.main}
-      style={{ backgroundColor: palette.gray.light }}
-    >
+    <section className={styles.main}>
       <div
         style={{
           display: "flex",
