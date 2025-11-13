@@ -14,13 +14,32 @@ import {
   Divider,
   Button,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { standingsUrls } from "../../../api/data";
+import axios from "axios";
+
+const fetchStats = async ({ queryKey }) => {
+  try {
+    const response = await axios.get(standingsUrls[0]);
+    return response?.data?.standings || [];
+  } catch (error) {
+    console.error("❌ Error fetching games:", error);
+    return [];
+  }
+};
 
 export default function BotolaStats() {
   const [activeView, setActiveView] = useState("ranking");
   const [playerSortKey, setPlayerSortKey] = useState("goals");
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
-  const rows = useMemo(() => botstats[0]?.rows || [], []);
+
+  const { data: stats = [], isLoading: statsLoading } = useQuery({
+    queryKey: ["stats"],
+    queryFn: fetchStats,
+  });
+
+  const rows = useMemo(() => stats[0]?.rows || [], [stats]);
   const players = useMemo(() => playerStatsData.results || [], []);
 
   const topAttack = useMemo(

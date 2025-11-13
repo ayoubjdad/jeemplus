@@ -4,7 +4,7 @@ export const newsUrl = "https://arabic-news-api.p.rapidapi.com/aljazeera";
 export const gamesUrl =
   "https://www.sofascore.com/api/v1/sport/football/scheduled-events/";
 export const standingsUrls = [
-  "https://www.sofascore.com/api/v1/unique-tournament/937/season/65433/standings/total", // Botola
+  "https://www.sofascore.com/api/v1/unique-tournament/937/season/78750/standings/total", // Botola
   "https://www.sofascore.com/api/v1/unique-tournament/17/season/61627/standings/total", // Premier League
   "https://www.sofascore.com/api/v1/unique-tournament/8/season/61643/standings/total", // LaLiga
   "https://www.sofascore.com/api/v1/unique-tournament/34/season/61736/standings/total", // Ligue 1
