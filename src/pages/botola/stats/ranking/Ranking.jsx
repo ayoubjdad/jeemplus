@@ -1,18 +1,13 @@
 import axios from "axios";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { standingsUrls } from "../../../../api/data";
 import { useQuery } from "@tanstack/react-query";
 import TableView from "../../../../components/table/TableView";
 
 export default function Ranking() {
   const fetchStats = async () => {
-    try {
-      const response = await axios.get(standingsUrls[0]);
-      return response?.data?.standings || [];
-    } catch (error) {
-      console.error("❌ Error fetching games:", error);
-      return [];
-    }
+    const response = await axios.get("/.netlify/functions/fetchStats");
+    return response?.data?.standings || [];
   };
 
   const { data: stats = [], isLoading: statsLoading } = useQuery({
