@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CompareTeams({}) {
+export default function CompareTeams() {
   const queryClient = useQueryClient();
 
   const data = queryClient.getQueryData(["stats"]);

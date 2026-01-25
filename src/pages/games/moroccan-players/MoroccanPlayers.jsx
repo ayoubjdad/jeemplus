@@ -29,7 +29,7 @@ const fetchTeamPlayers = async ({ queryKey }) => {
   const [, teamId] = queryKey;
   try {
     const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}/players`
+      `https://www.sofascore.com/api/v1/team/${teamId}/players`,
     );
     return response?.data || {};
   } catch (err) {
@@ -46,7 +46,7 @@ const getMoroccanPlayers = (homePlayers, awayPlayers) => {
 };
 
 export default function MoroccanPlayers() {
-  const [date, setDate] = useState(new Date());
+  const [date] = useState(new Date());
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ["games", date],
@@ -60,11 +60,11 @@ export default function MoroccanPlayers() {
       const prioritizedGames = [...games].filter(
         (g) =>
           tournamentsPriority.some(
-            (t) => t.id === g.tournament.uniqueTournament.id
+            (t) => t.id === g.tournament.uniqueTournament.id,
           ) &&
           isToday(date, g?.startTimestamp) &&
           g.awayTeam.country.name !== "Morocco" &&
-          g.homeTeam.country.name !== "Morocco"
+          g.homeTeam.country.name !== "Morocco",
       );
 
       return Promise.all(
@@ -80,7 +80,7 @@ export default function MoroccanPlayers() {
             homeTeam: { team: game.homeTeam, ...home },
             awayTeam: { team: game.awayTeam, ...away },
           };
-        })
+        }),
       );
     },
     enabled: games.length > 0,
@@ -98,7 +98,7 @@ export default function MoroccanPlayers() {
         {enrichedGames.map((game) => {
           const moroccanPlayers = getMoroccanPlayers(
             game.homeTeam.players || [],
-            game.awayTeam.players || []
+            game.awayTeam.players || [],
           );
           if (moroccanPlayers.length === 0) return null;
 
