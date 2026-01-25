@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useMemo } from "react";
-import { standingsUrls } from "../../../../api/data";
+// import { standingsUrls } from "../../../../api/data";
 import { useQuery } from "@tanstack/react-query";
 import TableView from "../../../../components/table/TableView";
 
