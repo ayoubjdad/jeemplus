@@ -1,0 +1,27 @@
+.button {
+  font-family: "Roobert", sans-serif;
+  background: #fff;
+  color: #0161fe;
+  border: 1px solid #0161fe;
+  border-radius: 60px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: inherit;
+
+  &:hover {
+    background: #0161fe;
+    color: #fff;
+  }
+}
+
+.card {
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  background: #fff;
+  border-radius: 24px;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+}

@@ -35,7 +35,7 @@ export default function GamesOfTheDay() {
   });
 
   const highlightedGames = useMemo(() => {
-    return games
+    const result = games
       .filter((game) => {
         const isTopTeam = topTeams.some(
           (t) => t.id === game.homeTeam.id || t.id === game.awayTeam.id
@@ -49,6 +49,10 @@ export default function GamesOfTheDay() {
         (a, b) =>
           a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id
       );
+
+    if (result.length === 0) return games.slice(0, 10);
+
+    return result;
   }, [games, date]);
 
   if (gamesLoading) return <Loader />;

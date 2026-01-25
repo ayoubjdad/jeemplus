@@ -1,5 +1,219 @@
 export const tournamentsPriority = [
   {
+    name: "UEFA Super Cup",
+    slug: "uefa-super-cup",
+    primaryColorHex: "#626366",
+    secondaryColorHex: "#009ade",
+    category: {
+      name: "Europe",
+      slug: "europe",
+      sport: {
+        name: "Football",
+        slug: "football",
+        id: 1,
+      },
+      id: 1465,
+      flag: "europe",
+      fieldTranslations: {
+        nameTranslation: {
+          ar: "أوروبا",
+          hi: "यूरोप",
+          bn: "ইউরোপ",
+        },
+        shortNameTranslation: {},
+      },
+    },
+    userCount: 102492,
+    id: 465,
+    displayInverseHomeAwayTeams: false,
+    fieldTranslations: {
+      nameTranslation: {
+        ar: "كأس السوبر الأوروبي",
+        hi: "यूईएफए सुपर कप",
+        bn: "উয়েফা সুপার কাপ",
+      },
+      shortNameTranslation: {},
+    },
+  },
+  {
+    name: "FIFA World Cup",
+    slug: "world-championship",
+    primaryColorHex: "#d20a11",
+    secondaryColorHex: "#e8bb57",
+    category: {
+      name: "World",
+      slug: "world",
+      sport: {
+        name: "Football",
+        slug: "football",
+        id: 1,
+      },
+      id: 1468,
+      flag: "international",
+      fieldTranslations: {
+        nameTranslation: {
+          ar: "العالم",
+          hi: "विश्व",
+          bn: "বিশ্ব",
+        },
+        shortNameTranslation: {},
+      },
+    },
+    userCount: 617030,
+    id: 16,
+    displayInverseHomeAwayTeams: false,
+    fieldTranslations: {
+      nameTranslation: {
+        ar: "كأس العالم",
+        hi: "वर्ल्ड चैंपियनशिप",
+        bn: "ওয়ার্ল্ড চ্যাম্পিয়নশিপ",
+      },
+      shortNameTranslation: {},
+    },
+  },
+  {
+    name: "CAF Confederations Cup",
+    slug: "caf-confederations-cup",
+    primaryColorHex: "#036f3a",
+    secondaryColorHex: "#c5cbd8",
+    category: {
+      name: "Africa",
+      slug: "africa",
+      sport: {
+        name: "Football",
+        slug: "football",
+        id: 1,
+      },
+      id: 1466,
+      flag: "africa",
+      fieldTranslations: {
+        nameTranslation: {
+          ar: "أفريقيا",
+        },
+        shortNameTranslation: {},
+      },
+    },
+    userCount: 36258,
+    id: 1115,
+    displayInverseHomeAwayTeams: false,
+    fieldTranslations: {
+      nameTranslation: {
+        ar: "كأس الكونفيدرالية الإفريقية",
+        hi: "सीएएफ कन्फेडरेशन कप",
+        bn: "সিএএফ কনফেডারেশনস কাপ",
+      },
+      shortNameTranslation: {},
+    },
+  },
+  {
+    name: "Botola Pro 2",
+    slug: "botola-pro-2",
+    primaryColorHex: "#00a652",
+    secondaryColorHex: "#ed1b24",
+    category: {
+      name: "Morocco",
+      slug: "morocco",
+      sport: {
+        name: "Football",
+        slug: "football",
+        id: 1,
+      },
+      id: 303,
+      flag: "morocco",
+      alpha2: "MA",
+      fieldTranslations: {
+        nameTranslation: {
+          ar: "المغرب",
+        },
+        shortNameTranslation: {},
+      },
+    },
+    userCount: 3678,
+    id: 10554,
+    displayInverseHomeAwayTeams: false,
+    fieldTranslations: {
+      nameTranslation: {
+        ar: "البطولة الإحترافية 2",
+        hi: "बोटोला प्रो 2",
+        bn: "বোটোলা প্রো 2",
+      },
+      shortNameTranslation: {},
+    },
+  },
+  {
+    name: "Saudi Pro League",
+    slug: "saudi-pro-league",
+    primaryColorHex: "#0d1539",
+    secondaryColorHex: "#61ab34",
+    category: {
+      name: "Saudi Arabia",
+      slug: "saudi-arabia",
+      sport: {
+        name: "Football",
+        slug: "football",
+        id: 1,
+      },
+      id: 310,
+      flag: "saudi-arabia",
+      alpha2: "SA",
+      fieldTranslations: {
+        nameTranslation: {
+          ar: "السعودية",
+          hi: "सऊदी अरब",
+          bn: "সৌদি আরব",
+        },
+        shortNameTranslation: {},
+      },
+    },
+    userCount: 150302,
+    id: 955,
+    displayInverseHomeAwayTeams: false,
+    fieldTranslations: {
+      nameTranslation: {
+        ar: "الدوري السعودي للمحترفين",
+        hi: "सऊदी प्रो लीग",
+        bn: "সৌদি প্রো লীগ",
+      },
+      shortNameTranslation: {},
+    },
+  },
+  {
+    name: "FIFA Club World Cup",
+    slug: "club-world-championship",
+    primaryColorHex: "#8d1536",
+    secondaryColorHex: "#0bbda4",
+    category: {
+      name: "World",
+      slug: "world",
+      sport: {
+        name: "Football",
+        slug: "football",
+        id: 1,
+      },
+      id: 1468,
+      flag: "international",
+      fieldTranslations: {
+        nameTranslation: {
+          ar: "العالم",
+          hi: "विश्व",
+          bn: "বিশ্ব",
+        },
+        shortNameTranslation: {},
+      },
+    },
+    userCount: 595964,
+    id: 357,
+    displayInverseHomeAwayTeams: false,
+    fieldTranslations: {
+      nameTranslation: {
+        ar: "بطولة العالم للأندية",
+        hi: "क्लब वर्ल्ड चैंपियनशिप",
+        bn: "ক্লাব ওয়ার্ল্ড চ্যাম্পিয়নশিপ",
+      },
+      shortNameTranslation: {},
+    },
+  },
+  {
     id: 7,
     name: "UEFA Champions League",
     fieldTranslations: { nameTranslation: { ar: "دوري أبطال أوروبا" } },
@@ -146,6 +360,11 @@ export const topTeams = [
   // { id: 2693, name: "Fiorentina" },
   // { id: 2699, name: "Lazio" },
   { id: 2692, name: "Milan" },
+
+  // * National Teams
+  { name: "Spain", id: 4698 },
+  { name: "Germany", id: 4711 },
+  { name: "Netherlands", id: 4705 },
 ];
 
 export const teamsToSkip = [{ name: "Israel", id: 4480 }];
