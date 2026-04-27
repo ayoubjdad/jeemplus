@@ -2,6 +2,7 @@ import Home from "./pages/home/Home";
 import { ThemeProvider } from "@mui/material";
 import { theme } from "./themes/overrides";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Fanbase from "./pages/fanbase/Fanbase";
 
 function App() {
   const queryClient = new QueryClient();
@@ -9,7 +10,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
-        <Home />
+        {/* <Home /> */}
+        <Fanbase />
       </ThemeProvider>
     </QueryClientProvider>
   );

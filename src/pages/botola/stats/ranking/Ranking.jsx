@@ -1,18 +1,12 @@
-import axios from "axios";
 import { useMemo } from "react";
-// import { standingsUrls } from "../../../../api/data";
+import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
 import { useQuery } from "@tanstack/react-query";
 import TableView from "../../../../components/table/TableView";
 
-export default function Ranking() {
-  const fetchStats = async () => {
-    const response = await axios.get("/.netlify/functions/fetchStats");
-    return response?.data?.standings || [];
-  };
-
+export default function Ranking({ onTeamClick }) {
   const { data: stats = [], isLoading: statsLoading } = useQuery({
     queryKey: ["stats"],
-    queryFn: fetchStats,
+    queryFn: fetchBotolaStandingsTables,
   });
 
   const rows = useMemo(() => stats[0]?.rows || [], [stats]);
@@ -34,5 +28,5 @@ export default function Ranking() {
     return <div>Loading...</div>;
   }
 
-  return <TableView data={rows} options={options} />;
+  return <TableView data={rows} options={options} onTeamClick={onTeamClick} />;
 }

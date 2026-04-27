@@ -1,14 +1,15 @@
 .main {
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
+  gap: 16px;
+  padding: 16px;
+  display: grid;
 }
 
 .header {
-  display: flex;
-  flex-direction: column;
   gap: 12px;
+  display: flex;
   margin-bottom: 20px;
+  align-items: center;
+  justify-content: space-between;
 
   h2 {
     font-weight: 600;
@@ -17,30 +18,24 @@
 }
 
 .nav {
+  gap: 8px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
 
   button {
-    font-family: "Roobert", sans-serif;
-    background: #fff;
-    color: #0161fe;
-    border: 1px solid #0161fe;
-    border-radius: 60px;
-    padding: 8px 16px;
+    border: none;
+    color: #fff;
     cursor: pointer;
+    padding: 12px 24px;
+    border-radius: 60px;
     transition: all 0.2s;
-    line-height: inherit;
-
-    &:hover {
-      background: #0161fe;
-      color: #fff;
-    }
+    background-color: #101f23;
+    font-family: "Roobert", sans-serif;
   }
 
   .active {
-    background: #0161fe;
-    color: #fff;
+    background: #00fe7a;
+    color: #04080b;
     font-weight: 600;
   }
 }

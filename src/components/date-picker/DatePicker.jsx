@@ -13,7 +13,6 @@ const DatePicker = ({ date, setDate }) => {
         className={`fi fi-rr-angle-left ${styles.arrow}`}
         onClick={() => setDate(new Date(date.setDate(date.getDate() - 1)))}
       />
-      <Box component="i" className="fi fi-rr-calendar-day" />
       <p>
         {day}/{month}
       </p>

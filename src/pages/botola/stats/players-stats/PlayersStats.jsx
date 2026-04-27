@@ -9,7 +9,7 @@ export default function PlayersStats() {
   const fetchPlayersStats = async ({ queryKey }) => {
     try {
       const response = await axios.get(
-        "https://www.sofascore.com/api/v1/unique-tournament/937/season/78750/statistics?limit=20&order=-rating&accumulation=total&group=summary",
+        "https://www.sofascore.com/api/v1/unique-tournament/937/season/78750/statistics?limit=20&order=-rating&accumulation=total&group=summary"
       );
       return response?.data?.results || [];
     } catch (error) {
@@ -23,9 +23,10 @@ export default function PlayersStats() {
   });
 
   const topPlayers = useMemo(() => {
-    return [...(playerStats || [])]
-      .sort((a, b) => (b[playerSortKey] ?? 0) - (a[playerSortKey] ?? 0))
-      .slice(0, 10);
+    return [...(playerStats || [])].sort(
+      (a, b) => (b[playerSortKey] ?? 0) - (a[playerSortKey] ?? 0)
+    );
+    // .slice(0, 10);
   }, [playerStats, playerSortKey]);
 
   const statOptions = [

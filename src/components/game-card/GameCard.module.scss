@@ -1,11 +1,11 @@
 .card {
   display: flex;
   padding: 12px;
+  color: #fff;
   height: fit-content;
   border-radius: 12px;
   flex-direction: column;
-  border: 1px solid #ddd;
-  background-color: #f9f9f9;
+  background-color: #101f23;
 }
 
 .matchHeader {
@@ -52,10 +52,15 @@
 }
 
 .playersList {
-  gap: 12px;
-  display: grid;
+  gap: 0;
+  display: flex;
+  flex-wrap: wrap;
   margin-top: 24px;
   overflow-y: auto;
   max-height: 130px;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  align-content: flex-start;
+
+  > *:not(:first-child) {
+    margin-left: -16px;
+  }
 }

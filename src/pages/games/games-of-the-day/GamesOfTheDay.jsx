@@ -38,7 +38,7 @@ export default function GamesOfTheDay() {
     const result = games
       .filter((game) => {
         const isTopTeam = topTeams.some(
-          (t) => t.id === game.homeTeam.id || t.id === game.awayTeam.id,
+          (t) => t.id === game.homeTeam.id || t.id === game.awayTeam.id
         );
         const isFromBotola = game.tournament.uniqueTournament.id === 937;
         return (
@@ -47,7 +47,7 @@ export default function GamesOfTheDay() {
       })
       .sort(
         (a, b) =>
-          a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id,
+          a.tournament.uniqueTournament.id - b.tournament.uniqueTournament.id
       );
 
     if (result.length === 0) return games.slice(0, 10);
@@ -59,19 +59,13 @@ export default function GamesOfTheDay() {
 
   return (
     <section className={styles.main}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className={styles.header}>
         <h1>Matchs du jour</h1>
         <DatePicker date={date} setDate={setDate} />
       </div>
 
       <div className={styles.container}>
-        {highlightedGames.map((game) => (
+        {highlightedGames?.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </div>

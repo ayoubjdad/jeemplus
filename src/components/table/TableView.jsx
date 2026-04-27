@@ -1,6 +1,6 @@
 import styles from "./TableView.module.scss";
 
-export default function TableView({ data, options }) {
+export default function TableView({ data, options, onTeamClick }) {
   return (
     <div className={styles.tableView}>
       <table className={styles.table}>
@@ -39,24 +39,19 @@ export default function TableView({ data, options }) {
                   return (
                     <td key={index} style={{ borderRadius: "60px 0 0 60px" }}>
                       <p
-                        style={{
-                          minWidth: 16,
-                          borderRadius: 60,
-                          backgroundColor:
-                            row?.promotion?.text === "Champions League"
-                              ? "#0161fe"
-                              : row?.promotion?.text === "CAF Confederation Cup"
-                              ? "#84aff6"
-                              : row?.promotion?.text === "Relegation Playoffs"
-                              ? "#84aff6"
-                              : row?.promotion?.text === "Relegation"
-                              ? "#0161fe"
-                              : "#F6F7F9",
-                          color:
-                            (row?.promotion?.text === "Champions League" ||
-                              row?.promotion?.text === "Relegation") &&
-                            "#F6F7F9",
-                        }}
+                        className={styles.position}
+                        // style={{
+                        //   backgroundColor:
+                        //     row?.promotion?.text === "Champions League"
+                        //       ? "#00db6a"
+                        //       : row?.promotion?.text === "CAF Confederation Cup"
+                        //       ? "#006431"
+                        //       : row?.promotion?.text === "Relegation Playoffs"
+                        //       ? "#f88686"
+                        //       : row?.promotion?.text === "Relegation"
+                        //       ? "#fe4040"
+                        //       : "#1d2a2c",
+                        // }}
                       >
                         {row.position || idx + 1}
                       </p>
@@ -69,10 +64,31 @@ export default function TableView({ data, options }) {
                   return (
                     <td
                       key={index}
+                      role={onTeamClick ? "button" : undefined}
+                      tabIndex={onTeamClick ? 0 : undefined}
+                      onClick={
+                        onTeamClick
+                          ? (e) => {
+                              e.stopPropagation();
+                              onTeamClick(row);
+                            }
+                          : undefined
+                      }
+                      onKeyDown={
+                        onTeamClick
+                          ? (e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                onTeamClick(row);
+                              }
+                            }
+                          : undefined
+                      }
                       style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "flex-start",
+                        cursor: onTeamClick ? "pointer" : undefined,
                       }}
                     >
                       <img
@@ -109,7 +125,7 @@ export default function TableView({ data, options }) {
                       textAlign: "center",
                     }}
                   >
-                    {row[value] ?? ""}
+                    {row[value] ?? "-"}
                   </td>
                 );
               })}
