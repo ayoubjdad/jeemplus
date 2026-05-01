@@ -3,6 +3,13 @@ export const newsUrl = "https://arabic-news-api.p.rapidapi.com/aljazeera";
 
 export const gamesUrl =
   "https://www.sofascore.com/api/v1/sport/football/scheduled-events/";
+/** FIFA World Cup — qualification / season slug from SofaScore */
+export const worldCupStandingsUrl =
+  "https://www.sofascore.com/api/v1/unique-tournament/16/season/58210/standings/total";
+
+export const worldCupCupTreesUrl =
+  "https://www.sofascore.com/api/v1/unique-tournament/16/season/58210/cuptrees";
+
 export const standingsUrls = [
   "https://www.sofascore.com/api/v1/unique-tournament/937/season/78750/standings/total", // Botola
   "https://www.sofascore.com/api/v1/unique-tournament/17/season/61627/standings/total", // Premier League

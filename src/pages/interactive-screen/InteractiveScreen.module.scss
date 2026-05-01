@@ -9,11 +9,12 @@ $accent: #5eead4;
 $danger: #f87171;
 
 .main {
-  width: 100%;
-  min-height: calc(100vh - 120px);
-  padding: 20px 20px 32px;
-  color: #fff;
   box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px 14px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
   background: radial-gradient(
       ellipse 120% 80% at 50% -20%,
       rgba(20, 60, 55, 0.35) 0%,
@@ -22,15 +23,49 @@ $danger: #f87171;
     $bg-deep;
 }
 
+/** Plein viewport (onglet Fanbase « Écran interactif »). */
+.mainFillViewport {
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+/** Dans un onglet imbriqué (ex. Coupe du monde) pour éviter débordement + double scroll. */
+.mainEmbedded {
+  height: auto;
+  min-height: 0;
+  max-height: min(900px, calc(100vh - 140px));
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/** Écrase `.mainEmbedded` / viewport quand la zone est en `requestFullscreen()` (Navigateur plein écran). */
+.mainBrowserFullscreen {
+  height: 100%;
+  min-height: 100%;
+  max-height: none;
+  overflow: hidden;
+}
+
+.main:fullscreen,
+.main:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
 .pageHeader {
-  gap: 20px;
+  gap: 12px;
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  max-width: 1120px;
-  margin: 0 auto 28px;
-  padding-bottom: 20px;
+  max-width: none;
+  width: 100%;
+  margin: 0 auto 12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid $stroke;
 }
 
@@ -59,9 +94,10 @@ $danger: #f87171;
 
 .pageSubtitle {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.45;
   color: $muted;
+  max-width: min(52ch, 100%);
 }
 
 .teamPicker {
@@ -107,6 +143,71 @@ $danger: #f87171;
   }
 }
 
+.fullscreenToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 650;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+  border: 1px solid $stroke-strong;
+  background: $surface;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: rgba(94, 234, 212, 0.35);
+    background: $surface-hover;
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(94, 234, 212, 0.45);
+    outline-offset: 2px;
+  }
+}
+
+.fullscreenToggleIcon {
+  display: flex;
+  color: rgba(94, 234, 212, 0.9);
+}
+
+.fullscreenToggleLabel {
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .fullscreenToggleLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .fullscreenToggle {
+    margin-left: 0;
+    padding: 11px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .pageStat {
   display: flex;
   flex-direction: column;
@@ -143,24 +244,36 @@ $danger: #f87171;
 }
 
 .layout {
-  gap: 24px;
-  display: flex;
-  align-items: stretch;
-  max-width: 1120px;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 .sidebar {
-  flex: 1 1 300px;
-  max-width: 400px;
-  min-width: 260px;
+  flex: 0 0 min(400px, 40vw);
+  max-width: 440px;
+  min-width: 300px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
+  overflow: hidden;
 }
 
 .sidebarCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
   border-radius: 18px;
   padding: 4px;
   background: linear-gradient(
@@ -198,11 +311,14 @@ $danger: #f87171;
 }
 
 .playerList {
-  gap: 6px;
-  display: flex;
-  flex-direction: column;
-  padding: 0 8px 10px;
-  max-height: min(52vh, 520px);
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 4px 10px 14px;
+  align-content: start;
+  overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -217,154 +333,213 @@ $danger: #f87171;
   }
 }
 
-.listItem {
-  gap: 10px;
+.listBenchHint {
+  grid-column: 1 / -1;
+  margin: 14px auto 18px;
+  padding: 0 12px;
+  max-width: 28rem;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+
+  p {
+    margin: 0 0 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.playerCard {
+  position: relative;
+  box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 10px 12px;
+  text-align: center;
+  padding: 12px 6px 10px;
+  min-width: 0;
   border-radius: 14px;
   cursor: grab;
   user-select: none;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-  background: $surface;
-  border: 1px solid $stroke;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.16s ease,
+    box-shadow 0.18s ease;
+  background: linear-gradient(
+    165deg,
+    rgba(22, 42, 46, 0.95) 0%,
+    rgba(12, 24, 28, 0.88) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 
   &:hover {
-    background: $surface-hover;
-    border-color: $stroke-strong;
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.42);
   }
 
   &:active {
     cursor: grabbing;
-    transform: scale(0.992);
+    transform: scale(0.98);
   }
 }
 
-.listItemDragging {
-  opacity: 0.38;
+.playerCardOnField {
+  border-color: rgba(94, 234, 212, 0.35);
+  background: linear-gradient(
+    165deg,
+    rgba(18, 55, 52, 0.55) 0%,
+    rgba(10, 36, 38, 0.75) 100%
+  );
+  box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.15), 0 8px 22px rgba(0, 0, 0, 0.38);
+}
+
+.playerCardDragging {
+  opacity: 0.35;
   pointer-events: none;
 }
 
-.listItemOnField {
-  border-color: rgba(94, 234, 212, 0.18);
-  background: rgba(16, 40, 38, 0.55);
+.playerCardRemove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fecaca;
+  cursor: pointer;
+  background: rgba(127, 29, 29, 0.65);
+  transition: background 0.15s ease, transform 0.12s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: rgba(185, 28, 28, 0.82);
+    transform: scale(1.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(248, 113, 113, 0.65);
+    outline-offset: 1px;
+  }
 }
 
-.listNumber {
-  width: 28px;
-  text-align: center;
-  font-size: 12px;
+.playerCardBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+  min-width: 22px;
+  padding: 3px 6px;
+  font-size: 10px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.35);
   font-variant-numeric: tabular-nums;
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.listAvatar {
-  width: 44px;
-  height: 44px;
+.playerCardAvatarWrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 10px 0 8px;
   flex-shrink: 0;
+}
+
+.playerCardCaptain {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #1a1200;
+  background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
+  border: 2px solid rgba(8, 14, 18, 0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.playerCardAvatar {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
   background: #0a1618;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
-.listMeta {
-  flex: 1;
-  min-width: 0;
-}
-
-.listItem .removeBtn {
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.listNameRow {
-  gap: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.listName {
-  font-size: 13px;
-  font-weight: 650;
-  white-space: nowrap;
+.playerCardName {
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.25;
+  max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: rgba(255, 255, 255, 0.94);
   letter-spacing: 0.01em;
 }
 
-.captainMark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-right: 4px;
-  font-size: 9px;
-  font-weight: 800;
-  border-radius: 50%;
-  vertical-align: middle;
-  color: #1a1200;
-  background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
-}
-
-.listRating {
-  flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 800;
+.playerCardRole {
+  margin-top: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
-}
-
-.listSub {
-  margin-top: 4px;
-  gap: 8px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 11px;
-  color: $muted;
-}
-
-.rolePill {
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.72);
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.onFieldDot {
-  font-size: 10px;
-  font-weight: 600;
+.playerCardFieldPill {
+  margin-top: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: rgba(94, 234, 212, 0.95);
 
   &::before {
     content: "";
     display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 5px;
+    width: 5px;
+    height: 5px;
+    margin-right: 4px;
     border-radius: 50%;
     background: #5eead4;
-    box-shadow: 0 0 8px rgba(94, 234, 212, 0.6);
+    box-shadow: 0 0 6px rgba(94, 234, 212, 0.55);
     vertical-align: middle;
   }
 }
 
-.benchHint {
-  font-size: 10px;
+.playerCardHint {
+  margin-top: 6px;
+  font-size: 9px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.36);
+  letter-spacing: 0.03em;
 }
 
 .removeBtn {
@@ -402,14 +577,17 @@ $danger: #f87171;
 }
 
 .pitchColumn {
-  flex: 1 1 320px;
-  min-width: 280px;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
+  overflow: hidden;
 }
 
 .pitchColumnHead {
+  flex-shrink: 0;
   padding: 0 4px;
 }
 
@@ -428,11 +606,14 @@ $danger: #f87171;
 
 .pitchWrap {
   position: relative;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 12px;
+  padding: 8px;
   border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.05) 0%,
@@ -444,8 +625,11 @@ $danger: #f87171;
 
 .pitch {
   position: relative;
-  width: 100%;
-  aspect-ratio: 68 / 105;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 105 / 68;
+  flex: 0 0 auto;
   border-radius: 16px;
   overflow: visible;
   touch-action: none;
@@ -466,17 +650,17 @@ $danger: #f87171;
   pointer-events: none;
   z-index: 0;
   background: linear-gradient(
-      180deg,
-      rgba(15, 45, 38, 0.95) 0%,
-      rgba(12, 28, 26, 0.98) 45%,
-      rgba(8, 22, 20, 1) 100%
+      90deg,
+      rgba(14, 48, 40, 0.96) 0%,
+      rgba(11, 32, 28, 0.98) 50%,
+      rgba(9, 24, 22, 1) 100%
     ),
     repeating-linear-gradient(
-      90deg,
+      180deg,
       transparent 0,
-      transparent 7px,
-      rgba(255, 255, 255, 0.02) 7px,
-      rgba(255, 255, 255, 0.02) 8px
+      transparent 6px,
+      rgba(255, 255, 255, 0.018) 6px,
+      rgba(255, 255, 255, 0.018) 7px
     );
 }
 
@@ -487,39 +671,68 @@ $danger: #f87171;
   pointer-events: none;
 }
 
-.goalLine {
+.goalLineLeft {
   position: absolute;
   left: 0;
-  right: 0;
   top: 0;
-  height: 2px;
+  bottom: 0;
+  width: 2px;
   background: linear-gradient(
-    90deg,
+    180deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.35) 20%,
+    rgba(255, 255, 255, 0.35) 15%,
     rgba(255, 255, 255, 0.45) 50%,
-    rgba(255, 255, 255, 0.35) 80%,
+    rgba(255, 255, 255, 0.35) 85%,
     transparent 100%
   );
 }
 
-.penaltyBox {
+.goalLineRight {
   position: absolute;
-  left: 50%;
+  right: 0;
   top: 0;
-  width: 58%;
-  height: 18%;
-  transform: translateX(-50%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-top: none;
-  box-sizing: border-box;
-  border-radius: 0 0 2px 2px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 15%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.35) 85%,
+    transparent 100%
+  );
 }
 
-.penaltySpot {
+.penaltyBoxLeft {
   position: absolute;
-  left: 50%;
-  top: 12%;
+  left: 0;
+  top: 50%;
+  width: 16%;
+  height: 56%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: none;
+  box-sizing: border-box;
+  border-radius: 0 2px 2px 0;
+}
+
+.penaltyBoxRight {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 16%;
+  height: 56%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: none;
+  box-sizing: border-box;
+  border-radius: 2px 0 0 2px;
+}
+
+.penaltySpotLeft {
+  position: absolute;
+  left: 10.5%;
+  top: 50%;
   width: 3px;
   height: 3px;
   transform: translate(-50%, -50%);
@@ -527,30 +740,29 @@ $danger: #f87171;
   background: rgba(255, 255, 255, 0.5);
 }
 
-.penaltyArc {
+.penaltySpotRight {
   position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 22%;
-  height: 12%;
-  transform: translateX(-50%);
-  border-radius: 999px 999px 0 0;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-bottom: none;
-  box-sizing: border-box;
+  right: 10.5%;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  transform: translate(50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
 }
 
-.midLine {
+.midLineVertical {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 1px;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
   background: linear-gradient(
-    90deg,
+    180deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.14) 15%,
-    rgba(255, 255, 255, 0.14) 85%,
+    rgba(255, 255, 255, 0.14) 10%,
+    rgba(255, 255, 255, 0.14) 90%,
     transparent 100%
   );
 }
@@ -567,10 +779,36 @@ $danger: #f87171;
   box-sizing: border-box;
 }
 
+.penaltyArcLeft {
+  position: absolute;
+  left: 14.5%;
+  top: 50%;
+  width: 10%;
+  height: 32%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 50%;
+  clip-path: inset(-2px 52% -2px -2px);
+  box-sizing: border-box;
+}
+
+.penaltyArcRight {
+  position: absolute;
+  right: 14.5%;
+  top: 50%;
+  width: 10%;
+  height: 32%;
+  transform: translate(50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 50%;
+  clip-path: inset(-2px -2px -2px 52%);
+  box-sizing: border-box;
+}
+
 .token {
   position: absolute;
   z-index: 2;
-  width: 80px;
+  width: 76px;
   cursor: grab;
   user-select: none;
   touch-action: none;
@@ -585,25 +823,26 @@ $danger: #f87171;
   cursor: grabbing;
 
   .tokenCard {
-    transform: scale(1.04);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65),
-      0 0 0 1px rgba(94, 234, 212, 0.35);
+    transform: scale(1.05);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65),
+      0 0 0 1px rgba(94, 234, 212, 0.4);
   }
 }
 
 .tokenCard {
-  padding: 8px 6px 7px;
-  border-radius: 14px;
+  padding: 7px 5px 6px;
+  border-radius: 13px;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   background: linear-gradient(
-    165deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(12, 24, 28, 0.92) 48%,
-    rgba(4, 10, 12, 0.95) 100%
+    155deg,
+    rgba(28, 52, 56, 0.98) 0%,
+    rgba(10, 22, 26, 0.95) 55%,
+    rgba(4, 12, 14, 1) 100%
   );
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .tokenInner {
@@ -614,16 +853,16 @@ $danger: #f87171;
 
 .tokenAvatarWrap {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
 }
 
 .tokenCaptain {
   position: absolute;
   top: -3px;
   right: -3px;
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   font-size: 9px;
   font-weight: 800;
   display: flex;
@@ -638,13 +877,13 @@ $danger: #f87171;
 }
 
 .tokenAvatar {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(94, 234, 212, 0.22);
   background: #0a1618;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .tokenRating {
@@ -681,26 +920,26 @@ $danger: #f87171;
 }
 
 .tokenLabel {
-  margin-top: 12px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 0;
   text-align: center;
-  line-height: 1.15;
+  line-height: 1.1;
 }
 
 .tokenJersey {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(94, 234, 212, 0.85);
   font-variant-numeric: tabular-nums;
 }
 
 .tokenName {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  max-width: 76px;
+  max-width: 72px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -747,63 +986,23 @@ $danger: #f87171;
   }
 }
 
-.sidebarDrop {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 88px;
-  padding: 16px 14px;
-  border-radius: 16px;
-  text-align: center;
-  border: 1px dashed rgba(255, 255, 255, 0.14);
-  background: rgba(0, 0, 0, 0.2);
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-}
-
-.sidebarDropIcon {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.25);
-  line-height: 1;
-}
-
-.sidebarDropTitle {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
-}
-
-.sidebarDropText {
-  font-size: 12px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.38);
-  max-width: 220px;
-}
-
-.sidebarDropActive {
-  border-color: rgba(94, 234, 212, 0.45);
-  background: rgba(20, 55, 50, 0.45);
-  transform: scale(1.01);
-
-  .sidebarDropIcon {
-    color: rgba(94, 234, 212, 0.85);
-  }
-
-  .sidebarDropTitle {
-    color: rgba(167, 243, 208, 0.95);
-  }
-
-  .sidebarDropText {
-    color: rgba(204, 251, 241, 0.75);
+@media (max-width: 1100px) {
+  .playerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
   .main {
-    padding: 16px 14px 28px;
+    padding: 16px 14px 20px;
+  }
+
+  .mainFillViewport {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: none;
+    overflow-y: auto;
   }
 
   .pageHeader {

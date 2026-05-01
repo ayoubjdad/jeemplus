@@ -5,6 +5,7 @@ import MoroccanPlayers from "../games/moroccan-players/MoroccanPlayers";
 import BotolaStats from "../botola/stats/BotolaStats";
 import logo from "../../assets/images/logo/fanBase.png";
 import InteractiveScreen from "../interactive-screen/InteractiveScreen";
+import WorldCupStandings from "./WorldCupStandings";
 
 export default function Fanbase() {
   const [tabIndex, setTabIndex] = useState(2);
@@ -30,6 +31,10 @@ export default function Fanbase() {
     {
       label: "Écran interactif",
       component: <InteractiveScreen />,
+    },
+    {
+      label: "Coupe du monde",
+      component: <WorldCupStandings />,
     },
   ];
 

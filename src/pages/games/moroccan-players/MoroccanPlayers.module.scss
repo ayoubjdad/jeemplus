@@ -9,6 +9,16 @@
   }
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    color: #fff;
+  }
+}
+
 .container {
   gap: 16px;
   display: grid;

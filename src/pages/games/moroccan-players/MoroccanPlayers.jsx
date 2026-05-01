@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import styles from "./MoroccanPlayers.module.scss";
 import { gamesUrl } from "../../../api/data";
 import { gamesFormatDate } from "../../../helpers/global.helper";
-import { palette } from "../../../themes/palette";
 import Loader from "../../../layouts/loader/Loader";
 import GameCard from "../../../components/game-card/GameCard";
 import { tournamentsPriority } from "../../../data/Tournaments";
+import DatePicker from "../../../components/date-picker/DatePicker";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
@@ -46,7 +46,7 @@ const getMoroccanPlayers = (homePlayers, awayPlayers) => {
 };
 
 export default function MoroccanPlayers() {
-  const [date] = useState(new Date());
+  const [date, setDate] = useState(new Date());
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ["games", date],
@@ -90,7 +90,11 @@ export default function MoroccanPlayers() {
 
   return (
     <section className={styles.main}>
-      <h1>Internationaux</h1>
+      <div className={styles.header}>
+        <h1>Internationaux</h1>
+        <DatePicker date={date} setDate={setDate} />
+      </div>
+
       <div className={styles.container}>
         {enrichedGames.map((game) => {
           const moroccanPlayers = getMoroccanPlayers(

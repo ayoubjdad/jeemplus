@@ -101,19 +101,22 @@ export const STATIC_TEAM_PLAYERS = [
   },
 ];
 
-/** Default 4-2-3-1 as percentages of the pitch (x, y). Y grows downward; goal at top. */
+/**
+ * 4-2-3-1 en % sur un terrain horizontal (but à gauche / droite).
+ * x = profondeur (0 % = but défendu, 100 % = but adverse), y = largeur (0–100 % = touchline à touchline).
+ */
 export const DEFAULT_FORMATION_4231 = {
-  p1: { x: 50, y: 7 },
-  p2: { x: 82, y: 22 },
-  p3: { x: 62, y: 18 },
-  p4: { x: 38, y: 18 },
-  p5: { x: 18, y: 22 },
-  p6: { x: 40, y: 38 },
-  p7: { x: 60, y: 38 },
-  p8: { x: 86, y: 52 },
+  p1: { x: 7, y: 50 },
+  p2: { x: 22, y: 82 },
+  p3: { x: 18, y: 62 },
+  p4: { x: 18, y: 38 },
+  p5: { x: 22, y: 18 },
+  p6: { x: 38, y: 40 },
+  p7: { x: 38, y: 60 },
+  p8: { x: 52, y: 86 },
   p9: { x: 50, y: 50 },
-  p10: { x: 14, y: 52 },
-  p11: { x: 50, y: 74 },
+  p10: { x: 52, y: 14 },
+  p11: { x: 74, y: 50 },
 };
 
 const FORMATION_SLOT_KEYS = [

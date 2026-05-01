@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./InteractiveScreen.module.scss";
-import { DEFAULT_FORMATION_SLOTS_4231 } from "./staticInteractivePlayers";
 import { fetchBotolaStandingsTables } from "../../api/botolaStandings";
 import {
   DEFAULT_SOFA_TEAM_ID,
@@ -42,29 +47,115 @@ function pointInRect(clientX, clientY, r) {
 }
 
 /**
- * @param {{ teamId?: number | string }} props Optional SofaScore team id used once Botola list loads (defaults internally otherwise).
+ * Source du sélecteur d’équipe (liste `{ team }` comme lignes standings).
+ * `null` = charger le classement Botola comme aujourd’hui.
+ *
+ * @typedef {{ rows: unknown[], isLoading: boolean, isError: boolean }} StandingsPickerSource
+ */
+
+/**
+ * @param {{
+ *   teamId?: number | string,
+ *   standingsPicker?: StandingsPickerSource | null,
+ *   teamPickerLabel?: string,
+ *   selectId?: string,
+ *   embedded?: boolean,
+ * }} props
  */
 export default function InteractiveScreen({
   teamId: initialTeamId = DEFAULT_SOFA_TEAM_ID,
+  standingsPicker: standingsPickerExternal = null,
+  teamPickerLabel = "Équipe Botola Pro",
+  selectId = "interactive-botola-team",
+  embedded = false,
 }) {
+  const mainRef = useRef(null);
   const pitchRef = useRef(null);
-  const benchRef = useRef(null);
   const rafRef = useRef(null);
   const pendingPctRef = useRef(null);
 
-  /** User-chosen team; falls back to `initialTeamId` / first Botola row via `resolvedTeamId`. */
+  /** User-chosen team; falls back to `initialTeamId` / first row du sélecteur. */
   const [pickedTeamId, setPickedTeamId] = useState(null);
+
+  const [browserFullscreen, setBrowserFullscreen] = useState(false);
+
+  useEffect(() => {
+    const sync = () => {
+      const el = mainRef.current;
+      if (!el) return;
+      const active =
+        document.fullscreenElement === el ||
+        document.webkitFullscreenElement === el;
+      setBrowserFullscreen(active);
+    };
+
+    sync();
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
+
+  const toggleBrowserFullscreen = useCallback(async () => {
+    const el = mainRef.current;
+    if (!el) return;
+    try {
+      const fsEl = document.fullscreenElement;
+      const fsElWeb = document.webkitFullscreenElement;
+      const current = fsEl ?? fsElWeb;
+      if (current === el) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } else {
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      }
+    } catch {
+      /* strict mode / missing gesture */
+    }
+  }, []);
+
+  const useBuiltinBotolaPicker = standingsPickerExternal == null;
 
   const {
     data: stats = [],
-    isLoading: standingsLoading,
-    isError: standingsError,
+    isLoading: botolaStandingsLoading,
+    isError: botolaStandingsError,
   } = useQuery({
     queryKey: ["stats"],
     queryFn: fetchBotolaStandingsTables,
+    enabled: useBuiltinBotolaPicker,
   });
 
-  const standingsRows = useMemo(() => stats[0]?.rows || [], [stats]);
+  const standingsLoading = useBuiltinBotolaPicker
+    ? botolaStandingsLoading
+    : Boolean(standingsPickerExternal?.isLoading);
+
+  const standingsError = useBuiltinBotolaPicker
+    ? botolaStandingsError
+    : Boolean(standingsPickerExternal?.isError);
+
+  const standingsRowsRaw = useMemo(() => {
+    if (useBuiltinBotolaPicker) {
+      return stats[0]?.rows || [];
+    }
+    return standingsPickerExternal?.rows || [];
+  }, [stats, standingsPickerExternal, useBuiltinBotolaPicker]);
+
+  const standingsRows = useMemo(() => {
+    const seen = new Set();
+    const list = standingsRowsRaw;
+    const out = [];
+    for (const row of list) {
+      const id = row?.team?.id;
+      if (id == null || seen.has(id)) continue;
+      seen.add(id);
+      out.push(row);
+    }
+    return out;
+  }, [standingsRowsRaw]);
 
   const teamOptions = useMemo(() => {
     const out = [];
@@ -109,17 +200,8 @@ export default function InteractiveScreen({
   const [fieldById, setFieldById] = useState({});
 
   useEffect(() => {
-    if (!roster.length) {
-      setFieldById({});
-      return;
-    }
-    const slots = DEFAULT_FORMATION_SLOTS_4231;
-    const next = {};
-    roster.forEach((p, i) => {
-      next[p.id] = i < slots.length ? { ...slots[i] } : null;
-    });
-    setFieldById(next);
-  }, [roster]);
+    setFieldById({});
+  }, [resolvedTeamId]);
 
   /** 'token' | 'list' + playerId — drives z-index / ghost */
   const [dragUi, setDragUi] = useState(null);
@@ -132,11 +214,6 @@ export default function InteractiveScreen({
     });
     return m;
   }, [roster]);
-
-  const onPitchCount = useMemo(
-    () => Object.values(fieldById).filter(Boolean).length,
-    [fieldById]
-  );
 
   const placeOnField = useCallback((playerId, x, y) => {
     setFieldById((prev) => ({ ...prev, [playerId]: { x, y } }));
@@ -250,10 +327,6 @@ export default function InteractiveScreen({
         },
         (ev, s) => {
           flushPendingPosition(s.playerId);
-          const benchRect = benchRef.current?.getBoundingClientRect();
-          if (pointInRect(ev.clientX, ev.clientY, benchRect)) {
-            removeFromField(s.playerId);
-          }
           setDragUi(null);
         }
       );
@@ -262,7 +335,6 @@ export default function InteractiveScreen({
       attachWindowDrag,
       fieldById,
       flushPendingPosition,
-      removeFromField,
       schedulePosition,
     ]
   );
@@ -283,11 +355,8 @@ export default function InteractiveScreen({
         },
         (ev, s) => {
           const pitchRect = pitchRef.current?.getBoundingClientRect();
-          const benchRect = benchRef.current?.getBoundingClientRect();
 
-          if (pointInRect(ev.clientX, ev.clientY, benchRect)) {
-            removeFromField(s.playerId);
-          } else if (
+          if (
             pitchRect &&
             pointInRect(ev.clientX, ev.clientY, pitchRect)
           ) {
@@ -300,15 +369,8 @@ export default function InteractiveScreen({
         }
       );
     },
-    [attachWindowDrag, placeOnField, removeFromField]
+    [attachWindowDrag, placeOnField]
   );
-
-  const ratingClassFor = (player) =>
-    styles[
-      `rating${
-        player.ratingColor.charAt(0).toUpperCase() + player.ratingColor.slice(1)
-      }`
-    ];
 
   const ghostPlayer =
     listGhost && dragUi?.mode === "list" ? playersById[dragUi.playerId] : null;
@@ -323,25 +385,27 @@ export default function InteractiveScreen({
     resolvedTeamId == null;
 
   return (
-    <div className={styles.main}>
+    <div
+      ref={mainRef}
+      className={`${styles.main} ${
+        embedded ? styles.mainEmbedded : styles.mainFillViewport
+      } ${browserFullscreen ? styles.mainBrowserFullscreen : ""}`}
+    >
       <header className={styles.pageHeader}>
-        <div className={styles.pageHeaderText}>
+        {/* <div className={styles.pageHeaderText}>
           <p className={styles.pageEyebrow}>Écran tactique</p>
           <h1 className={styles.pageTitle}>Composer la formation</h1>
           <p className={styles.pageSubtitle}>
             Glissez les joueurs sur le terrain ; ils suivent le curseur en
             direct. Retirez-les via le bouton ou la zone de retrait.
           </p>
-        </div>
+        </div> */}
         <div className={styles.teamPicker}>
-          <label
-            htmlFor="interactive-botola-team"
-            className={styles.teamPickerLabel}
-          >
-            Équipe Botola Pro
+          <label htmlFor={selectId} className={styles.teamPickerLabel}>
+            {teamPickerLabel}
           </label>
           <select
-            id="interactive-botola-team"
+            id={selectId}
             className={styles.teamSelect}
             value={resolvedTeamId != null ? String(resolvedTeamId) : ""}
             onChange={(e) => setPickedTeamId(Number(e.target.value))}
@@ -360,12 +424,50 @@ export default function InteractiveScreen({
             )}
           </select>
         </div>
-        <div className={styles.pageStat}>
+        <button
+          type="button"
+          className={styles.fullscreenToggle}
+          onClick={() => void toggleBrowserFullscreen()}
+          aria-pressed={browserFullscreen}
+          title={
+            browserFullscreen
+              ? "Quitter le plein écran (Échap)"
+              : "Afficher en plein écran"
+          }
+        >
+          <span className={styles.fullscreenToggleIcon} aria-hidden>
+            {browserFullscreen ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 4H4v5M15 20h5v-5M4 15v5h5M20 9V4h-5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </span>
+          <span className={styles.fullscreenToggleLabel}>
+            {browserFullscreen ? "Quitter plein écran" : "Plein écran"}
+          </span>
+        </button>
+        {/* <div className={styles.pageStat}>
           <span className={styles.pageStatValue}>
             {onPitchCount}/{squadTotal || "—"}
           </span>
           <span className={styles.pageStatLabel}>sur le terrain</span>
-        </div>
+        </div> */}
       </header>
 
       <div className={styles.layout}>
@@ -373,7 +475,7 @@ export default function InteractiveScreen({
           <div className={styles.sidebarCard}>
             <div className={styles.sidebarCardHead}>
               <h2 className={styles.sidebarTitle}>Effectif</h2>
-              <span className={styles.sidebarTag}>4-2-3-1</span>
+              {/*  <span className={styles.sidebarTag}>4-2-3-1</span> */}
             </div>
             <div className={styles.playerList}>
               {isLoading ? (
@@ -404,64 +506,17 @@ export default function InteractiveScreen({
                     return (
                       <div
                         key={player.id}
-                        className={`${styles.listItem} ${
-                          onField ? styles.listItemOnField : ""
-                        } ${draggingRow ? styles.listItemDragging : ""}`}
+                        className={`${styles.playerCard} ${
+                          onField ? styles.playerCardOnField : ""
+                        } ${draggingRow ? styles.playerCardDragging : ""}`}
                         onPointerDown={(e) =>
                           handleListPointerDown(e, player.id)
                         }
                       >
-                        <span className={styles.listNumber}>
-                          {player.number}
-                        </span>
-                        <img
-                          className={styles.listAvatar}
-                          src={playerPhotoUrl(player)}
-                          alt=""
-                          draggable={false}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = fallbackAvatarUrl(player);
-                          }}
-                        />
-                        <div className={styles.listMeta}>
-                          <div className={styles.listNameRow}>
-                            <span className={styles.listName}>
-                              {player.captain ? (
-                                <span
-                                  className={styles.captainMark}
-                                  title="Capitaine"
-                                >
-                                  c
-                                </span>
-                              ) : null}
-                              {player.name}
-                            </span>
-                            {/* <span
-                              className={`${styles.listRating} ${ratingClassFor(
-                                player
-                              )}`}
-                            >
-                              {player.rating}
-                            </span> */}
-                          </div>
-                          <div className={styles.listSub}>
-                            <span className={styles.rolePill}>
-                              {player.role}
-                            </span>
-                            {onField ? (
-                              <span className={styles.onFieldDot}>Terrain</span>
-                            ) : (
-                              <span className={styles.benchHint}>
-                                Glisser →
-                              </span>
-                            )}
-                          </div>
-                        </div>
                         {onField ? (
                           <button
                             type="button"
-                            className={styles.removeBtn}
+                            className={styles.playerCardRemove}
                             aria-label={`Retirer ${player.name} du terrain`}
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => {
@@ -469,12 +524,36 @@ export default function InteractiveScreen({
                               removeFromField(player.id);
                             }}
                           >
-                            <span className={styles.removeBtnIcon} aria-hidden>
-                              ×
-                            </span>
-                            Retirer
+                            ×
                           </button>
                         ) : null}
+                        <div className={styles.playerCardBadge}>
+                          {player.number}
+                        </div>
+                        <div className={styles.playerCardAvatarWrap}>
+                          {player.captain ? (
+                            <span className={styles.playerCardCaptain}>
+                              c
+                            </span>
+                          ) : null}
+                          <img
+                            className={styles.playerCardAvatar}
+                            src={playerPhotoUrl(player)}
+                            alt=""
+                            draggable={false}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = fallbackAvatarUrl(player);
+                            }}
+                          />
+                        </div>
+                        <span className={styles.playerCardName}>{player.name}</span>
+                        <span className={styles.playerCardRole}>{player.role}</span>
+                        {onField ? (
+                          <span className={styles.playerCardFieldPill}>Terrain</span>
+                        ) : (
+                          <span className={styles.playerCardHint}>→ terrain</span>
+                        )}
                       </div>
                     );
                   })
@@ -486,30 +565,15 @@ export default function InteractiveScreen({
               ) : null}
             </div>
           </div>
-
-          <div
-            ref={benchRef}
-            className={`${styles.sidebarDrop} ${
-              dragUi ? styles.sidebarDropActive : ""
-            }`}
-          >
-            <span className={styles.sidebarDropIcon} aria-hidden>
-              ↓
-            </span>
-            <span className={styles.sidebarDropTitle}>Zone de retrait</span>
-            <span className={styles.sidebarDropText}>
-              Déposez un joueur ici pour l’enlever du terrain
-            </span>
-          </div>
         </aside>
 
         <div className={styles.pitchColumn}>
-          <div className={styles.pitchColumnHead}>
+          {/* <div className={styles.pitchColumnHead}>
             <h2 className={styles.pitchHeading}>Terrain</h2>
             <p className={styles.pitchHint}>
-              But en haut · repositionnement libre
+              But à gauche / à droite · repositionnement libre
             </p>
-          </div>
+          </div> */}
           <div className={styles.pitchWrap}>
             <div
               ref={pitchRef}
@@ -519,12 +583,16 @@ export default function InteractiveScreen({
             >
               <div className={styles.pitchGrass} aria-hidden />
               <div className={styles.pitchMarkings} aria-hidden>
-                <div className={styles.goalLine} />
-                <div className={styles.penaltyBox} />
-                <div className={styles.penaltySpot} />
-                <div className={styles.midLine} />
+                <div className={styles.goalLineLeft} />
+                <div className={styles.goalLineRight} />
+                <div className={styles.penaltyBoxLeft} />
+                <div className={styles.penaltyBoxRight} />
+                <div className={styles.penaltySpotLeft} />
+                <div className={styles.penaltySpotRight} />
+                <div className={styles.midLineVertical} />
                 <div className={styles.centerSpot} />
-                <div className={styles.penaltyArc} />
+                <div className={styles.penaltyArcLeft} />
+                <div className={styles.penaltyArcRight} />
               </div>
 
               {showList
@@ -533,7 +601,6 @@ export default function InteractiveScreen({
                     if (!pos) return null;
                     const isDraggingToken =
                       dragUi?.mode === "token" && dragUi.playerId === player.id;
-                    const ratingClass = ratingClassFor(player);
                     return (
                       <div
                         key={player.id}
