@@ -106,8 +106,6 @@ export default function TeamDetail({ teamId, onBack }) {
   });
   const {
     data: overallStatsData,
-    isLoading: overallStatsLoading,
-    // isError: overallStatsError,
   } = useQuery({
     queryKey: ["team-overall-statistics", teamId],
     queryFn: fetchOverallStatisticsData,
@@ -117,7 +115,6 @@ export default function TeamDetail({ teamId, onBack }) {
   const team = data?.team;
   const pregameForm = data?.pregameForm || null;
   const performanceEvents = performanceData?.events || [];
-  const performancePoints = performanceData?.points || {};
   const uniqueTournaments = uniqueTournamentsData?.uniqueTournaments || [];
   const overallStats = overallStatsData?.statistics || overallStatsData || {};
   const matchesCount =

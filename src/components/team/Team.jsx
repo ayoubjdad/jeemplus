@@ -1,4 +1,3 @@
-import { palette } from "../../themes/palette";
 import styles from "./Team.module.scss";
 
 const Team = ({ team, fromGame = false }) => {
