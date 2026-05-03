@@ -5,11 +5,13 @@
   command = "pnpm run build"
   publish = "dist"
 
-# SofaScore: Node Functions still get 403 (TLS/bot checks). Edge Function (Deno) tries Sofascore directly,
-# then optional SOFA_HTTP_BRIDGE (your backend with curl_cffi / browser-like TLS).
-[[edge_functions]]
-  path = "/sofa-api/*"
-  function = "sofa-proxy"
+# SofaScore JSON: Netlify Edge + ordinary fetch usually get 403 (Akamai/TLS fingerprinting against datacenter IPs).
+# This function retries with curl's OpenSSL JA3 where possible and uses TheSportsDB for football schedules as fallback.
+[[redirects]]
+  force = true
+  from = "/sofa-api/*"
+  to = "/.netlify/functions/sofascore-fetch"
+  status = 200
 
 [[redirects]]
   from = "/*"
