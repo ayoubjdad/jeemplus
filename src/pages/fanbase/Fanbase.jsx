@@ -2,6 +2,7 @@ import { useState } from "react";
 import GamesOfTheDay from "../games/games-of-the-day/GamesOfTheDay";
 import styles from "./Fanbase.module.scss";
 import MoroccanPlayers from "../games/moroccan-players/MoroccanPlayers";
+import DatePicker from "../../components/date-picker/DatePicker";
 import BotolaStats from "../botola/stats/BotolaStats";
 import logo from "../../assets/images/logo/fanBase.png";
 import InteractiveScreen from "../interactive-screen/InteractiveScreen";
@@ -9,6 +10,7 @@ import WorldCupStandings from "./WorldCupStandings";
 
 export default function Fanbase() {
   const [tabIndex, setTabIndex] = useState(2);
+  const [matchDayDate, setMatchDayDate] = useState(() => new Date());
 
   const handleTabChange = (index) => {
     setTabIndex(index);
@@ -19,8 +21,19 @@ export default function Fanbase() {
       label: "Matchs du jour",
       component: (
         <>
-          <GamesOfTheDay />
-          <MoroccanPlayers />
+          <div className={styles.matchDayToolbar}>
+            <DatePicker date={matchDayDate} setDate={setMatchDayDate} />
+          </div>
+          <GamesOfTheDay
+            date={matchDayDate}
+            setDate={setMatchDayDate}
+            hideDatePicker
+          />
+          <MoroccanPlayers
+            date={matchDayDate}
+            setDate={setMatchDayDate}
+            hideDatePicker
+          />
         </>
       ),
     },
@@ -45,7 +58,10 @@ export default function Fanbase() {
         <div className={styles.headerButtons}>
           {tabs.map((tab, index) => (
             <button
-              className={styles.button}
+              className={
+                styles.button +
+                (tabIndex === index ? " " + styles.buttonActive : "")
+              }
               key={index}
               onClick={() => handleTabChange(index)}
             >

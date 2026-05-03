@@ -26,8 +26,16 @@ const fetchGames = async ({ queryKey }) => {
   }
 };
 
-export default function GamesOfTheDay() {
-  const [date, setDate] = useState(new Date());
+export default function GamesOfTheDay({
+  date: controlledDate,
+  setDate: controlledSetDate,
+  hideDatePicker = false,
+}) {
+  const [internalDate, setInternalDate] = useState(new Date());
+  const isControlled =
+    controlledDate !== undefined && controlledSetDate !== undefined;
+  const date = isControlled ? controlledDate : internalDate;
+  const setDate = isControlled ? controlledSetDate : setInternalDate;
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ["games", date],
@@ -61,7 +69,7 @@ export default function GamesOfTheDay() {
     <section className={styles.main}>
       <div className={styles.header}>
         <h1>Matchs du jour</h1>
-        <DatePicker date={date} setDate={setDate} />
+        {!hideDatePicker && <DatePicker date={date} setDate={setDate} />}
       </div>
 
       <div className={styles.container}>

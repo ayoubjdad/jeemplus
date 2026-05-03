@@ -3,6 +3,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./MoroccanPlayers.module.scss";
 import { gamesUrl } from "../../../api/data";
+import { getSofascoreApiV1Base } from "../../../api/sofascoreBase";
 import { gamesFormatDate } from "../../../helpers/global.helper";
 import Loader from "../../../layouts/loader/Loader";
 import GameCard from "../../../components/game-card/GameCard";
@@ -29,7 +30,7 @@ const fetchTeamPlayers = async ({ queryKey }) => {
   const [, teamId] = queryKey;
   try {
     const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}/players`
+      `${getSofascoreApiV1Base()}/team/${teamId}/players`
     );
     return response?.data || {};
   } catch (err) {
@@ -45,8 +46,16 @@ const getMoroccanPlayers = (homePlayers, awayPlayers) => {
   ];
 };
 
-export default function MoroccanPlayers() {
-  const [date, setDate] = useState(new Date());
+export default function MoroccanPlayers({
+  date: controlledDate,
+  setDate: controlledSetDate,
+  hideDatePicker = false,
+}) {
+  const [internalDate, setInternalDate] = useState(new Date());
+  const isControlled =
+    controlledDate !== undefined && controlledSetDate !== undefined;
+  const date = isControlled ? controlledDate : internalDate;
+  const setDate = isControlled ? controlledSetDate : setInternalDate;
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ["games", date],
@@ -55,7 +64,7 @@ export default function MoroccanPlayers() {
   });
 
   const { data: enrichedGames = [], isLoading: playersLoading } = useQuery({
-    queryKey: ["enrichedGames", games],
+    queryKey: ["enrichedGames", games, gamesFormatDate(date)],
     queryFn: async () => {
       const prioritizedGames = [...games].filter(
         (g) =>
@@ -92,7 +101,7 @@ export default function MoroccanPlayers() {
     <section className={styles.main}>
       <div className={styles.header}>
         <h1>Internationaux</h1>
-        <DatePicker date={date} setDate={setDate} />
+        {!hideDatePicker && <DatePicker date={date} setDate={setDate} />}
       </div>
 
       <div className={styles.container}>
@@ -103,7 +112,13 @@ export default function MoroccanPlayers() {
           );
           if (moroccanPlayers.length === 0) return null;
 
-          return <GameCard game={game.game} players={moroccanPlayers} />;
+          return (
+            <GameCard
+              key={game.id}
+              game={game.game}
+              players={moroccanPlayers}
+            />
+          );
         })}
       </div>
     </section>

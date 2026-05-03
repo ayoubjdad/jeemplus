@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Typography, Stack, Divider, Avatar } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
 
 export default function CompareTeams() {
   const queryClient = useQueryClient();
@@ -156,7 +157,7 @@ function buildTrend(events, teamId) {
 function CompareInsights({ teamAId, teamBId, teamALabel, teamBLabel }) {
   const fetchPerformance = async (id) => {
     const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${id}/performance`
+      `${getSofascoreApiV1Base()}/team/${id}/performance`
     );
     return response?.data || {};
   };

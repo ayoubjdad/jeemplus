@@ -1,0 +1,15 @@
+[build]
+  command = "pnpm run build"
+  publish = "dist"
+
+# Proxy SofaScore API — browser calls stay same-origin (`/sofa-api/...`), Netlify forwards server-side (no CORS).
+[[redirects]]
+  from = "/sofa-api/*"
+  to = "https://www.sofascore.com/api/v1/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

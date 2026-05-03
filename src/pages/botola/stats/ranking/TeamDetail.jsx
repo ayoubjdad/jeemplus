@@ -2,6 +2,7 @@ import styles from "./TeamDetail.module.scss";
 import { useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
 
 const TABS = [
   { id: "stats", label: "Statistiques" },
@@ -56,26 +57,26 @@ export default function TeamDetail({ teamId, onBack }) {
   const [tab, setTab] = useState("stats");
 
   const fetchTeamData = async () => {
-    const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}`
-    );
+    const base = getSofascoreApiV1Base();
+    const response = await axios.get(`${base}/team/${teamId}`);
     return response?.data || {};
   };
   const fetchPerformanceData = async () => {
-    const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}/performance`
-    );
+    const base = getSofascoreApiV1Base();
+    const response = await axios.get(`${base}/team/${teamId}/performance`);
     return response?.data || {};
   };
   const fetchUniqueTournamentsData = async () => {
+    const base = getSofascoreApiV1Base();
     const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}/unique-tournaments/all`
+      `${base}/team/${teamId}/unique-tournaments/all`
     );
     return response?.data || {};
   };
   const fetchOverallStatisticsData = async () => {
+    const base = getSofascoreApiV1Base();
     const response = await axios.get(
-      `https://www.sofascore.com/api/v1/team/${teamId}/unique-tournament/937/season/78750/statistics/overall`
+      `${base}/team/${teamId}/unique-tournament/937/season/78750/statistics/overall`
     );
     return response?.data || {};
   };

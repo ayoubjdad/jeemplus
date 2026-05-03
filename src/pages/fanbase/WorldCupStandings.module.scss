@@ -1,6 +1,5 @@
 .root {
   padding: 16px;
-  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -42,9 +41,9 @@
 }
 
 .groups {
-  display: flex;
-  flex-direction: column;
   gap: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .groupTitle {

@@ -1,20 +1,15 @@
 import axios from "axios";
+import { getSofascoreApiV1Base } from "../../api/sofascoreBase";
 
 /** Al-Nassr (example from SofaScore) — override via Fanbase / props */
 export const DEFAULT_SOFA_TEAM_ID = 23400;
 
 /**
- * In dev, CRA proxies `/sofa-api` → `https://www.sofascore.com/api/v1` (see `src/setupProxy.js`).
- * In production, set `REACT_APP_SOFA_API_BASE` to your backend path that proxies the same API, or the full URL if CORS allows.
+ * Uses `/sofa-api` by default (Vite dev + Netlify proxy → sofascore.com/api/v1).
+ * Override with `VITE_SOFASCORE_API_BASE` or `VITE_SOFA_API_BASE`.
  */
 export function getSofaApiV1Base() {
-  const fromEnv = process.env.REACT_APP_SOFA_API_BASE?.replace(/\/$/, "");
-  if (fromEnv) return fromEnv;
-  return "https://www.sofascore.com/api/v1";
-  //  process.env.NODE_ENV === "development"
-  // ? "/sofa-api"
-  // :
-  // "https://www.sofascore.com/api/v1";
+  return getSofascoreApiV1Base();
 }
 
 /**
