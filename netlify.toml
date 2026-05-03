@@ -5,10 +5,10 @@
   command = "pnpm run build"
   publish = "dist"
 
-# Proxy SofaScore API — browser calls stay same-origin (`/sofa-api/...`), Netlify forwards server-side (no CORS).
+# SofaScore JSON: edge rewrite to sofascore.com often returns 403 — use a function with browser-like headers.
 [[redirects]]
   from = "/sofa-api/*"
-  to = "https://www.sofascore.com/api/v1/:splat"
+  to = "/.netlify/functions/sofa-proxy/:splat"
   status = 200
   force = true
 
