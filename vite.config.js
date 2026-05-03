@@ -1,6 +1,15 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
+const sofaApiProxy = {
+  "/sofa-api": {
+    target: "https://www.sofascore.com",
+    changeOrigin: true,
+    secure: true,
+    rewrite: (path) => path.replace(/^\/sofa-api/, "/api/v1"),
+  },
+};
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -14,14 +23,10 @@ export default defineConfig({
     exclude: [],
   },
   server: {
-    proxy: {
-      "/sofa-api": {
-        target: "https://www.sofascore.com",
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/sofa-api/, "/api/v1"),
-      },
-    },
+    proxy: sofaApiProxy,
+  },
+  preview: {
+    proxy: sofaApiProxy,
   },
   test: {
     environment: "jsdom",

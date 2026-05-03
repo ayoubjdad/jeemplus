@@ -23,7 +23,7 @@ const DatePicker = ({ date, setDate }) => {
   return (
     <div className={styles.datePicker}>
       <Box
-        component="button"
+        component="i"
         type="button"
         aria-label="Jour précédent"
         className={`fi fi-rr-angle-left ${styles.arrow}`}
@@ -42,7 +42,7 @@ const DatePicker = ({ date, setDate }) => {
         />
       </label>
       <Box
-        component="button"
+        component="i"
         type="button"
         aria-label="Jour suivant"
         className={`fi fi-rr-angle-right ${styles.arrow}`}
