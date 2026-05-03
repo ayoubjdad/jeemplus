@@ -5,12 +5,11 @@
   command = "pnpm run build"
   publish = "dist"
 
-# SofaScore JSON: edge rewrite to sofascore.com often returns 403 — use a function with browser-like headers.
-[[redirects]]
-  from = "/sofa-api/*"
-  to = "/.netlify/functions/sofa-proxy/:splat"
-  status = 200
-  force = true
+# SofaScore: Node Functions still get 403 (TLS/bot checks). Edge Function (Deno) tries Sofascore directly,
+# then optional SOFA_HTTP_BRIDGE (your backend with curl_cffi / browser-like TLS).
+[[edge_functions]]
+  path = "/sofa-api/*"
+  function = "sofa-proxy"
 
 [[redirects]]
   from = "/*"
