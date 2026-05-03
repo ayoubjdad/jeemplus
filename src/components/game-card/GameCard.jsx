@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { palette } from "../../themes/palette";
 import PlayerCard from "../player-card/PlayerCard";
 import Team from "../team/Team";
@@ -40,39 +41,37 @@ const GameCard = ({ game = {}, players = [] }) => {
 
   return (
     <div className={styles.card}>
-      <div className={styles.matchHeader}>
-        <Team team={game.homeTeam} />
+      <Link className={styles.summaryLink} to={`/game/${game.id}`}>
+        <div className={styles.matchHeader}>
+          <Team team={game.homeTeam} />
 
-        <div className={styles.time}>
-          {/* <img
-            src={tournamentImage}
-            alt={game?.tournament?.uniqueTournament?.name}
-          /> */}
-          <p className={styles.score}>{getScoreOrTime()}</p>
-          <p
-            className={styles.status}
-            style={{
-              borderColor:
-                game?.status?.type === "inprogress"
-                  ? palette?.red?.main
-                  : palette.gray.main,
-              color:
-                game?.status?.type === "inprogress"
-                  ? palette?.red?.main
-                  : palette.gray.main,
-            }}
-          >
-            {getStatusLabel()}
-          </p>
+          <div className={styles.time}>
+            <p className={styles.score}>{getScoreOrTime()}</p>
+            <p
+              className={styles.status}
+              style={{
+                borderColor:
+                  game?.status?.type === "inprogress"
+                    ? palette?.red?.main
+                    : palette.gray.main,
+                color:
+                  game?.status?.type === "inprogress"
+                    ? palette?.red?.main
+                    : palette.gray.main,
+              }}
+            >
+              {getStatusLabel()}
+            </p>
+          </div>
+
+          <Team team={game.awayTeam} />
         </div>
 
-        <Team team={game.awayTeam} />
-      </div>
-
-      <div style={{ color: palette.gray.main }} className={styles.infos}>
-        {game?.tournament?.uniqueTournament?.name} - Round{" "}
-        {game?.roundInfo?.round}
-      </div>
+        <div style={{ color: palette.gray.main }} className={styles.infos}>
+          {game?.tournament?.uniqueTournament?.name} - Round{" "}
+          {game?.roundInfo?.round}
+        </div>
+      </Link>
 
       {!players?.length ? null : (
         <div className={styles.playersList}>
