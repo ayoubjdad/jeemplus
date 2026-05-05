@@ -1,16 +1,14 @@
 import styles from "./CompareTeams.module.scss";
 import { useMemo, useState } from "react";
 import { Typography, Stack, Divider, Avatar } from "@mui/material";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
+import { botolaStandingsTables } from "../../../../data/static/botolaStandings";
+import { getComparePerformance } from "../../../../data/static/comparePerformanceByTeamId";
 
 export default function CompareTeams() {
-  const queryClient = useQueryClient();
-
-  const data = queryClient.getQueryData(["stats"]);
-
-  const rows = useMemo(() => data?.[0]?.rows || [], [data]);
+  const rows = useMemo(
+    () => botolaStandingsTables?.[0]?.rows || [],
+    [],
+  );
 
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
@@ -155,30 +153,8 @@ function buildTrend(events, teamId) {
 }
 
 function CompareInsights({ teamAId, teamBId, teamALabel, teamBLabel }) {
-  const fetchPerformance = async (id) => {
-    const response = await axios.get(
-      `${getSofascoreApiV1Base()}/team/${id}/performance`
-    );
-    return response?.data || {};
-  };
-
-  const {
-    data: perfA,
-    // isLoading: loadingA
-  } = useQuery({
-    queryKey: ["compare-performance", teamAId],
-    queryFn: () => fetchPerformance(teamAId),
-    enabled: Boolean(teamAId),
-  });
-
-  const {
-    data: perfB,
-    // isLoading: loadingB
-  } = useQuery({
-    queryKey: ["compare-performance", teamBId],
-    queryFn: () => fetchPerformance(teamBId),
-    enabled: Boolean(teamBId),
-  });
+  const perfA = getComparePerformance(teamAId);
+  const perfB = getComparePerformance(teamBId);
 
   const eventsA = perfA?.events || [];
   const eventsB = perfB?.events || [];

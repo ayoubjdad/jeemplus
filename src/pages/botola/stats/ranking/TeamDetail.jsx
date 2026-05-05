@@ -1,8 +1,6 @@
 import styles from "./TeamDetail.module.scss";
-import { useState } from "react";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
-import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
+import { useMemo, useState } from "react";
+import { getTeamDetailParts } from "../../../../data/static/teamDetailStatic";
 
 const TABS = [
   { id: "stats", label: "Statistiques" },
@@ -56,61 +54,26 @@ function perMatch(value, matches, digits = 1) {
 export default function TeamDetail({ teamId, onBack }) {
   const [tab, setTab] = useState("stats");
 
-  const fetchTeamData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(`${base}/team/${teamId}`);
-    return response?.data || {};
-  };
-  const fetchPerformanceData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(`${base}/team/${teamId}/performance`);
-    return response?.data || {};
-  };
-  const fetchUniqueTournamentsData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(
-      `${base}/team/${teamId}/unique-tournaments/all`
-    );
-    return response?.data || {};
-  };
-  const fetchOverallStatisticsData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(
-      `${base}/team/${teamId}/unique-tournament/937/season/78750/statistics/overall`
-    );
-    return response?.data || {};
-  };
+  const bundle = useMemo(
+    () => (teamId ? getTeamDetailParts(teamId) : null),
+    [teamId]
+  );
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["team-detail", teamId],
-    queryFn: fetchTeamData,
-    enabled: Boolean(teamId),
-  });
-  const {
-    data: performanceData,
-    isLoading: performanceLoading,
-    isError: performanceError,
-  } = useQuery({
-    queryKey: ["team-performance", teamId],
-    queryFn: fetchPerformanceData,
-    enabled: Boolean(teamId),
-  });
-  const {
-    data: uniqueTournamentsData,
-    isLoading: uniqueTournamentsLoading,
-    isError: uniqueTournamentsError,
-  } = useQuery({
-    queryKey: ["team-unique-tournaments", teamId],
-    queryFn: fetchUniqueTournamentsData,
-    enabled: Boolean(teamId),
-  });
-  const {
-    data: overallStatsData,
-  } = useQuery({
-    queryKey: ["team-overall-statistics", teamId],
-    queryFn: fetchOverallStatisticsData,
-    enabled: Boolean(teamId),
-  });
+  const data = bundle?.data;
+  const performanceData = bundle?.performanceData ?? { events: [] };
+  const uniqueTournamentsData = bundle?.uniqueTournamentsData ?? {
+    uniqueTournaments: [],
+  };
+  const overallStatsData = bundle?.overallStatsData ?? { statistics: {} };
+
+  const isLoading = false;
+  const performanceLoading = false;
+  const uniqueTournamentsLoading = false;
+  const overallStatsLoading = false;
+
+  const isError = Boolean(teamId) && !bundle;
+  const performanceError = false;
+  const uniqueTournamentsError = false;
 
   const team = data?.team;
   const pregameForm = data?.pregameForm || null;

@@ -33,7 +33,9 @@ const GameCard = ({ game = {}, players = [] }) => {
       game?.status?.type === "finished" ||
       game?.status?.type === "inprogress"
     ) {
-      return `${game.homeScore.display} - ${game.awayScore.display}`;
+      const hs = game.homeScore?.display ?? "—";
+      const as = game.awayScore?.display ?? "—";
+      return `${hs} - ${as}`;
     }
 
     return timeString(game?.startTimestamp);
@@ -75,8 +77,11 @@ const GameCard = ({ game = {}, players = [] }) => {
 
       {!players?.length ? null : (
         <div className={styles.playersList}>
-          {players.map((playerObj) => (
-            <PlayerCard key={playerObj.id} player={playerObj?.player} />
+          {players.map((playerObj, idx) => (
+            <PlayerCard
+              key={playerObj?.player?.id ?? playerObj?.id ?? idx}
+              player={playerObj?.player}
+            />
           ))}
         </div>
       )}

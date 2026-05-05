@@ -63,3 +63,30 @@ export function gamesFormatDate(isoString) {
 
   return `${year}-${month}-${day}`;
 }
+
+/** Patch scheduled-event `startTimestamp` so `isToday(date, ts)` passes for viewer `date`. */
+export function stampGamesForViewerDate(events, date) {
+  if (!Array.isArray(events)) return [];
+  const noon = new Date(date);
+  noon.setHours(12, 0, 0, 0);
+  const ts = Math.floor(noon.getTime() / 1000);
+  return events.map((g) =>
+    g && typeof g === "object" ? { ...g, startTimestamp: ts } : g
+  );
+}
+
+/** Patch enriched Moroccan-player rows so nested `game.startTimestamp` matches `date`. */
+export function stampMoroccanEnrichedGames(entries, date) {
+  if (!Array.isArray(entries)) return [];
+  const noon = new Date(date);
+  noon.setHours(12, 0, 0, 0);
+  const ts = Math.floor(noon.getTime() / 1000);
+  return entries.map((row) =>
+    row?.game
+      ? {
+          ...row,
+          game: { ...row.game, startTimestamp: ts },
+        }
+      : row
+  );
+}

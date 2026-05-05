@@ -1,39 +1,9 @@
 import { Link, useParams } from "react-router-dom";
-import { useQueries, useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { getSofascoreApiV1Base } from "../../api/sofascoreBase";
-import Loader from "../../layouts/loader/Loader";
+import { useMemo } from "react";
 import Team from "../../components/team/Team";
 import { palette } from "../../themes/palette";
 import styles from "./GameDetail.module.scss";
-
-const baseReq = () => getSofascoreApiV1Base();
-
-const fetchEvent = async (eventId) => {
-  const { data } = await axios.get(`${baseReq()}/event/${eventId}`);
-  return data?.event ?? null;
-};
-
-const fetchEventStatistics = async (eventId) => {
-  const { data } = await axios.get(`${baseReq()}/event/${eventId}/statistics`);
-  return data ?? null;
-};
-
-const fetchIncidentList = async (eventId) => {
-  const { data } = await axios.get(`${baseReq()}/event/${eventId}/incidents`);
-  return data ?? null;
-};
-
-const fetchLineups = async (eventId) => {
-  const { data } = await axios.get(`${baseReq()}/event/${eventId}/lineups`);
-  return data ?? null;
-};
-
-const queryRetry = (failureCount, error) => {
-  const status = error?.response?.status;
-  if (status === 404 || status === 403 || status === 401) return false;
-  return failureCount < 2;
-};
+import { getGameDetailParts } from "../../data/static/gameDetailStatic";
 
 const formatKickoff = (timestamp) => {
   if (!timestamp) return "—";
@@ -253,53 +223,20 @@ function StatBars({
 export default function GameDetail() {
   const { eventId } = useParams();
 
-  const {
-    data: event,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["sofa-event", eventId],
-    queryFn: () => fetchEvent(eventId),
-    enabled: Boolean(eventId),
-  });
+  const bundle = useMemo(() => getGameDetailParts(eventId), [eventId]);
 
-  const extraResults = useQueries({
-    queries: [
-      {
-        queryKey: ["sofa-event-statistics", eventId],
-        queryFn: () => fetchEventStatistics(eventId),
-        enabled: Boolean(eventId),
-        retry: queryRetry,
-      },
-      {
-        queryKey: ["sofa-event-incidents", eventId],
-        queryFn: () => fetchIncidentList(eventId),
-        enabled: Boolean(eventId),
-        retry: queryRetry,
-      },
-      {
-        queryKey: ["sofa-event-lineups", eventId],
-        queryFn: () => fetchLineups(eventId),
-        enabled: Boolean(eventId),
-        retry: queryRetry,
-      },
-    ],
-  });
+  const event = bundle.event;
+  const statsQuery = { data: bundle.statistics, isError: false };
+  const incidentsQuery = { data: bundle.incidents, isError: false };
+  const lineupsQuery = { data: bundle.lineups, isError: false };
 
-  const [statsQuery, incidentsQuery, lineupsQuery] = extraResults;
-
-  if (isLoading) return <Loader />;
-
-  if (isError || !event) {
+  if (!event) {
     return (
       <section className={styles.page}>
         <Link className={styles.back} to="/">
           ← Retour
         </Link>
-        <p className={styles.error}>
-          {error?.message || "Impossible de charger ce match."}
-        </p>
+        <p className={styles.error}>Impossible de charger ce match.</p>
       </section>
     );
   }

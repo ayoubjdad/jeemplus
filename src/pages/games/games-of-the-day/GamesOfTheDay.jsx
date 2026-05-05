@@ -1,29 +1,16 @@
 import { useMemo, useState } from "react";
 import styles from "./GamesOfTheDay.module.scss";
-import { useQuery } from "@tanstack/react-query";
 import { topTeams } from "../../../data/Tournaments";
 import DatePicker from "../../../components/date-picker/DatePicker";
 import GameCard from "../../../components/game-card/GameCard";
-// import { palette } from "../../../themes/palette";
-import Loader from "../../../layouts/loader/Loader";
-import { gamesFormatDate } from "../../../helpers/global.helper";
-import { gamesUrl } from "../../../api/data";
-import axios from "axios";
+import {
+  stampGamesForViewerDate,
+} from "../../../helpers/global.helper";
+import { scheduledGamesTemplate } from "../../../data/static/scheduledGamesTemplate";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
   return startTime.toLocaleDateString() === date.toLocaleDateString();
-};
-
-const fetchGames = async ({ queryKey }) => {
-  const [, date] = queryKey;
-  try {
-    const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
-    return response?.data?.events || [];
-  } catch (error) {
-    console.error("❌ Error fetching games:", error);
-    return [];
-  }
 };
 
 export default function GamesOfTheDay({
@@ -37,10 +24,10 @@ export default function GamesOfTheDay({
   const date = isControlled ? controlledDate : internalDate;
   const setDate = isControlled ? controlledSetDate : setInternalDate;
 
-  const { data: games = [], isLoading: gamesLoading } = useQuery({
-    queryKey: ["games", date],
-    queryFn: fetchGames,
-  });
+  const games = useMemo(
+    () => stampGamesForViewerDate(scheduledGamesTemplate, date),
+    [date]
+  );
 
   const highlightedGames = useMemo(() => {
     const result = games
@@ -62,8 +49,6 @@ export default function GamesOfTheDay({
 
     return result;
   }, [games, date]);
-
-  if (gamesLoading) return <Loader />;
 
   return (
     <section className={styles.main}>

@@ -1,10 +1,7 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import TableView from "../../components/table/TableView";
-import {
-  fetchWorldCupCupTrees,
-  fetchWorldCupStandings,
-} from "../../api/worldCupStandings";
+import { worldCupCupTrees } from "../../data/static/worldCupCupTreesSnapshot";
+import { worldCupStandingsTables } from "../../data/static/worldCupStandingsSnapshot";
 import WorldCupCupTree from "./WorldCupCupTree";
 import InteractiveScreen from "../interactive-screen/InteractiveScreen";
 import styles from "./WorldCupStandings.module.scss";
@@ -39,23 +36,13 @@ function groupTitle(standing) {
 export default function WorldCupStandings() {
   const [subTab, setSubTab] = useState("standings");
 
-  const {
-    data: standings = [],
-    isLoading: standingsLoading,
-    isError: standingsError,
-  } = useQuery({
-    queryKey: ["worldCupStandings", "unique-tournament-16-season-58210"],
-    queryFn: fetchWorldCupStandings,
-  });
+  const standings = worldCupStandingsTables;
+  const cupTrees = worldCupCupTrees;
 
-  const {
-    data: cupTrees = [],
-    isLoading: treesLoading,
-    isError: treesError,
-  } = useQuery({
-    queryKey: ["worldCupCupTrees", "unique-tournament-16-season-58210"],
-    queryFn: fetchWorldCupCupTrees,
-  });
+  const standingsLoading = false;
+  const standingsError = false;
+  const treesLoading = false;
+  const treesError = false;
 
   const groups = useMemo(
     () =>

@@ -1,13 +1,9 @@
 import { useMemo } from "react";
-import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
-import { useQuery } from "@tanstack/react-query";
 import TableView from "../../../../components/table/TableView";
+import { botolaStandingsTables } from "../../../../data/static/botolaStandings";
 
 export default function Ranking({ onTeamClick }) {
-  const { data: stats = [], isLoading: statsLoading } = useQuery({
-    queryKey: ["stats"],
-    queryFn: fetchBotolaStandingsTables,
-  });
+  const stats = botolaStandingsTables;
 
   const rows = useMemo(() => stats[0]?.rows || [], [stats]);
 
@@ -23,10 +19,6 @@ export default function Ranking({ onTeamClick }) {
     { label: "+/-", value: "scoreDiffFormatted" },
     { label: "Pts", value: "points" },
   ];
-
-  if (statsLoading) {
-    return <div>Loading...</div>;
-  }
 
   return <TableView data={rows} options={options} onTeamClick={onTeamClick} />;
 }

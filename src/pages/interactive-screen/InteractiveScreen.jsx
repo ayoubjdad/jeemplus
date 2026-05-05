@@ -5,13 +5,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
 import styles from "./InteractiveScreen.module.scss";
-import { fetchBotolaStandingsTables } from "../../api/botolaStandings";
+import { botolaStandingsTables } from "../../data/static/botolaStandings";
 import {
   DEFAULT_SOFA_TEAM_ID,
-  fetchTeamPlayersRoster,
 } from "./sofaTeamPlayersApi";
+import { getInteractiveRoster } from "../../data/static/interactiveRosterByTeamId";
 
 function fallbackAvatarUrl(player) {
   const label = encodeURIComponent(
@@ -119,22 +118,14 @@ export default function InteractiveScreen({
 
   const useBuiltinBotolaPicker = standingsPickerExternal == null;
 
-  const {
-    data: stats = [],
-    isLoading: botolaStandingsLoading,
-    isError: botolaStandingsError,
-  } = useQuery({
-    queryKey: ["stats"],
-    queryFn: fetchBotolaStandingsTables,
-    enabled: useBuiltinBotolaPicker,
-  });
+  const stats = useBuiltinBotolaPicker ? botolaStandingsTables : [];
 
   const standingsLoading = useBuiltinBotolaPicker
-    ? botolaStandingsLoading
+    ? false
     : Boolean(standingsPickerExternal?.isLoading);
 
   const standingsError = useBuiltinBotolaPicker
-    ? botolaStandingsError
+    ? false
     : Boolean(standingsPickerExternal?.isError);
 
   const standingsRowsRaw = useMemo(() => {
@@ -185,17 +176,15 @@ export default function InteractiveScreen({
     return teamOptions[0]?.id ?? null;
   }, [pickedTeamId, teamOptions, initialTeamId]);
 
-  const {
-    data: roster = [],
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["sofa-team-players", resolvedTeamId],
-    queryFn: () => fetchTeamPlayersRoster(resolvedTeamId),
-    enabled: resolvedTeamId != null && String(resolvedTeamId).length > 0,
-  });
+  const roster = useMemo(
+    () => getInteractiveRoster(resolvedTeamId),
+    [resolvedTeamId]
+  );
+
+  const isLoading = false;
+  const isError = false;
+  const error = null;
+  const refetch = () => {};
 
   const [fieldById, setFieldById] = useState({});
 
