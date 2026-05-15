@@ -1,7 +1,9 @@
 /**
- * Proxy /sofa-api/* → SofaScore JSON. SofaScore often returns 403 from Netlify/AWS IPs (TLS/WAF).
+ * Proxy /sofa-api/* → SofaScore JSON. Ordinary Node fetch gets 403 from Netlify IPs (Akamai/WAF).
+ * Retry with Impit (Chrome TLS/H2 fingerprint) before curl bridge fallbacks.
  * For football daily schedules we fall back to TheSportsDB (public key "3" or THESPORTSDB_KEY).
  */
+import { Impit } from "impit";
 import { spawn } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -20,6 +22,32 @@ const UPSTREAM_HEADERS = {
   Referer: "https://www.sofascore.com/",
   Origin: "https://www.sofascore.com",
 };
+
+/** Lazily reuse one Chrome-impersonating client (native TLS JA3 differs from plain Node fetch). */
+let chromeImpit;
+function getChromeImpit() {
+  if (!chromeImpit) chromeImpit = new Impit({ browser: "chrome" });
+  return chromeImpit;
+}
+
+async function tryImpitFetch(url) {
+  try {
+    const impit = getChromeImpit();
+    const res = await impit.fetch(url, {
+      headers: UPSTREAM_HEADERS,
+      redirect: "follow",
+    });
+    const body = await res.text();
+    return {
+      status: res.status,
+      body,
+      contentType:
+        res.headers.get("content-type") || "application/json; charset=utf-8",
+    };
+  } catch {
+    return null;
+  }
+}
 
 const SCHEDULED_EVENTS_RE =
   /^sport\/football\/scheduled-events\/(\d{4}-\d{2}-\d{2})$/;
@@ -193,26 +221,54 @@ function curlGet(url) {
 }
 
 async function trySofaUpstream(suffix, search) {
-  for (const base of UPSTREAM_BASES) {
-    const url = `${base}/${suffix}${search}`;
-    try {
-      const res = await fetch(url, {
-        headers: UPSTREAM_HEADERS,
-        redirect: "follow",
-      });
-      if (res.status !== 403) {
-        const body = await res.text();
-        return {
-          status: res.status,
-          body,
-          contentType:
-            res.headers.get("content-type") || "application/json; charset=utf-8",
-        };
+  /** Netlify runs this on AWS Lambda — plain `fetch` hits SofaScore 403; try Impit first there. */
+  const lambdaLike = Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
+  const phases = lambdaLike
+    ? ["impit", "native"]
+    : ["native", "impit"];
+
+  const tryNative = async () => {
+    for (const base of UPSTREAM_BASES) {
+      const url = `${base}/${suffix}${search}`;
+      try {
+        const res = await fetch(url, {
+          headers: UPSTREAM_HEADERS,
+          redirect: "follow",
+        });
+        if (res.status !== 403) {
+          const body = await res.text();
+          return {
+            status: res.status,
+            body,
+            contentType:
+              res.headers.get("content-type") ||
+              "application/json; charset=utf-8",
+          };
+        }
+      } catch {
+        /* try next base */
       }
-    } catch {
-      /* try next */
+      await sleep(50);
     }
-    await sleep(50);
+    return null;
+  };
+
+  const tryImpitPass = async () => {
+    for (const base of UPSTREAM_BASES) {
+      const url = `${base}/${suffix}${search}`;
+      const impited = await tryImpitFetch(url);
+      if (impited && impited.status !== 403) return impited;
+      await sleep(50);
+    }
+    return null;
+  };
+
+  for (const phase of phases) {
+    const hit =
+      phase === "native"
+        ? await tryNative()
+        : await tryImpitPass();
+    if (hit) return hit;
   }
 
   for (const base of UPSTREAM_BASES) {
