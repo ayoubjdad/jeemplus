@@ -5,20 +5,15 @@
   command = "pnpm run build"
   publish = "dist"
 
-# SofaScore JSON: Node fetch from Netlify/AWS often gets 403 (WAF/TLS fingerprinting); we retry with Impit (Chrome JA3/H2).
-# Forward the path after `/sofa-api/` with :splat so the function receives `/.netlify/functions/sofascore-fetch/<suffix>`.
-# TheSportsDB is used only as fallback for football day schedules (`sport/football/scheduled-events/DATE`).
+# SofaScore JSON: Netlify Edge + ordinary fetch usually get 403 (Akamai/TLS fingerprinting against datacenter IPs).
+# This function retries with curl's OpenSSL JA3 where possible and uses TheSportsDB for football schedules as fallback.
 [[redirects]]
   force = true
   from = "/sofa-api/*"
-  to = "/.netlify/functions/sofascore-fetch/:splat"
+  to = "/.netlify/functions/sofascore-fetch"
   status = 200
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Native TLS addon for Impit (do not bundle; ship node_modules binaries for Linux Lambda).
-[functions]
-  external_node_modules = ["impit"]

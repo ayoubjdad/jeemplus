@@ -12,7 +12,6 @@
     "@mui/styles": "^6.4.8",
     "@tanstack/react-query": "^5.71.1",
     "axios": "^1.8.4",
-    "impit": "^0.14.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.14.2",
