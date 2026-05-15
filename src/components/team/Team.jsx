@@ -7,6 +7,7 @@ const Team = ({ team, fromGame = false }) => {
         <img
           src={`https://img.sofascore.com/api/v1/team/${team?.id}/image`}
           alt={team?.name}
+          referrerPolicy="no-referrer"
         />
       </div>
       <p className={styles.teamName} style={{ height: fromGame && "auto" }}>
