@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
 import styles from "./WorldCupCupTree.module.scss";
+import {
+  sofascoreImgProps,
+  sofascoreTeamImageUrl,
+} from "../../api/sofascoreImages";
 
 /** Must stay in sync with `.match` min-height + gaps in SCSS */
 const CARD_H = 102;
@@ -105,8 +109,9 @@ function TeamSlot({ participant }) {
     >
       {useLogo ? (
         <img
+          {...sofascoreImgProps}
           className={styles.slotLogo}
-          src={`https://img.sofascore.com/api/v1/team/${team.id}/image`}
+          src={sofascoreTeamImageUrl(team.id)}
           alt=""
           width={22}
           height={22}

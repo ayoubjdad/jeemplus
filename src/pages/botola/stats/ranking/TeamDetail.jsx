@@ -4,6 +4,11 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
 import {
+  sofascoreImgProps,
+  sofascoreManagerImageUrl,
+  sofascoreTeamImageUrl,
+} from "../../../../api/sofascoreImages";
+import {
   all,
   overall,
   performance,
@@ -172,7 +177,7 @@ export default function TeamDetail({ teamId, onBack }) {
     team.primaryUniqueTournament?.fieldTranslations?.nameTranslation?.fr ||
     team.primaryUniqueTournament?.name;
 
-  const managerImg = `https://img.sofascore.com/api/v1/manager/${team.manager?.id}/image`;
+  const managerImg = sofascoreManagerImageUrl(team.manager?.id);
 
   return (
     <div className={styles.page}>
@@ -184,8 +189,9 @@ export default function TeamDetail({ teamId, onBack }) {
         <div className={styles.heroMain}>
           <div className={styles.logoRing}>
             <img
+              {...sofascoreImgProps}
               className={styles.logo}
-              src={`https://img.sofascore.com/api/v1/team/${team.id}/image`}
+              src={sofascoreTeamImageUrl(team.id)}
               alt=""
             />
           </div>
@@ -204,6 +210,7 @@ export default function TeamDetail({ teamId, onBack }) {
               {team.manager && (
                 <span className={styles.metaPill}>
                   <img
+                    {...sofascoreImgProps}
                     className={styles.managerThumb}
                     src={managerImg}
                     alt=""

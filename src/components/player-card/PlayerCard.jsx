@@ -1,11 +1,16 @@
 import { Tooltip } from "@mui/material";
 import styles from "./PlayerCard.module.scss";
+import {
+  sofascoreImgProps,
+  sofascorePlayerImageUrl,
+} from "../../api/sofascoreImages";
 
 const PlayerCard = ({ player }) => (
   <Tooltip title={player?.name}>
     <div key={player.id} className={styles.playerCard}>
       <img
-        src={`https://img.sofascore.com/api/v1/player/${player.id}/image`}
+        {...sofascoreImgProps}
+        src={sofascorePlayerImageUrl(player.id)}
         alt={player.name}
         className={styles.playerImage}
       />

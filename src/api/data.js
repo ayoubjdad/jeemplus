@@ -1,4 +1,8 @@
 import { getSofascoreApiV1Base } from "./sofascoreBase";
+import {
+  sofascoreTeamImageUrl,
+  sofascoreUniqueTournamentDarkImageUrl,
+} from "./sofascoreImages";
 
 const v1 = () => getSofascoreApiV1Base();
 
@@ -19,11 +23,8 @@ export const standingsUrls = [
   `${v1()}/unique-tournament/23/season/63515/standings/total`, // Serie A
   `${v1()}/unique-tournament/35/season/63516/standings/total`, // Bundesliga
 ];
-// Embed logos via img CDN (api.sofascore.app often blocks hotlinked images).
-export const teamLogo = (teamId) =>
-  `https://img.sofascore.com/api/v1/team/${teamId}/image`;
-export const tournamentLogo = (id) =>
-  `https://img.sofascore.com/api/v1/unique-tournament/${id}/image/dark`;
+export const teamLogo = (teamId) => sofascoreTeamImageUrl(teamId);
+export const tournamentLogo = (id) => sofascoreUniqueTournamentDarkImageUrl(id);
 
 export const team = `${v1()}/team/`;
 // team/{id}/players

@@ -12,6 +12,10 @@ import {
   DEFAULT_SOFA_TEAM_ID,
   fetchTeamPlayersRoster,
 } from "./sofaTeamPlayersApi";
+import {
+  sofascoreImgProps,
+  sofascorePlayerImageUrl,
+} from "../../api/sofascoreImages";
 
 function fallbackAvatarUrl(player) {
   const label = encodeURIComponent(
@@ -22,7 +26,7 @@ function fallbackAvatarUrl(player) {
 
 function playerPhotoUrl(player) {
   if (player?.sofaPlayerId) {
-    return `https://img.sofascore.com/api/v1/player/${player.sofaPlayerId}/image`;
+    return sofascorePlayerImageUrl(player.sofaPlayerId);
   }
   return fallbackAvatarUrl(player);
 }
@@ -537,6 +541,7 @@ export default function InteractiveScreen({
                             </span>
                           ) : null}
                           <img
+                            {...sofascoreImgProps}
                             className={styles.playerCardAvatar}
                             src={playerPhotoUrl(player)}
                             alt=""
@@ -623,6 +628,7 @@ export default function InteractiveScreen({
                                 <span className={styles.tokenCaptain}>c</span>
                               ) : null}
                               <img
+                                {...sofascoreImgProps}
                                 className={styles.tokenAvatar}
                                 src={playerPhotoUrl(player)}
                                 alt=""
@@ -667,6 +673,7 @@ export default function InteractiveScreen({
           }}
         >
           <img
+            {...sofascoreImgProps}
             src={playerPhotoUrl(ghostPlayer)}
             alt=""
             draggable={false}

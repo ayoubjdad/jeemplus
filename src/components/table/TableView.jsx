@@ -1,4 +1,8 @@
 import styles from "./TableView.module.scss";
+import {
+  sofascoreImgProps,
+  sofascoreTeamImageUrl,
+} from "../../api/sofascoreImages";
 
 export default function TableView({ data, options, onTeamClick }) {
   return (
@@ -92,7 +96,8 @@ export default function TableView({ data, options, onTeamClick }) {
                       }}
                     >
                       <img
-                        src={`https://img.sofascore.com/api/v1/team/${row.team.id}/image`}
+                        {...sofascoreImgProps}
+                        src={sofascoreTeamImageUrl(row.team.id)}
                         alt={row.team.name}
                         width="26"
                         height="26"

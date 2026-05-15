@@ -13,7 +13,7 @@ const GameCard = ({ game = {}, players = [] }) => {
     });
   };
 
-  // const tournamentImage = `https://img.sofascore.com/api/v1/unique-tournament/${game?.tournament?.uniqueTournament?.id}/image`;
+  // Tournament crest: sofascoreUniqueTournamentImageUrl(game?.tournament?.uniqueTournament?.id)
 
   const getStatusLabel = () => {
     switch (game?.status?.type) {

@@ -4,6 +4,10 @@ import { Typography, Stack, Divider, Avatar } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
+import {
+  sofascoreImgProps,
+  sofascoreTeamImageUrl,
+} from "../../../../api/sofascoreImages";
 
 export default function CompareTeams() {
   const queryClient = useQueryClient();
@@ -42,7 +46,8 @@ export default function CompareTeams() {
                 onClick={() => setTeamA(option)}
               >
                 <img
-                  src={`https://img.sofascore.com/api/v1/team/${option.id}/image`}
+                  {...sofascoreImgProps}
+                  src={sofascoreTeamImageUrl(option.id)}
                   alt={option.label}
                 />
               </button>
@@ -62,7 +67,8 @@ export default function CompareTeams() {
                 onClick={() => setTeamB(option)}
               >
                 <img
-                  src={`https://img.sofascore.com/api/v1/team/${option.id}/image`}
+                  {...sofascoreImgProps}
+                  src={sofascoreTeamImageUrl(option.id)}
                   alt={option.label}
                 />
               </button>
@@ -228,7 +234,8 @@ function TeamCompareCard({ row, label }) {
     <div className={styles.card}>
       <Stack direction="row" spacing={2} alignItems="center">
         <Avatar
-          src={`https://img.sofascore.com/api/v1/team/${row.team.id}/image`}
+          src={sofascoreTeamImageUrl(row.team.id)}
+          slotProps={{ img: sofascoreImgProps }}
         />
         <p>{name}</p>
       </Stack>
