@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getSofascoreApiV1Base } from "../../api/sofascoreBase";
+import { farPlayersList } from "../../data/static/farPlayersList";
 
 /** Al-Nassr (example from SofaScore) — override via Fanbase / props */
 export const DEFAULT_SOFA_TEAM_ID = 23400;
@@ -110,10 +111,11 @@ export function mapAndSortRoster(rows) {
  * @returns {Promise<TacticPlayer[]>}
  */
 export async function fetchTeamPlayersRoster(teamId) {
-  const base = getSofaApiV1Base();
-  const { data } = await axios.get(`${base}/team/${teamId}/players`, {
-    timeout: 25_000,
-  });
-  const { players } = normalizeTeamPlayersPayload(data);
+  // const base = getSofaApiV1Base();
+  // const { data } = await axios.get(`${base}/team/${teamId}/players`, {
+  //   timeout: 25_000,
+  // });
+  // return farPlayersList?.players || [];
+  const { players } = normalizeTeamPlayersPayload(farPlayersList);
   return mapAndSortRoster(players);
 }

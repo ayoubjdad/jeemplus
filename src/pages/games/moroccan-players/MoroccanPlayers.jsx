@@ -9,6 +9,8 @@ import Loader from "../../../layouts/loader/Loader";
 import GameCard from "../../../components/game-card/GameCard";
 import { tournamentsPriority } from "../../../data/Tournaments";
 import DatePicker from "../../../components/date-picker/DatePicker";
+import { gamesOfTheDay } from "../../../data/static/gamesOfTheDay";
+import { moroccanPlayers } from "../../../data/static/moroccanPlayers";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
@@ -18,8 +20,9 @@ const isToday = (date, timestamp) => {
 const fetchGames = async ({ queryKey }) => {
   const [, date] = queryKey;
   try {
-    const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
-    return response?.data?.events || [];
+    // const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
+    // return response?.data?.events || [];
+    return gamesOfTheDay?.events || [];
   } catch (error) {
     console.error("❌ Error fetching games:", error);
     return [];
@@ -63,39 +66,39 @@ export default function MoroccanPlayers({
     // ...options,
   });
 
-  const { data: enrichedGames = [], isLoading: playersLoading } = useQuery({
-    queryKey: ["enrichedGames", games, gamesFormatDate(date)],
-    queryFn: async () => {
-      const prioritizedGames = [...games].filter(
-        (g) =>
-          tournamentsPriority.some(
-            (t) => t.id === g.tournament.uniqueTournament.id
-          ) &&
-          isToday(date, g?.startTimestamp) &&
-          g.awayTeam.country.name !== "Morocco" &&
-          g.homeTeam.country.name !== "Morocco"
-      );
+  // const { data: enrichedGames = [], isLoading: playersLoading } = useQuery({
+  //   queryKey: ["enrichedGames", games, gamesFormatDate(date)],
+  //   queryFn: async () => {
+  //     const prioritizedGames = [...games].filter(
+  //       (g) =>
+  //         tournamentsPriority.some(
+  //           (t) => t.id === g.tournament.uniqueTournament.id
+  //         ) &&
+  //         isToday(date, g?.startTimestamp) &&
+  //         g.awayTeam.country.name !== "Morocco" &&
+  //         g.homeTeam.country.name !== "Morocco"
+  //     );
 
-      return Promise.all(
-        prioritizedGames.map(async (game) => {
-          const [home, away] = await Promise.all([
-            fetchTeamPlayers({ queryKey: ["teamPlayers", game.homeTeam.id] }),
-            fetchTeamPlayers({ queryKey: ["teamPlayers", game.awayTeam.id] }),
-          ]);
+  //     return Promise.all(
+  //       prioritizedGames.map(async (game) => {
+  //         const [home, away] = await Promise.all([
+  //           fetchTeamPlayers({ queryKey: ["teamPlayers", game.homeTeam.id] }),
+  //           fetchTeamPlayers({ queryKey: ["teamPlayers", game.awayTeam.id] }),
+  //         ]);
 
-          return {
-            id: game.id,
-            game,
-            homeTeam: { team: game.homeTeam, ...home },
-            awayTeam: { team: game.awayTeam, ...away },
-          };
-        })
-      );
-    },
-    enabled: games.length > 0,
-  });
+  //         return {
+  //           id: game.id,
+  //           game,
+  //           homeTeam: { team: game.homeTeam, ...home },
+  //           awayTeam: { team: game.awayTeam, ...away },
+  //         };
+  //       })
+  //     );
+  //   },
+  //   enabled: games.length > 0,
+  // });
 
-  if (gamesLoading || playersLoading) return <Loader />;
+  // if (gamesLoading || playersLoading) return <Loader />;
 
   return (
     <section className={styles.main}>
@@ -105,19 +108,22 @@ export default function MoroccanPlayers({
       </div>
 
       <div className={styles.container}>
-        {enrichedGames.map((game) => {
-          const moroccanPlayers = getMoroccanPlayers(
-            game.homeTeam.players || [],
-            game.awayTeam.players || []
-          );
-          if (moroccanPlayers.length === 0) return null;
+        {gamesOfTheDay?.events?.map((game) => {
+          // const moroccanPlayers = getMoroccanPlayers(
+          //   game.homeTeam.players || [],
+          //   game.awayTeam.players || []
+          // );
+          // const moroccanPlayers = moroccanPlayers?.players || [];
+          if (moroccanPlayers?.length === 0) return null;
 
           return (
-            <GameCard
-              key={game.id}
-              game={game.game}
-              players={moroccanPlayers}
-            />
+            // <GameCard
+            //   key={game.id}
+            //   game={game.game}
+            //   players={moroccanPlayers}
+            // />
+
+            <GameCard key={game.id} game={game} players={moroccanPlayers} />
           );
         })}
       </div>

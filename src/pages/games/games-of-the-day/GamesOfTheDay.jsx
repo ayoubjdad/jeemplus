@@ -9,6 +9,7 @@ import Loader from "../../../layouts/loader/Loader";
 import { gamesFormatDate } from "../../../helpers/global.helper";
 import { gamesUrl } from "../../../api/data";
 import axios from "axios";
+import { gamesOfTheDay } from "../../../data/static/gamesOfTheDay";
 
 const isToday = (date, timestamp) => {
   const startTime = new Date(timestamp * 1000);
@@ -18,8 +19,9 @@ const isToday = (date, timestamp) => {
 const fetchGames = async ({ queryKey }) => {
   const [, date] = queryKey;
   try {
-    const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
-    return response?.data?.events || [];
+    // const response = await axios.get(`${gamesUrl}${gamesFormatDate(date)}`);
+    // return response?.data?.events || [];
+    return gamesOfTheDay?.events || [];
   } catch (error) {
     console.error("❌ Error fetching games:", error);
     return [];
@@ -73,7 +75,7 @@ export default function GamesOfTheDay({
       </div>
 
       <div className={styles.container}>
-        {highlightedGames?.map((game) => (
+        {[...highlightedGames]?.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </div>

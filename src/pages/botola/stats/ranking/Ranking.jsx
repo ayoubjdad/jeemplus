@@ -24,9 +24,9 @@ export default function Ranking({ onTeamClick }) {
     { label: "Pts", value: "points" },
   ];
 
-  if (statsLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (statsLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return <TableView data={rows} options={options} onTeamClick={onTeamClick} />;
 }

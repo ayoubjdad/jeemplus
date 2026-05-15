@@ -3,6 +3,12 @@ import { useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
+import {
+  all,
+  overall,
+  performance,
+  teamDetails,
+} from "../../../../data/static/teamDetails";
 
 const TABS = [
   { id: "stats", label: "Statistiques" },
@@ -57,28 +63,32 @@ export default function TeamDetail({ teamId, onBack }) {
   const [tab, setTab] = useState("stats");
 
   const fetchTeamData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(`${base}/team/${teamId}`);
-    return response?.data || {};
+    // const base = getSofascoreApiV1Base();
+    // const response = await axios.get(`${base}/team/${teamId}`);
+    // return response?.data || {};
+    return teamDetails || {};
   };
   const fetchPerformanceData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(`${base}/team/${teamId}/performance`);
-    return response?.data || {};
+    // const base = getSofascoreApiV1Base();
+    // const response = await axios.get(`${base}/team/${teamId}/performance`);
+    // return response?.data || {};
+    return performance || {};
   };
   const fetchUniqueTournamentsData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(
-      `${base}/team/${teamId}/unique-tournaments/all`
-    );
-    return response?.data || {};
+    // const base = getSofascoreApiV1Base();
+    // const response = await axios.get(
+    //   `${base}/team/${teamId}/unique-tournaments/all`
+    // );
+    // return response?.data || {};
+    return all || {};
   };
   const fetchOverallStatisticsData = async () => {
-    const base = getSofascoreApiV1Base();
-    const response = await axios.get(
-      `${base}/team/${teamId}/unique-tournament/937/season/78750/statistics/overall`
-    );
-    return response?.data || {};
+    // const base = getSofascoreApiV1Base();
+    // const response = await axios.get(
+    //   `${base}/team/${teamId}/unique-tournament/937/season/78750/statistics/overall`
+    // );
+    // return response?.data || {};
+    return overall || {};
   };
 
   const { data, isLoading, isError } = useQuery({
@@ -104,9 +114,7 @@ export default function TeamDetail({ teamId, onBack }) {
     queryFn: fetchUniqueTournamentsData,
     enabled: Boolean(teamId),
   });
-  const {
-    data: overallStatsData,
-  } = useQuery({
+  const { data: overallStatsData } = useQuery({
     queryKey: ["team-overall-statistics", teamId],
     queryFn: fetchOverallStatisticsData,
     enabled: Boolean(teamId),
