@@ -8,24 +8,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import styles from "./InteractiveScreen.module.scss";
 import { fetchBotolaStandingsTables } from "../../api/botolaStandings";
-import {
-  DEFAULT_SOFA_TEAM_ID,
-  fetchTeamPlayersRoster,
-} from "./sofaTeamPlayersApi";
-
-function fallbackAvatarUrl(player) {
-  const label = encodeURIComponent(
-    String(player?.name ?? "?").replace(/\s+/g, "+")
-  );
-  return `https://ui-avatars.com/api/?name=${label}&size=128&background=0f292e&color=c5e8e0&bold=true`;
-}
-
-function playerPhotoUrl(player) {
-  if (player?.sofaPlayerId) {
-    return `https://img.sofascore.com/api/v1/player/${player.sofaPlayerId}/image`;
-  }
-  return fallbackAvatarUrl(player);
-}
+import { fetchTeamPlayersRoster } from "./teamPlayersApi";
+import { playerPhoto } from "../../helpers/media.helpers";
 
 function pctFromCenterPx(cx, cy, rect) {
   const x = ((cx - rect.left) / rect.width) * 100;
@@ -63,7 +47,7 @@ function pointInRect(clientX, clientY, r) {
  * }} props
  */
 export default function InteractiveScreen({
-  teamId: initialTeamId = DEFAULT_SOFA_TEAM_ID,
+  teamId: initialTeamId = null,
   standingsPicker: standingsPickerExternal = null,
   teamPickerLabel = "Équipe Botola Pro",
   selectId = "interactive-botola-team",
@@ -192,8 +176,11 @@ export default function InteractiveScreen({
     error,
     refetch,
   } = useQuery({
-    queryKey: ["sofa-team-players", resolvedTeamId],
-    queryFn: () => fetchTeamPlayersRoster(resolvedTeamId),
+    queryKey: ["team-players-roster", resolvedTeamId],
+    queryFn: async () => {
+      const result = await fetchTeamPlayersRoster(resolvedTeamId);
+      return result.players ?? [];
+    },
     enabled: resolvedTeamId != null && String(resolvedTeamId).length > 0,
   });
 
@@ -538,7 +525,7 @@ export default function InteractiveScreen({
                           ) : null}
                           <img
                             className={styles.playerCardAvatar}
-                            src={playerPhotoUrl(player)}
+                            src={playerPhoto(player)}
                             alt=""
                             draggable={false}
                             onError={(e) => {
@@ -624,7 +611,7 @@ export default function InteractiveScreen({
                               ) : null}
                               <img
                                 className={styles.tokenAvatar}
-                                src={playerPhotoUrl(player)}
+                                src={playerPhoto(player)}
                                 alt=""
                                 draggable={false}
                                 onError={(e) => {
@@ -667,7 +654,7 @@ export default function InteractiveScreen({
           }}
         >
           <img
-            src={playerPhotoUrl(ghostPlayer)}
+            src={playerPhoto(ghostPlayer)}
             alt=""
             draggable={false}
             onError={(e) => {

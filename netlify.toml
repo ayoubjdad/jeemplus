@@ -5,12 +5,11 @@
   command = "pnpm run build"
   publish = "dist"
 
-# SofaScore JSON: Netlify Edge + ordinary fetch usually get 403 (Akamai/TLS fingerprinting against datacenter IPs).
-# This function retries with curl's OpenSSL JA3 where possible and uses TheSportsDB for football schedules as fallback.
+# API-Football v3 proxy (key server-side in football-api function)
 [[redirects]]
   force = true
-  from = "/sofa-api/*"
-  to = "/.netlify/functions/sofascore-fetch"
+  from = "/football-api/*"
+  to = "/.netlify/functions/football-api"
   status = 200
 
 [[redirects]]

@@ -13,8 +13,6 @@ const GameCard = ({ game = {}, players = [] }) => {
     });
   };
 
-  // const tournamentImage = `https://img.sofascore.com/api/v1/unique-tournament/${game?.tournament?.uniqueTournament?.id}/image`;
-
   const getStatusLabel = () => {
     switch (game?.status?.type) {
       case "finished":
@@ -68,8 +66,8 @@ const GameCard = ({ game = {}, players = [] }) => {
         </div>
 
         <div style={{ color: palette.gray.main }} className={styles.infos}>
-          {game?.tournament?.uniqueTournament?.name} - Round{" "}
-          {game?.roundInfo?.round}
+          {game?.league?.name ?? game?.tournament?.uniqueTournament?.name}
+          {game?.roundInfo?.round ? ` - ${game.roundInfo.round}` : ""}
         </div>
       </Link>
 

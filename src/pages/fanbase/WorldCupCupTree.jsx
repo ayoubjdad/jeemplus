@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import styles from "./WorldCupCupTree.module.scss";
+import { teamLogo } from "../../helpers/media.helpers";
 
 /** Must stay in sync with `.match` min-height + gaps in SCSS */
 const CARD_H = 102;
@@ -95,18 +96,16 @@ function TeamSlot({ participant }) {
     );
   }
 
-  const useLogo = team.national === true && team.disabled !== true;
-
   return (
     <div
       className={`${styles.slot} ${winner ? styles.slotWinner : ""} ${
         team.disabled ? styles.slotPlaceholder : ""
       }`}
     >
-      {useLogo ? (
+      {team.logo || team.id ? (
         <img
           className={styles.slotLogo}
-          src={`https://img.sofascore.com/api/v1/team/${team.id}/image`}
+          src={teamLogo(team)}
           alt=""
           width={22}
           height={22}
