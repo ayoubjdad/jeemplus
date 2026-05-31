@@ -1,24 +1,26 @@
 import styles from "./CompareTeams.module.scss";
 import { useMemo, useState } from "react";
 import { Typography, Stack, Divider, Avatar } from "@mui/material";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { getSofascoreApiV1Base } from "../../../../api/sofascoreBase";
+import { useQuery } from "@tanstack/react-query";
+import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
+import { getTeamForm } from "../../../../api/football/services/teamsService";
+import { teamLogo } from "../../../../helpers/media.helpers";
 
 export default function CompareTeams() {
-  const queryClient = useQueryClient();
-
-  const data = queryClient.getQueryData(["stats"]);
-
-  const rows = useMemo(() => data?.[0]?.rows || [], [data]);
+  const { data: stats = [] } = useQuery({
+    queryKey: ["stats"],
+    queryFn: fetchBotolaStandingsTables,
+  });
+  const rows = useMemo(() => stats[0]?.rows || [], [stats]);
 
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);
 
   const options = rows.map((r) => ({
     id: r.team.id,
-    label: r.team.fieldTranslations?.nameTranslation?.fr || r.team.name,
+    label: r.team.name,
     row: r,
+    logo: r.team.logo,
   }));
   const teamAOptions = options.filter((option) => option.id !== teamB?.id);
   const teamBOptions = options.filter((option) => option.id !== teamA?.id);
@@ -41,10 +43,7 @@ export default function CompareTeams() {
                 }`}
                 onClick={() => setTeamA(option)}
               >
-                <img
-                  src={`https://img.sofascore.com/api/v1/team/${option.id}/image`}
-                  alt={option.label}
-                />
+                <img src={teamLogo(option.row.team)} alt={option.label} />
               </button>
             ))}
           </div>
@@ -61,10 +60,7 @@ export default function CompareTeams() {
                 }`}
                 onClick={() => setTeamB(option)}
               >
-                <img
-                  src={`https://img.sofascore.com/api/v1/team/${option.id}/image`}
-                  alt={option.label}
-                />
+                <img src={teamLogo(option.row.team)} alt={option.label} />
               </button>
             ))}
           </div>
@@ -72,6 +68,7 @@ export default function CompareTeams() {
 
         <button
           className={styles.button}
+          type="button"
           onClick={() => {
             setTeamA(null);
             setTeamB(null);
@@ -104,106 +101,37 @@ export default function CompareTeams() {
   );
 }
 
-function normalizeResult(event, teamId) {
-  const isHome = event?.homeTeam?.id === teamId;
-  const isAway = event?.awayTeam?.id === teamId;
-  if (!isHome && !isAway) return null;
-  const homeScore = event?.homeScore?.current ?? event?.homeScore?.display;
-  const awayScore = event?.awayScore?.current ?? event?.awayScore?.display;
-  if (typeof homeScore !== "number" || typeof awayScore !== "number")
-    return null;
-  if (homeScore === awayScore) return "D";
-  if ((isHome && homeScore > awayScore) || (isAway && awayScore > homeScore)) {
-    return "W";
-  }
-  return "L";
-}
-
-function buildTrend(events, teamId) {
-  const recent = events.slice(0, 10);
-  const finished = recent.filter((event) => event?.status?.type === "finished");
-  if (!finished.length) {
-    return { unbeaten: "—", over25: "—", btts: "—", firstConceded: "—" };
-  }
-
-  const unbeaten = finished.filter(
-    (event) => normalizeResult(event, teamId) !== "L"
-  ).length;
-  const over25 = finished.filter((event) => {
-    const h = event?.homeScore?.current ?? event?.homeScore?.display ?? 0;
-    const a = event?.awayScore?.current ?? event?.awayScore?.display ?? 0;
-    return h + a > 2.5;
-  }).length;
-  const btts = finished.filter((event) => {
-    const h = event?.homeScore?.current ?? event?.homeScore?.display ?? 0;
-    const a = event?.awayScore?.current ?? event?.awayScore?.display ?? 0;
-    return h > 0 && a > 0;
-  }).length;
-  const firstConceded = finished.filter((event) => {
-    const isHome = event?.homeTeam?.id === teamId;
-    const h1 = event?.homeScore?.period1 ?? 0;
-    const a1 = event?.awayScore?.period1 ?? 0;
-    return isHome ? a1 > h1 : h1 > a1;
-  }).length;
-
-  return {
-    unbeaten: `${unbeaten}/${finished.length}`,
-    over25: `${over25}/${finished.length}`,
-    btts: `${btts}/${finished.length}`,
-    firstConceded: `${firstConceded}/${finished.length}`,
-  };
-}
-
 function CompareInsights({ teamAId, teamBId, teamALabel, teamBLabel }) {
-  const fetchPerformance = async (id) => {
-    const response = await axios.get(
-      `${getSofascoreApiV1Base()}/team/${id}/performance`
-    );
-    return response?.data || {};
-  };
-
-  const {
-    data: perfA,
-    // isLoading: loadingA
-  } = useQuery({
-    queryKey: ["compare-performance", teamAId],
-    queryFn: () => fetchPerformance(teamAId),
+  const { data: trendA = {} } = useQuery({
+    queryKey: ["compare-form", teamAId],
+    queryFn: () => getTeamForm(teamAId),
     enabled: Boolean(teamAId),
   });
 
-  const {
-    data: perfB,
-    // isLoading: loadingB
-  } = useQuery({
-    queryKey: ["compare-performance", teamBId],
-    queryFn: () => fetchPerformance(teamBId),
+  const { data: trendB = {} } = useQuery({
+    queryKey: ["compare-form", teamBId],
+    queryFn: () => getTeamForm(teamBId),
     enabled: Boolean(teamBId),
   });
-
-  const eventsA = perfA?.events || [];
-  const eventsB = perfB?.events || [];
-
-  const trendA = buildTrend(eventsA, teamAId);
-  const trendB = buildTrend(eventsB, teamBId);
 
   return (
     <div className={styles.insightsWrap}>
       <section className={styles.insightCard}>
-        <h3>Séries et tendances</h3>
+        <h3>Séries et tendances (15 derniers matchs)</h3>
         <div className={styles.trendsGrid}>
           <div className={styles.trendCol}>
             <h4>{teamALabel}</h4>
-            <p>Sans défaite: {trendA.unbeaten}</p>
-            <p>Plus de 2.5 buts: {trendA.over25}</p>
-            <p>Les deux marquent: {trendA.btts}</p>
-            <p>Premier à encaisser: {trendA.firstConceded}</p>
+            <p>Sans défaite: {trendA.unbeaten ?? "—"}</p>
+            <p>Plus de 2.5 buts: {trendA.over25 ?? "—"}</p>
+            <p>Les deux marquent: {trendA.btts ?? "—"}</p>
+            <p>Premier à encaisser: {trendA.firstConceded ?? "—"}</p>
           </div>
           <div className={styles.trendCol}>
             <h4>{teamBLabel}</h4>
-            <p>Sans défaite: {trendB.unbeaten}</p>
-            <p>Plus de 2.5 buts: {trendB.over25}</p>
-            <p>Les deux marquent: {trendB.btts}</p>
-            <p>Premier à encaisser: {trendB.firstConceded}</p>
+            <p>Sans défaite: {trendB.unbeaten ?? "—"}</p>
+            <p>Plus de 2.5 buts: {trendB.over25 ?? "—"}</p>
+            <p>Les deux marquent: {trendB.btts ?? "—"}</p>
+            <p>Premier à encaisser: {trendB.firstConceded ?? "—"}</p>
           </div>
         </div>
       </section>
@@ -221,15 +149,13 @@ function TeamCompareCard({ row, label }) {
     );
   }
 
-  const name = row.team.fieldTranslations?.nameTranslation?.fr || row.team.name;
+  const name = row.team.name;
   const gd = row.scoresFor - row.scoresAgainst;
 
   return (
     <div className={styles.card}>
       <Stack direction="row" spacing={2} alignItems="center">
-        <Avatar
-          src={`https://img.sofascore.com/api/v1/team/${row.team.id}/image`}
-        />
+        <Avatar src={teamLogo(row.team)} />
         <p>{name}</p>
       </Stack>
       <Divider sx={{ my: 1 }} />

@@ -1,4 +1,5 @@
 import styles from "./TableView.module.scss";
+import { teamLogo } from "../../helpers/media.helpers";
 
 export default function TableView({ data, options, onTeamClick }) {
   return (
@@ -14,8 +15,8 @@ export default function TableView({ data, options, onTeamClick }) {
                     index === 0
                       ? "60px 0 0 60px"
                       : index === options.length - 1
-                      ? "0 60px 60px 0"
-                      : 0,
+                        ? "0 60px 60px 0"
+                        : 0,
                   textAlign:
                     option.value === "team" || option.value === "player"
                       ? "left"
@@ -30,36 +31,18 @@ export default function TableView({ data, options, onTeamClick }) {
 
         <tbody>
           {data.map((row, idx) => (
-            <tr key={row.id}>
+            <tr key={row.id ?? idx}>
               {options.map((option, index) => {
                 const value = option.value;
 
-                // special case: position
                 if (value === "#") {
                   return (
                     <td key={index} style={{ borderRadius: "60px 0 0 60px" }}>
-                      <p
-                        className={styles.position}
-                        // style={{
-                        //   backgroundColor:
-                        //     row?.promotion?.text === "Champions League"
-                        //       ? "#00db6a"
-                        //       : row?.promotion?.text === "CAF Confederation Cup"
-                        //       ? "#006431"
-                        //       : row?.promotion?.text === "Relegation Playoffs"
-                        //       ? "#f88686"
-                        //       : row?.promotion?.text === "Relegation"
-                        //       ? "#fe4040"
-                        //       : "#1d2a2c",
-                        // }}
-                      >
-                        {row.position || idx + 1}
-                      </p>
+                      <p className={styles.position}>{row.position || idx + 1}</p>
                     </td>
                   );
                 }
 
-                // special case: team
                 if (value === "team") {
                   return (
                     <td
@@ -92,30 +75,25 @@ export default function TableView({ data, options, onTeamClick }) {
                       }}
                     >
                       <img
-                        src={`https://img.sofascore.com/api/v1/team/${row.team.id}/image`}
+                        src={teamLogo(row.team)}
                         alt={row.team.name}
                         width="26"
                         height="26"
                         style={{ marginRight: 8 }}
                       />
-                      <span className={styles.teamName}>
-                        {row.team.fieldTranslations?.nameTranslation?.fr ||
-                          row.team.name}
-                      </span>
+                      <span className={styles.teamName}>{row.team.name}</span>
                     </td>
                   );
                 }
 
-                // special case: player
                 if (value === "player") {
                   return (
                     <td key={index} style={{ textAlign: "left" }}>
-                      {row[value].name ?? ""}
+                      {row[value]?.name ?? ""}
                     </td>
                   );
                 }
 
-                // default case: show the value dynamically
                 return (
                   <td
                     key={index}

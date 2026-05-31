@@ -44,7 +44,7 @@ export default function WorldCupStandings() {
     isLoading: standingsLoading,
     isError: standingsError,
   } = useQuery({
-    queryKey: ["worldCupStandings", "unique-tournament-16-season-58210"],
+    queryKey: ["worldCupStandings"],
     queryFn: fetchWorldCupStandings,
   });
 
@@ -53,7 +53,7 @@ export default function WorldCupStandings() {
     isLoading: treesLoading,
     isError: treesError,
   } = useQuery({
-    queryKey: ["worldCupCupTrees", "unique-tournament-16-season-58210"],
+    queryKey: ["worldCupCupTrees"],
     queryFn: fetchWorldCupCupTrees,
   });
 

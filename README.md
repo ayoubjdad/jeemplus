@@ -1,70 +1,77 @@
-# Getting Started with Create React App
+# Jeemplus (Fanbase)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Football fan app for Botola Pro, daily matches, Moroccan internationals, and World Cup coverage.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+- React 19 + Vite
+- TanStack Query
+- MUI + Sass
+- **API-Football v3** (via server-side Netlify proxy)
+- Netlify (hosting + functions)
 
-### `npm start`
+## Local development
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Copy environment file:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+cp .env.example .env
+```
 
-### `npm test`
+2. Add your API-Football key to `.env`:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```env
+API_FOOTBALL_KEY=your_key_here
+```
 
-### `npm run build`
+3. Install and run:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+pnpm install
+pnpm dev
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The Vite dev server proxies `/football-api/*` to API-Football and injects your key from `API_FOOTBALL_KEY`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Production (Netlify)
 
-### `npm run eject`
+1. Set **`API_FOOTBALL_KEY`** in Netlify environment variables (Site settings → Environment variables).
+2. Do **not** expose the key via `VITE_*` variables.
+3. Deploy — `netlify.toml` routes `/football-api/*` to the `football-api` serverless function with caching headers.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Architecture
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+Browser → /football-api/* → Netlify function → v3.football.api-sports.io
+                ↓
+         src/api/football/services (pages import these)
+                ↓
+         src/api/football/mappers (normalized domain models)
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Pages never call API-Football directly or use raw API response shapes.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## API quota tips
 
-## Learn More
+- React Query uses 60s default `staleTime` to reduce repeat calls.
+- Netlify function sets Cache-Control by endpoint type (standings 5–15 min, fixtures 1–2 min).
+- Recommended plan for production: **Ultra** ($29/mo, 75k req/day).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Scripts
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start dev server |
+| `pnpm build` | Production build |
+| `pnpm preview` | Preview production build |
+| `pnpm test` | Run Vitest unit tests |
 
-### Code Splitting
+## Manual QA checklist
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [ ] Matchs du jour loads for today + date picker
+- [ ] Internationaux shows Moroccan players
+- [ ] Game detail: scores, stats, lineups, events
+- [ ] Botola: standings, top players, compare, team detail
+- [ ] Interactive screen: defaults to first Botola team
+- [ ] World Cup: groups + bracket tab
+- [ ] Network tab shows only `/football-api/*` (no API key in browser)
