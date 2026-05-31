@@ -11,6 +11,154 @@ import { fetchBotolaStandingsTables } from "../../api/botolaStandings";
 import { fetchTeamPlayersRoster } from "./teamPlayersApi";
 import { playerPhoto } from "../../helpers/media.helpers";
 
+/** Tracage FIFA — terrain 105 m × 68 m (viewBox métrique). */
+function PitchMarkingsSvg({ className }) {
+  const W = 105;
+  const H = 68;
+  const cy = H / 2;
+  const penTop = (H - 40.32) / 2;
+  const goalTop = (H - 18.32) / 2;
+  const penFrontL = 16.5;
+  const penFrontR = W - 16.5;
+  const arcDy = Math.sqrt(9.15 ** 2 - (16.5 - 11) ** 2);
+  const arcTop = cy - arcDy;
+  const arcBot = cy + arcDy;
+  const line = "rgba(255,255,255,0.42)";
+  const sw = 0.16;
+
+  return (
+    <svg
+      className={className}
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      <rect
+        x="0"
+        y="0"
+        width={W}
+        height={H}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <line
+        x1={W / 2}
+        y1="0"
+        x2={W / 2}
+        y2={H}
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <circle
+        cx={W / 2}
+        cy={cy}
+        r={9.15}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <circle cx={W / 2} cy={cy} r={0.35} fill={line} stroke="none" />
+
+      <rect
+        x="0"
+        y={penTop}
+        width={16.5}
+        height={40.32}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <rect
+        x="0"
+        y={goalTop}
+        width={5.5}
+        height={18.32}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <circle cx={11} cy={cy} r={0.35} fill={line} stroke="none" />
+      <path
+        d={`M ${penFrontL} ${arcTop} A 9.15 9.15 0 0 1 ${penFrontL} ${arcBot}`}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+
+      <rect
+        x={penFrontR}
+        y={penTop}
+        width={16.5}
+        height={40.32}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <rect
+        x={W - 5.5}
+        y={goalTop}
+        width={5.5}
+        height={18.32}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <circle cx={W - 11} cy={cy} r={0.35} fill={line} stroke="none" />
+      <path
+        d={`M ${penFrontR} ${arcTop} A 9.15 9.15 0 0 1 ${penFrontR} ${arcBot}`}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+
+      <path
+        d="M 1 0 A 1 1 0 0 0 0 1"
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <path
+        d={`M ${W - 1} 0 A 1 1 0 0 1 ${W} 1`}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <path
+        d={`M 0 ${H - 1} A 1 1 0 0 0 1 ${H}`}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <path
+        d={`M ${W} ${H - 1} A 1 1 0 0 1 ${W - 1} ${H}`}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+
+      <rect
+        x={-1.5}
+        y={cy - 3.66}
+        width={1.5}
+        height={7.32}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+      <rect
+        x={W}
+        y={cy - 3.66}
+        width={1.5}
+        height={7.32}
+        fill="none"
+        stroke={line}
+        strokeWidth={sw}
+      />
+    </svg>
+  );
+}
+
 function pctFromCenterPx(cx, cy, rect) {
   const x = ((cx - rect.left) / rect.width) * 100;
   const y = ((cy - rect.top) / rect.height) * 100;
@@ -365,6 +513,111 @@ export default function InteractiveScreen({
   const squadTotal = roster.length;
   const showList = !isLoading && !isError && squadTotal > 0;
 
+  const [leftRoster, rightRoster] = useMemo(() => {
+    const mid = Math.ceil(roster.length / 2);
+    return [roster.slice(0, mid), roster.slice(mid)];
+  }, [roster]);
+
+  const renderPlayerCard = useCallback(
+    (player) => {
+      const onField = Boolean(fieldById[player.id]);
+      const draggingRow =
+        dragUi?.mode === "list" && dragUi.playerId === player.id;
+      return (
+        <div
+          key={player.id}
+          className={`${styles.playerCard} ${
+            onField ? styles.playerCardOnField : ""
+          } ${draggingRow ? styles.playerCardDragging : ""}`}
+          onPointerDown={(e) => handleListPointerDown(e, player.id)}
+        >
+          {onField ? (
+            <button
+              type="button"
+              className={styles.playerCardRemove}
+              aria-label={`Retirer ${player.name} du terrain`}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFromField(player.id);
+              }}
+            >
+              ×
+            </button>
+          ) : null}
+          <div className={styles.playerCardAvatarWrap}>
+            {player.captain ? (
+              <span className={styles.playerCardCaptain}>c</span>
+            ) : null}
+            <img
+              className={styles.playerCardAvatar}
+              src={playerPhoto(player)}
+              alt=""
+              draggable={false}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = fallbackAvatarUrl(player);
+              }}
+            />
+          </div>
+          <div className={styles.playerCardMeta}>
+            <span className={styles.playerCardName}>{player.name}</span>
+            <span className={styles.playerCardRole}>{player.role}</span>
+          </div>
+          {onField ? (
+            <span className={styles.playerCardFieldPill}>Terrain</span>
+          ) : (
+            <span className={styles.playerCardHint} aria-hidden>
+              ↓
+            </span>
+          )}
+        </div>
+      );
+    },
+    [
+      dragUi,
+      fieldById,
+      handleListPointerDown,
+      removeFromField,
+    ]
+  );
+
+  const renderSidebarContent = (players, showStatus = false) => {
+    if (showStatus && isLoading) {
+      return (
+        <p className={styles.listBenchHint}>Chargement de l’effectif…</p>
+      );
+    }
+    if (showStatus && isError) {
+      return (
+        <div className={styles.listBenchHint}>
+          <p>Impossible de charger l’effectif.</p>
+          <p style={{ fontSize: "0.85em", opacity: 0.85 }}>
+            {error?.message || "Erreur réseau"}
+          </p>
+          <button
+            type="button"
+            className={styles.removeBtn}
+            onClick={() => refetch()}
+          >
+            Réessayer
+          </button>
+        </div>
+      );
+    }
+    if (showStatus && !isLoading && !isError && squadTotal === 0) {
+      return (
+        <p className={styles.listBenchHint}>
+          Aucun joueur renvoyé par l’API.
+        </p>
+      );
+    }
+    if (showList) {
+      return players.map(renderPlayerCard);
+    }
+    return null;
+  };
+
   const teamPickerDisabled =
     standingsLoading ||
     standingsError ||
@@ -378,6 +631,7 @@ export default function InteractiveScreen({
         embedded ? styles.mainEmbedded : styles.mainFillViewport
       } ${browserFullscreen ? styles.mainBrowserFullscreen : ""}`}
     >
+      {!browserFullscreen ? (
       <header className={styles.pageHeader}>
         {/* <div className={styles.pageHeaderText}>
           <p className={styles.pageEyebrow}>Écran tactique</p>
@@ -456,100 +710,22 @@ export default function InteractiveScreen({
           <span className={styles.pageStatLabel}>sur le terrain</span>
         </div> */}
       </header>
+      ) : null}
 
-      <div className={styles.layout}>
+      <div
+        className={`${styles.layout} ${
+          browserFullscreen ? styles.layoutFullscreen : ""
+        }`}
+      >
         <aside className={styles.sidebar}>
           <div className={styles.sidebarCard}>
-            <div className={styles.sidebarCardHead}>
-              <h2 className={styles.sidebarTitle}>Effectif</h2>
-              {/*  <span className={styles.sidebarTag}>4-2-3-1</span> */}
-            </div>
+            {!browserFullscreen ? (
+              <div className={styles.sidebarCardHead}>
+                <h2 className={styles.sidebarTitle}>Effectif</h2>
+              </div>
+            ) : null}
             <div className={styles.playerList}>
-              {isLoading ? (
-                <p className={styles.listBenchHint}>
-                  Chargement de l’effectif…
-                </p>
-              ) : null}
-              {isError ? (
-                <div className={styles.listBenchHint}>
-                  <p>Impossible de charger l’effectif.</p>
-                  <p style={{ fontSize: "0.85em", opacity: 0.85 }}>
-                    {error?.message || "Erreur réseau"}
-                  </p>
-                  <button
-                    type="button"
-                    className={styles.removeBtn}
-                    onClick={() => refetch()}
-                  >
-                    Réessayer
-                  </button>
-                </div>
-              ) : null}
-              {showList
-                ? roster.map((player) => {
-                    const onField = Boolean(fieldById[player.id]);
-                    const draggingRow =
-                      dragUi?.mode === "list" && dragUi.playerId === player.id;
-                    return (
-                      <div
-                        key={player.id}
-                        className={`${styles.playerCard} ${
-                          onField ? styles.playerCardOnField : ""
-                        } ${draggingRow ? styles.playerCardDragging : ""}`}
-                        onPointerDown={(e) =>
-                          handleListPointerDown(e, player.id)
-                        }
-                      >
-                        {onField ? (
-                          <button
-                            type="button"
-                            className={styles.playerCardRemove}
-                            aria-label={`Retirer ${player.name} du terrain`}
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFromField(player.id);
-                            }}
-                          >
-                            ×
-                          </button>
-                        ) : null}
-                        <div className={styles.playerCardBadge}>
-                          {player.number}
-                        </div>
-                        <div className={styles.playerCardAvatarWrap}>
-                          {player.captain ? (
-                            <span className={styles.playerCardCaptain}>
-                              c
-                            </span>
-                          ) : null}
-                          <img
-                            className={styles.playerCardAvatar}
-                            src={playerPhoto(player)}
-                            alt=""
-                            draggable={false}
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = fallbackAvatarUrl(player);
-                            }}
-                          />
-                        </div>
-                        <span className={styles.playerCardName}>{player.name}</span>
-                        <span className={styles.playerCardRole}>{player.role}</span>
-                        {onField ? (
-                          <span className={styles.playerCardFieldPill}>Terrain</span>
-                        ) : (
-                          <span className={styles.playerCardHint}>→ terrain</span>
-                        )}
-                      </div>
-                    );
-                  })
-                : null}
-              {!isLoading && !isError && squadTotal === 0 ? (
-                <p className={styles.listBenchHint}>
-                  Aucun joueur renvoyé par l’API.
-                </p>
-              ) : null}
+              {renderSidebarContent(leftRoster, true)}
             </div>
           </div>
         </aside>
@@ -562,6 +738,26 @@ export default function InteractiveScreen({
             </p>
           </div> */}
           <div className={styles.pitchWrap}>
+            {browserFullscreen ? (
+              <button
+                type="button"
+                className={styles.fullscreenExitFab}
+                onClick={() => void toggleBrowserFullscreen()}
+                title="Quitter le plein écran (Échap)"
+              >
+                <span className={styles.fullscreenToggleIcon} aria-hidden>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M9 4H4v5M15 20h5v-5M4 15v5h5M20 9V4h-5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+            ) : null}
             <div
               ref={pitchRef}
               className={`${styles.pitch} ${
@@ -569,18 +765,7 @@ export default function InteractiveScreen({
               }`}
             >
               <div className={styles.pitchGrass} aria-hidden />
-              <div className={styles.pitchMarkings} aria-hidden>
-                <div className={styles.goalLineLeft} />
-                <div className={styles.goalLineRight} />
-                <div className={styles.penaltyBoxLeft} />
-                <div className={styles.penaltyBoxRight} />
-                <div className={styles.penaltySpotLeft} />
-                <div className={styles.penaltySpotRight} />
-                <div className={styles.midLineVertical} />
-                <div className={styles.centerSpot} />
-                <div className={styles.penaltyArcLeft} />
-                <div className={styles.penaltyArcRight} />
-              </div>
+              <PitchMarkingsSvg className={styles.pitchSvg} />
 
               {showList
                 ? roster.map((player) => {
@@ -627,9 +812,6 @@ export default function InteractiveScreen({
                               </span> */}
                             </div>
                             <div className={styles.tokenLabel}>
-                              <span className={styles.tokenJersey}>
-                                {player.number}
-                              </span>
                               <span className={styles.tokenName}>
                                 {player.name}
                               </span>
@@ -643,6 +825,14 @@ export default function InteractiveScreen({
             </div>
           </div>
         </div>
+
+        <aside className={`${styles.sidebar} ${styles.sidebarRight}`}>
+          <div className={styles.sidebarCard}>
+            <div className={styles.playerList}>
+              {renderSidebarContent(rightRoster)}
+            </div>
+          </div>
+        </aside>
       </div>
 
       {listGhost && ghostPlayer ? (
@@ -662,9 +852,7 @@ export default function InteractiveScreen({
               e.currentTarget.src = fallbackAvatarUrl(ghostPlayer);
             }}
           />
-          <span>
-            #{ghostPlayer.number} {ghostPlayer.name}
-          </span>
+          <span>{ghostPlayer.name}</span>
         </div>
       ) : null}
     </div>

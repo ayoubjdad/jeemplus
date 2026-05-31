@@ -25,7 +25,7 @@ export default function BotolaStats() {
           >
             Classement
           </button>
-          <button
+          {/* <button
             className={activeView === "players" ? styles.active : ""}
             onClick={() => {
               setActiveView("players");
@@ -34,7 +34,7 @@ export default function BotolaStats() {
             }}
           >
             Top Joueurs
-          </button>
+          </button> */}
           <button
             className={activeView === "compare" ? styles.active : ""}
             onClick={() => {

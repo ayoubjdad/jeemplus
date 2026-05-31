@@ -6,8 +6,8 @@ import {
 } from "../mappers/mapStandingRow.js";
 
 export async function getBotolaStandings() {
-  const { id, season } = LEAGUES.BOTOLA_PRO;
-  const data = await footballGet("standings", { league: id, season });
+  const { id_v3, season } = LEAGUES.BOTOLA_PRO;
+  const data = await footballGet("standings", { league: id_v3, season });
   const response = extractResponse(data);
   const rows = mapStandingsTable(response);
   return [{ type: "total", rows, name: "Botola Pro" }];
@@ -19,7 +19,7 @@ export async function fetchBotolaStandingsTables() {
 }
 
 export async function getWorldCupGroups() {
-  const { id, season } = LEAGUES.WORLD_CUP;
-  const data = await footballGet("standings", { league: id, season });
+  const { id_v3, season } = LEAGUES.WORLD_CUP;
+  const data = await footballGet("standings", { league: id_v3, season });
   return mapStandingsGroups(extractResponse(data));
 }
