@@ -23,22 +23,39 @@ export async function footballGet(path, params = {}) {
     }
   }
 
-  const response = await axios.get(url, { params: query });
-  const data = response.data;
+  try {
+    const response = await axios.get(url, { params: query });
+    const data = response.data;
 
-  if (DEV) {
-    const remaining = response.headers?.["x-ratelimit-remaining"];
-    if (remaining != null) {
-      console.debug(`[API-Football] ${cleanPath} — quota remaining: ${remaining}`);
+    if (DEV) {
+      const remaining = response.headers?.["x-ratelimit-remaining"];
+      if (remaining != null) {
+        console.debug(
+          `[API-Football] ${cleanPath} — quota remaining: ${remaining}`,
+        );
+      }
     }
-  }
 
-  if (data?.errors && Object.keys(data.errors).length > 0) {
-    const msg = Object.values(data.errors).join("; ");
-    throw new Error(msg || "API-Football error");
-  }
+    if (data?.errors && Object.keys(data.errors).length > 0) {
+      const msg = Object.values(data.errors).filter(Boolean).join("; ");
+      throw new Error(msg || "API-Football error");
+    }
 
-  return data;
+    return data;
+  } catch (err) {
+    const status = err?.response?.status;
+    if (status === 403) {
+      throw new Error(
+        "API-Football refused the request (403). Check API_FOOTBALL_KEY in .env and restart the dev server.",
+      );
+    }
+    if (status === 429) {
+      throw new Error("API-Football daily quota exceeded. Try again tomorrow.");
+    }
+    const apiMsg = err?.response?.data?.message;
+    if (apiMsg) throw new Error(apiMsg);
+    throw err;
+  }
 }
 
 /** @returns {unknown[]} */

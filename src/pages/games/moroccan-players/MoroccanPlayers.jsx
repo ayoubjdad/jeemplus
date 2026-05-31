@@ -34,13 +34,19 @@ export default function MoroccanPlayers({
       </div>
 
       <div className={styles.container}>
-        {enrichedGames.map((item) => (
-          <GameCard
-            key={item.id}
-            game={item.game}
-            players={item.moroccanPlayers}
-          />
-        ))}
+        {enrichedGames.length === 0 ? (
+          <p className={styles.empty}>
+            Aucun match avec joueurs marocains pour cette date.
+          </p>
+        ) : (
+          enrichedGames.map((item) => (
+            <GameCard
+              key={item.id}
+              game={item.game}
+              players={item.moroccanPlayers}
+            />
+          ))
+        )}
       </div>
     </section>
   );

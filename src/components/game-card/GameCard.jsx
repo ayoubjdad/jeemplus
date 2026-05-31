@@ -73,8 +73,11 @@ const GameCard = ({ game = {}, players = [] }) => {
 
       {!players?.length ? null : (
         <div className={styles.playersList}>
-          {players.map((playerObj) => (
-            <PlayerCard key={playerObj.id} player={playerObj?.player} />
+          {players.map((playerObj, idx) => (
+            <PlayerCard
+              key={playerObj.player?.id ?? playerObj.id ?? idx}
+              player={playerObj?.player ?? playerObj}
+            />
           ))}
         </div>
       )}

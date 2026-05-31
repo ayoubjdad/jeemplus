@@ -29,7 +29,11 @@ export async function getFixtureDetail(fixtureId) {
   const lineupsRaw = extractResponse(lineupsRes);
 
   const statistics = mapFixtureStatistics(statsRaw);
-  const incidents = mapFixtureEvents(eventsRaw);
+  const incidents = mapFixtureEvents(
+    eventsRaw,
+    event.homeTeam?.id,
+    event.awayTeam?.id,
+  );
   const lineups = mapFixtureLineups(lineupsRaw);
 
   const homeCoach = lineups.home?.coach?.name;

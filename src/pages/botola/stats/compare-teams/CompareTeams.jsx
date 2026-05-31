@@ -1,14 +1,17 @@
 import styles from "./CompareTeams.module.scss";
 import { useMemo, useState } from "react";
 import { Typography, Stack, Divider, Avatar } from "@mui/material";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
 import { getTeamForm } from "../../../../api/football/services/teamsService";
 import { teamLogo } from "../../../../helpers/media.helpers";
 
 export default function CompareTeams() {
-  const queryClient = useQueryClient();
-  const data = queryClient.getQueryData(["stats"]);
-  const rows = useMemo(() => data?.[0]?.rows || [], [data]);
+  const { data: stats = [] } = useQuery({
+    queryKey: ["stats"],
+    queryFn: fetchBotolaStandingsTables,
+  });
+  const rows = useMemo(() => stats[0]?.rows || [], [stats]);
 
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);

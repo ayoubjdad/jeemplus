@@ -1,8 +1,14 @@
 import { footballGet, extractResponse } from "../client.js";
-import { LEAGUES, MOROCCO_NATIONALITY, PRIORITY_LEAGUE_IDS } from "../constants.js";
+import {
+  LEAGUES,
+  MOROCCO_NATIONALITY,
+  MOROCCAN_PLAYERS_PRIORITY_LEAGUE_IDS,
+  CURRENT_SEASON,
+} from "../constants.js";
 import { gamesFormatDate } from "../../../helpers/global.helper.js";
 import { mapFixtures } from "../mappers/mapFixture.js";
 import {
+  mapPlayer,
   mapSquadPlayers,
   mapTopPlayerRow,
   mapPlayerToTactic,
@@ -41,13 +47,66 @@ export async function getBotolaTopPlayers() {
   return extractResponse(data).map(mapTopPlayerRow);
 }
 
-function isMoroccanClub(countryName) {
-  const c = (countryName ?? "").toLowerCase();
-  return c === "morocco" || c === "maroc";
+function isMoroccanLeague(game) {
+  const country = (game.league?.country ?? "").toLowerCase();
+  return country === "morocco" || game.league?.id === LEAGUES.BOTOLA_PRO.id_v3;
+}
+
+function isMoroccanNationality(nationality) {
+  const nat = (nationality ?? "").trim().toLowerCase();
+  return nat === MOROCCO_NATIONALITY.toLowerCase() || nat === "morocco";
+}
+
+async function fetchMoroccanPlayersByTeam(teamId, season) {
+  const moroccanPlayers = [];
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const data = await footballGet("players", { team: teamId, season, page });
+    const rows = extractResponse(data);
+    totalPages = data?.paging?.total ?? 1;
+
+    for (const row of rows) {
+      const player = row?.player;
+      if (player && isMoroccanNationality(player.nationality)) {
+        moroccanPlayers.push({ player: mapPlayer(player) });
+      }
+    }
+
+    page += 1;
+  }
+
+  return moroccanPlayers;
+}
+
+async function fetchMoroccanPlayersForTeams(teamSeasonById) {
+  const moroccanByTeamId = {};
+  const teamIds = [...teamSeasonById.keys()];
+  const concurrency = 4;
+
+  for (let i = 0; i < teamIds.length; i += concurrency) {
+    const chunk = teamIds.slice(i, i + concurrency);
+    await Promise.all(
+      chunk.map(async (teamId) => {
+        try {
+          const season = teamSeasonById.get(teamId) ?? CURRENT_SEASON;
+          moroccanByTeamId[teamId] = await fetchMoroccanPlayersByTeam(
+            teamId,
+            season,
+          );
+        } catch {
+          moroccanByTeamId[teamId] = [];
+        }
+      }),
+    );
+  }
+
+  return moroccanByTeamId;
 }
 
 /**
- * Batch fetch for Internationaux tab — deduplicates squad requests.
+ * Batch fetch for Internationaux tab — deduplicates team roster requests.
  */
 export async function getMoroccanPlayersForDate(date) {
   const dateStr = gamesFormatDate(date);
@@ -57,49 +116,30 @@ export async function getMoroccanPlayersForDate(date) {
   });
   const games = mapFixtures(extractResponse(data));
 
-  const dateObj = date instanceof Date ? date : new Date(date);
-  const isToday = (timestamp) => {
-    const d = new Date(timestamp * 1000);
-    return d.toLocaleDateString() === dateObj.toLocaleDateString();
-  };
-
   const prioritized = games.filter(
     (g) =>
-      PRIORITY_LEAGUE_IDS.includes(g.league?.id) &&
-      isToday(g.startTimestamp) &&
-      !isMoroccanClub(g.homeTeam.country?.name) &&
-      !isMoroccanClub(g.awayTeam.country?.name),
+      MOROCCAN_PLAYERS_PRIORITY_LEAGUE_IDS.includes(g.league?.id) &&
+      !isMoroccanLeague(g),
   );
 
-  const teamIds = new Set();
-  for (const g of prioritized) {
-    teamIds.add(g.homeTeam.id);
-    teamIds.add(g.awayTeam.id);
+  const teamSeasonById = new Map();
+  for (const game of prioritized) {
+    const season = Number(game.season?.name) || CURRENT_SEASON;
+    teamSeasonById.set(game.homeTeam.id, season);
+    teamSeasonById.set(game.awayTeam.id, season);
   }
 
-  const squadsByTeamId = {};
-  await Promise.all(
-    [...teamIds].map(async (teamId) => {
-      try {
-        squadsByTeamId[teamId] = await getTeamSquad(teamId);
-      } catch {
-        squadsByTeamId[teamId] = { players: [] };
-      }
-    }),
-  );
+  const moroccanByTeamId = await fetchMoroccanPlayersForTeams(teamSeasonById);
 
   const enrichedGames = prioritized.map((game) => {
-    const homeSquad = squadsByTeamId[game.homeTeam.id]?.players ?? [];
-    const awaySquad = squadsByTeamId[game.awayTeam.id]?.players ?? [];
-    const moroccan = [...homeSquad, ...awaySquad].filter((row) => {
-      const nat = row.player?.nationality ?? "";
-      return nat === MOROCCO_NATIONALITY || nat.toLowerCase() === "morocco";
-    });
+    const homeMoroccans = moroccanByTeamId[game.homeTeam.id] ?? [];
+    const awayMoroccans = moroccanByTeamId[game.awayTeam.id] ?? [];
+    const moroccanPlayers = [...homeMoroccans, ...awayMoroccans];
 
     return {
       id: game.id,
       game,
-      moroccanPlayers: moroccan,
+      moroccanPlayers,
     };
   });
 

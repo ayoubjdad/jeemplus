@@ -624,9 +624,12 @@ export default function WorldCupCupTree({ trees, loading, error }) {
     );
   }
 
-  if (!trees?.length) {
+  if (!trees?.length || !trees.some((t) => t?.rounds?.length > 0)) {
     return (
-      <div className={styles.state}>Aucun tableau disponible pour le moment.</div>
+      <div className={styles.state}>
+        Le tableau à élimination directe n&apos;est pas encore disponible. Les
+        phases de groupes sont visibles dans l&apos;onglet Classement.
+      </div>
     );
   }
 

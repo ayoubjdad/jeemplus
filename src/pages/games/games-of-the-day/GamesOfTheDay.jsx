@@ -4,16 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import DatePicker from "../../../components/date-picker/DatePicker";
 import GameCard from "../../../components/game-card/GameCard";
 import Loader from "../../../layouts/loader/Loader";
+import { gamesFormatDate } from "../../../helpers/global.helper";
 import {
   getFixturesByDate,
   filterHighlightedGames,
 } from "../../../api/football/services/fixturesService";
 
 const fetchGames = async ({ queryKey }) => {
-  const [, date] = queryKey;
+  const [, dateStr] = queryKey;
   try {
-    const fixtures = await getFixturesByDate(date);
-    return filterHighlightedGames(fixtures, date);
+    const fixtures = await getFixturesByDate(dateStr);
+    return filterHighlightedGames(fixtures);
   } catch (error) {
     console.error("Error fetching games:", error);
     return [];
@@ -32,7 +33,7 @@ export default function GamesOfTheDay({
   const setDate = isControlled ? controlledSetDate : setInternalDate;
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
-    queryKey: ["games", date],
+    queryKey: ["games", gamesFormatDate(date)],
     queryFn: fetchGames,
     staleTime: 60_000,
   });
@@ -49,9 +50,11 @@ export default function GamesOfTheDay({
       </div>
 
       <div className={styles.container}>
-        {highlightedGames?.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
+        {highlightedGames.length === 0 ? (
+          <p className={styles.empty}>Aucun match pour cette date.</p>
+        ) : (
+          highlightedGames.map((game) => <GameCard key={game.id} game={game} />)
+        )}
       </div>
     </section>
   );

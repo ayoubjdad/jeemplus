@@ -52,7 +52,7 @@ export function mapFixture(fixtureItem) {
     shortName: side?.name ?? "",
     nameCode: side?.name?.slice(0, 3)?.toUpperCase() ?? "",
     logo: side?.logo ?? "",
-    country: { name: side?.country ?? league?.country ?? "" },
+    country: { name: "" },
     winner: side?.winner ?? null,
   });
 
