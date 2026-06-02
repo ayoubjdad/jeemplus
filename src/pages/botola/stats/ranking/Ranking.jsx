@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
 import { useQuery } from "@tanstack/react-query";
 import TableView from "../../../../components/table/TableView";
-import CODM from "../../../../assets/logos/codm.png";
+import CODM from "../../../../assets/logos/CODM.png";
 import DHJ from "../../../../assets/logos/DHJ.png";
 import FAR from "../../../../assets/logos/FAR.png";
 import FUS from "../../../../assets/logos/FUS.png";
