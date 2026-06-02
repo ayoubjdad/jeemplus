@@ -15,8 +15,8 @@ export default function TableView({ data, options, onTeamClick }) {
                     index === 0
                       ? "60px 0 0 60px"
                       : index === options.length - 1
-                        ? "0 60px 60px 0"
-                        : 0,
+                      ? "0 60px 60px 0"
+                      : 0,
                   textAlign:
                     option.value === "team" || option.value === "player"
                       ? "left"
@@ -38,7 +38,9 @@ export default function TableView({ data, options, onTeamClick }) {
                 if (value === "#") {
                   return (
                     <td key={index} style={{ borderRadius: "60px 0 0 60px" }}>
-                      <p className={styles.position}>{row.position || idx + 1}</p>
+                      <p className={styles.position}>
+                        {row.position || idx + 1}
+                      </p>
                     </td>
                   );
                 }
