@@ -1,3 +1,8 @@
+import {
+  mappedFixtureHasIsrael,
+  rawFixtureHasIsrael,
+} from "../exclusions/israelExclusion.js";
+
 /**
  * Map API-Football fixture status to app status types.
  * @param {{ short?: string, long?: string }} status
@@ -116,5 +121,8 @@ export function mapFixture(fixtureItem) {
 
 /** @param {unknown[]} items */
 export function mapFixtures(items) {
-  return (items ?? []).map(mapFixture);
+  return (items ?? [])
+    .filter((item) => !rawFixtureHasIsrael(item))
+    .map(mapFixture)
+    .filter((fixture) => !mappedFixtureHasIsrael(fixture));
 }

@@ -1,4 +1,5 @@
 import { mapTeam } from "./mapTeam.js";
+import { isIsraelTeam } from "../exclusions/israelExclusion.js";
 
 /**
  * @param {Record<string, unknown>} row - API standing row
@@ -33,7 +34,7 @@ export function mapStandingRow(row) {
 /** @param {unknown[]} leagueStandings - first element of standings response */
 export function mapStandingsTable(leagueStandings) {
   const rows = leagueStandings?.[0]?.league?.standings?.[0] ?? [];
-  return rows.map(mapStandingRow);
+  return rows.filter((row) => !isIsraelTeam(row?.team)).map(mapStandingRow);
 }
 
 /** World Cup / multi-group standings */
@@ -52,6 +53,8 @@ export function mapStandingsGroups(standingsResponse) {
       groupName: groupRows?.[0]?.group ?? "",
       name: groupRows?.[0]?.group ?? "",
     },
-    rows: (groupRows ?? []).map(mapStandingRow),
+    rows: (groupRows ?? [])
+      .filter((row) => !isIsraelTeam(row?.team))
+      .map(mapStandingRow),
   }));
 }

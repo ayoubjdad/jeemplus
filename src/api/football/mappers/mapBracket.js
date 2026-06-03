@@ -1,5 +1,6 @@
 import { KNOCKOUT_ROUND_ORDER } from "../constants.js";
-import { mapFixture } from "./mapFixture.js";
+import { mapFixtures } from "./mapFixture.js";
+import { mappedFixtureHasIsrael } from "../exclusions/israelExclusion.js";
 
 function roundOrder(name) {
   const idx = KNOCKOUT_ROUND_ORDER.findIndex(
@@ -13,7 +14,9 @@ function roundOrder(name) {
  * @param {ReturnType<typeof mapFixture>[]} fixtures
  */
 function fixturesToBlocks(fixtures) {
-  return (fixtures ?? []).map((f, index) => {
+  return (fixtures ?? [])
+    .filter((f) => !mappedFixtureHasIsrael(f))
+    .map((f, index) => {
     const homeWinner = f.winnerCode === 1;
     const awayWinner = f.winnerCode === 2;
 
@@ -83,7 +86,7 @@ export function mapBracketTree(rounds, fixturesByRound) {
 
 /** @param {unknown[]} rawFixtures */
 export function groupFixturesByRound(rawFixtures) {
-  const mapped = (rawFixtures ?? []).map((item) => mapFixture(item));
+  const mapped = mapFixtures(rawFixtures ?? []);
   /** @type {Record<string, ReturnType<typeof mapFixture>[]>} */
   const byRound = {};
   for (const f of mapped) {

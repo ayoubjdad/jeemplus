@@ -4,11 +4,13 @@ import { mapTeam } from "../mappers/mapTeam.js";
 import { mapTeamStatistics } from "../mappers/mapTeamStatistics.js";
 import { mapFixtures } from "../mappers/mapFixture.js";
 import { mapStandingRow } from "../mappers/mapStandingRow.js";
+import { isIsraelTeam } from "../exclusions/israelExclusion.js";
 
 export async function getTeamInfo(teamId) {
   const data = await footballGet("teams", { id: teamId });
   const item = extractResponse(data)[0];
   const team = mapTeam(item?.team ?? item);
+  if (isIsraelTeam(team)) return null;
   const venue = item?.venue;
   if (venue) {
     team.venue = {
@@ -24,7 +26,7 @@ export async function getTeamInfo(teamId) {
 export async function getTeamDetail(teamId) {
   const { id: leagueId, season } = LEAGUES.BOTOLA_PRO;
 
-  const [team, statsRes, fixturesRes, standingsRes] = await Promise.all([
+  const [teamInfo, statsRes, fixturesRes, standingsRes] = await Promise.all([
     getTeamInfo(teamId),
     footballGet("teams/statistics", { team: teamId, league: leagueId, season }).catch(
       () => ({ response: [] }),
@@ -36,6 +38,8 @@ export async function getTeamDetail(teamId) {
       response: [],
     })),
   ]);
+
+  if (!teamInfo) return null;
 
   const overallStats = mapTeamStatistics(extractResponse(statsRes));
   const performanceEvents = mapFixtures(extractResponse(fixturesRes));
@@ -49,7 +53,7 @@ export async function getTeamDetail(teamId) {
 
   return {
     team: {
-      ...team,
+      ...teamInfo,
       primaryUniqueTournament: { name: "Botola Pro" },
       manager: null,
     },

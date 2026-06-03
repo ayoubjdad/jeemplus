@@ -2,6 +2,7 @@ import { footballGet, extractResponse } from "../client.js";
 import { gamesFormatDate } from "../../../helpers/global.helper.js";
 import { mapFixtures } from "../mappers/mapFixture.js";
 import { LEAGUES, TOP_TEAM_NAMES, PRIORITY_LEAGUE_IDS } from "../constants.js";
+import { mappedFixtureHasIsrael } from "../exclusions/israelExclusion.js";
 
 function teamMatchesHighlight(teamName) {
   const n = (teamName ?? "").toLowerCase();
@@ -39,11 +40,13 @@ export async function getFixturesByDate(date) {
 }
 
 export function filterHighlightedGames(games) {
-  const result = games.filter((game) =>
+  const withoutIsrael = games.filter((game) => !mappedFixtureHasIsrael(game));
+  const result = withoutIsrael.filter((game) =>
     PRIORITY_LEAGUE_IDS.includes(game.league?.id),
   );
 
-  if (result.length === 0) return sortHighlightedGames(games.slice(0, 10));
+  if (result.length === 0)
+    return sortHighlightedGames(withoutIsrael.slice(0, 10));
 
   return sortHighlightedGames(result);
 }

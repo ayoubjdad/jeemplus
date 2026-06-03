@@ -15,7 +15,7 @@ function flagEmoji(alpha2) {
   const up = alpha2.toUpperCase();
   return String.fromCodePoint(
     A + up.charCodeAt(0) - "A".charCodeAt(0),
-    A + up.charCodeAt(1) - "A".charCodeAt(0),
+    A + up.charCodeAt(1) - "A".charCodeAt(0)
   );
 }
 
@@ -87,7 +87,9 @@ export default function TeamDetail({ teamId, onBack }) {
         <button type="button" className={styles.back} onClick={onBack}>
           Retour au classement
         </button>
-        <div className={styles.panelCard}>Chargement des données de l'équipe...</div>
+        <div className={styles.panelCard}>
+          Chargement des données de l'équipe...
+        </div>
       </div>
     );
   }
@@ -98,9 +100,7 @@ export default function TeamDetail({ teamId, onBack }) {
         <button type="button" className={styles.back} onClick={onBack}>
           Retour au classement
         </button>
-        <div className={styles.panelCard}>
-          Impossible de charger l'équipe.
-        </div>
+        <div className={styles.panelCard}>Impossible de charger l'équipe.</div>
       </div>
     );
   }
@@ -163,7 +163,8 @@ export default function TeamDetail({ teamId, onBack }) {
               <p className={styles.sideMuted}>{team.venue.city?.name}</p>
               {team.venue.capacity && (
                 <p className={styles.sideMuted}>
-                  Capacité : {team.venue.capacity.toLocaleString("fr-FR")} places
+                  Capacité : {team.venue.capacity.toLocaleString("fr-FR")}{" "}
+                  places
                 </p>
               )}
             </section>
@@ -189,7 +190,9 @@ export default function TeamDetail({ teamId, onBack }) {
               <div className={styles.statGrid}>
                 <div className={styles.statTile}>
                   <span className={styles.statLabel}>Position Botola</span>
-                  <span className={styles.statValue}>{pregameForm?.position}</span>
+                  <span className={styles.statValue}>
+                    {pregameForm?.position}
+                  </span>
                 </div>
                 <div className={styles.statTile}>
                   <span className={styles.statLabel}>Points</span>
@@ -202,7 +205,9 @@ export default function TeamDetail({ teamId, onBack }) {
           {tab === "stats" && (
             <div className={styles.tabPanel}>
               <section className={styles.panelCard}>
-                <h2 className={styles.panelTitle}>Performance des derniers matchs</h2>
+                <h2 className={styles.panelTitle}>
+                  Performance des derniers matchs
+                </h2>
                 {performanceEvents.length === 0 ? (
                   <p className={styles.panelMuted}>Aucun match récent.</p>
                 ) : (
@@ -219,9 +224,9 @@ export default function TeamDetail({ teamId, onBack }) {
                       <tbody>
                         {performanceEvents.slice(0, 10).map((ev) => {
                           const dateLabel = ev.startTimestamp
-                            ? new Date(ev.startTimestamp * 1000).toLocaleDateString(
-                                "fr-FR",
-                              )
+                            ? new Date(
+                                ev.startTimestamp * 1000
+                              ).toLocaleDateString("fr-FR")
                             : "—";
                           const homeScore = ev.homeScore?.display;
                           const awayScore = ev.awayScore?.display;
@@ -234,7 +239,8 @@ export default function TeamDetail({ teamId, onBack }) {
                               <td>{dateLabel}</td>
                               <td>{ev.league?.name ?? "—"}</td>
                               <td>
-                                {ev.homeTeam?.shortName} vs {ev.awayTeam?.shortName}
+                                {ev.homeTeam?.shortName} vs{" "}
+                                {ev.awayTeam?.shortName}
                               </td>
                               <td>{score}</td>
                             </tr>
@@ -262,7 +268,9 @@ export default function TeamDetail({ teamId, onBack }) {
                     </span>
                   </div>
                   <div className={styles.summaryTopItem}>
-                    <span className={styles.summaryTopLabel}>Buts encaissés</span>
+                    <span className={styles.summaryTopLabel}>
+                      Buts encaissés
+                    </span>
                     <span className={styles.summaryTopValue}>
                       {formatNumber(overallStats.goalsConceded)}
                     </span>

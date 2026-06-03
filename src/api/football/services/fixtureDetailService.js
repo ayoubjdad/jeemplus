@@ -1,5 +1,6 @@
 import { footballGet, extractResponse } from "../client.js";
 import { mapFixture } from "../mappers/mapFixture.js";
+import { rawFixtureHasIsrael } from "../exclusions/israelExclusion.js";
 import { mapFixtureStatistics } from "../mappers/mapFixtureStatistics.js";
 import { mapFixtureEvents } from "../mappers/mapFixtureEvents.js";
 import { mapFixtureLineups } from "../mappers/mapFixtureLineups.js";
@@ -20,7 +21,9 @@ export async function getFixtureDetail(fixtureId) {
 
   const fixtures = extractResponse(fixtureRes);
   const raw = fixtures[0];
-  const event = raw ? mapFixture(raw) : null;
+  if (!raw || rawFixtureHasIsrael(raw)) return null;
+
+  const event = mapFixture(raw);
 
   if (!event) return null;
 

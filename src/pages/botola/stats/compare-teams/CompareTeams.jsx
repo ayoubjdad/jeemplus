@@ -5,13 +5,20 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
 import { getTeamForm } from "../../../../api/football/services/teamsService";
 import { teamLogo } from "../../../../helpers/media.helpers";
+import { withBotolaTeamLogo } from "../../../../constants/botolaTeamLogos";
 
 export default function CompareTeams() {
   const { data: stats = [] } = useQuery({
     queryKey: ["stats"],
     queryFn: fetchBotolaStandingsTables,
   });
-  const rows = useMemo(() => stats[0]?.rows || [], [stats]);
+  const rows = useMemo(
+    () => (stats[0]?.rows || []).map((row) => ({
+      ...row,
+      team: withBotolaTeamLogo(row.team),
+    })),
+    [stats],
+  );
 
   const [teamA, setTeamA] = useState(null);
   const [teamB, setTeamB] = useState(null);

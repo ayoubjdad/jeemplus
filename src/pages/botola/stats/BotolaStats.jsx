@@ -52,8 +52,8 @@ export default function BotolaStats() {
         {activeView === "ranking" && !rankingTeamDetailOpen && (
           <Ranking
             onTeamClick={(row) => {
-              // setSelectedTeamId(row?.team?.id || null);
-              // setRankingTeamDetailOpen(true);
+              setSelectedTeamId(row?.team?.id || null);
+              setRankingTeamDetailOpen(true);
             }}
           />
         )}

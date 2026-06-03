@@ -7,6 +7,7 @@ import {
 } from "../constants.js";
 import { gamesFormatDate } from "../../../helpers/global.helper.js";
 import { mapFixtures } from "../mappers/mapFixture.js";
+import { isIsraelTeam } from "../exclusions/israelExclusion.js";
 import {
   mapPlayer,
   mapSquadPlayers,
@@ -54,6 +55,7 @@ function isMoroccanLeague(game) {
 
 function isMoroccanNationality(nationality) {
   const nat = (nationality ?? "").trim().toLowerCase();
+  if (/\b(israel|israël|israeli)\b/.test(nat)) return false;
   return nat === MOROCCO_NATIONALITY.toLowerCase() || nat === "morocco";
 }
 
@@ -131,7 +133,12 @@ export async function getMoroccanPlayersForDate(date) {
 
   const moroccanByTeamId = await fetchMoroccanPlayersForTeams(teamSeasonById);
 
-  const enrichedGames = prioritized.map((game) => {
+  const enrichedGames = prioritized
+    .filter(
+      (game) =>
+        !isIsraelTeam(game.homeTeam) && !isIsraelTeam(game.awayTeam),
+    )
+    .map((game) => {
     const homeMoroccans = moroccanByTeamId[game.homeTeam.id] ?? [];
     const awayMoroccans = moroccanByTeamId[game.awayTeam.id] ?? [];
     const moroccanPlayers = [...homeMoroccans, ...awayMoroccans];

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mapFixture, mapFixtureStatus } from "../mapFixture.js";
+import { mapFixture, mapFixtureStatus, mapFixtures } from "../mapFixture.js";
 import { mapStandingRow } from "../mapStandingRow.js";
 import { mapTeam } from "../mapTeam.js";
 
@@ -39,6 +39,37 @@ describe("mapFixture", () => {
     expect(result.homeTeam.name).toBe("Wydad");
     expect(result.league.id).toBe(200);
     expect(result.status.type).toBe("notstarted");
+  });
+});
+
+describe("mapFixtures", () => {
+  it("excludes fixtures involving Israel", () => {
+    const items = [
+      {
+        fixture: { id: 1, timestamp: 1, status: { short: "NS", long: "Not Started" } },
+        league: { id: 10, name: "Friendlies", country: "World", season: 2026 },
+        teams: {
+          home: { id: 100, name: "Albania", logo: "" },
+          away: { id: 1110, name: "Israel", logo: "" },
+        },
+        goals: { home: null, away: null },
+        score: {},
+      },
+      {
+        fixture: { id: 2, timestamp: 2, status: { short: "NS", long: "Not Started" } },
+        league: { id: 200, name: "Botola Pro", country: "Morocco", season: 2025 },
+        teams: {
+          home: { id: 1, name: "Wydad", logo: "" },
+          away: { id: 2, name: "Raja", logo: "" },
+        },
+        goals: { home: null, away: null },
+        score: {},
+      },
+    ];
+
+    const result = mapFixtures(items);
+    expect(result).toHaveLength(1);
+    expect(result[0].homeTeam.name).toBe("Wydad");
   });
 });
 
