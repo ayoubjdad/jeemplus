@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { palette } from "../../themes/palette";
+import { useTranslation } from "react-i18next";
 import PlayerCard from "../player-card/PlayerCard";
 import Team from "../team/Team";
 import styles from "./GameCard.module.scss";
 
-const GameCard = ({ game = {}, players = [] }) => {
+const GameCard = ({ game = {}, players = [], hideLeagueLabel = false }) => {
+  const { t } = useTranslation();
+
   const timeString = (timestamp) => {
     const startTime = new Date(timestamp * 1000);
     return startTime.toLocaleTimeString("en-GB", {
@@ -16,13 +18,26 @@ const GameCard = ({ game = {}, players = [] }) => {
   const getStatusLabel = () => {
     switch (game?.status?.type) {
       case "finished":
-        return "Finished";
+        return t("gameCard.finished");
       case "inprogress":
-        return "Live";
+        return t("gameCard.live");
       case "notstarted":
-        return "Scheduled";
+        return t("gameCard.scheduled");
       default:
-        return game?.status?.description || "Unknown";
+        return game?.status?.description || t("gameCard.unknown");
+    }
+  };
+
+  const getStatusClass = () => {
+    switch (game?.status?.type) {
+      case "inprogress":
+        return styles.statusLive;
+      case "finished":
+        return styles.statusFinished;
+      case "notstarted":
+        return styles.statusScheduled;
+      default:
+        return styles.statusDefault;
     }
   };
 
@@ -41,34 +56,31 @@ const GameCard = ({ game = {}, players = [] }) => {
     <div className={styles.card}>
       <Link className={styles.summaryLink} to={`/game/${game.id}`}>
         <div className={styles.matchHeader}>
-          <Team team={game.homeTeam} />
+          <Team team={game.homeTeam} fromGame />
 
           <div className={styles.time}>
             <p className={styles.score}>{getScoreOrTime()}</p>
-            <p
-              className={styles.status}
-              style={{
-                borderColor:
-                  game?.status?.type === "inprogress"
-                    ? palette?.red?.main
-                    : palette.gray.main,
-                color:
-                  game?.status?.type === "inprogress"
-                    ? palette?.red?.main
-                    : palette.gray.main,
-              }}
-            >
+            <p className={`${styles.status} ${getStatusClass()}`}>
               {getStatusLabel()}
             </p>
           </div>
 
-          <Team team={game.awayTeam} />
+          <Team team={game.awayTeam} fromGame />
         </div>
 
-        <div style={{ color: palette.gray.main }} className={styles.infos}>
-          {game?.league?.name ?? game?.tournament?.uniqueTournament?.name}
-          {game?.roundInfo?.round ? ` - ${game.roundInfo.round}` : ""}
-        </div>
+        {!hideLeagueLabel || game?.roundInfo?.round ? (
+          <div className={styles.infos}>
+            {!hideLeagueLabel
+              ? (game?.league?.name ??
+                game?.tournament?.uniqueTournament?.name)
+              : null}
+            {game?.roundInfo?.round
+              ? hideLeagueLabel
+                ? game.roundInfo.round
+                : ` - ${game.roundInfo.round}`
+              : null}
+          </div>
+        ) : null}
       </Link>
 
       {!players?.length ? null : (

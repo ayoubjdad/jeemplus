@@ -6,10 +6,15 @@ import {
   useState,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import styles from "./InteractiveScreen.module.scss";
 import { fetchBotolaStandingsTables } from "../../api/botolaStandings";
 import { fetchTeamPlayersRoster } from "./teamPlayersApi";
-import { playerPhoto } from "../../helpers/media.helpers";
+import {
+  fallbackPlayerPhoto,
+  playerPhoto,
+} from "../../helpers/media.helpers";
+import { translatePlayerPosition } from "../../helpers/translatePosition";
 
 /** Tracage FIFA — terrain 105 m × 68 m (viewBox métrique). */
 function PitchMarkingsSvg({ className }) {
@@ -197,10 +202,13 @@ function pointInRect(clientX, clientY, r) {
 export default function InteractiveScreen({
   teamId: initialTeamId = null,
   standingsPicker: standingsPickerExternal = null,
-  teamPickerLabel = "Équipe Botola Pro",
+  teamPickerLabel: teamPickerLabelProp = null,
   selectId = "interactive-botola-team",
   embedded = false,
 }) {
+  const { t, i18n } = useTranslation();
+  const teamPickerLabel =
+    teamPickerLabelProp ?? t("interactive.teamPickerLabel");
   const mainRef = useRef(null);
   const pitchRef = useRef(null);
   const rafRef = useRef(null);
@@ -292,18 +300,19 @@ export default function InteractiveScreen({
   const teamOptions = useMemo(() => {
     const out = [];
     for (const row of standingsRows) {
-      const t = row?.team;
-      if (!t?.id) continue;
+      const tm = row?.team;
+      if (!tm?.id) continue;
       out.push({
-        id: t.id,
-        label: t.shortName || t.name || `#${t.id}`,
+        id: tm.id,
+        label: tm.shortName || tm.name || `#${tm.id}`,
       });
     }
+    const lang = (i18n.language || "ar").split("-")[0];
     out.sort((a, b) =>
-      a.label.localeCompare(b.label, "fr", { sensitivity: "base" })
+      a.label.localeCompare(b.label, lang, { sensitivity: "base" })
     );
     return out;
-  }, [standingsRows]);
+  }, [standingsRows, i18n.language]);
 
   const resolvedTeamId = useMemo(() => {
     if (
@@ -535,7 +544,7 @@ export default function InteractiveScreen({
             <button
               type="button"
               className={styles.playerCardRemove}
-              aria-label={`Retirer ${player.name} du terrain`}
+              aria-label={t("interactive.removePlayer", { name: player.name })}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
@@ -547,7 +556,9 @@ export default function InteractiveScreen({
           ) : null}
           <div className={styles.playerCardAvatarWrap}>
             {player.captain ? (
-              <span className={styles.playerCardCaptain}>c</span>
+              <span className={styles.playerCardCaptain}>
+                {t("interactive.captain")}
+              </span>
             ) : null}
             <img
               className={styles.playerCardAvatar}
@@ -556,16 +567,20 @@ export default function InteractiveScreen({
               draggable={false}
               onError={(e) => {
                 e.currentTarget.onerror = null;
-                e.currentTarget.src = fallbackAvatarUrl(player);
+                e.currentTarget.src = fallbackPlayerPhoto(player);
               }}
             />
           </div>
           <div className={styles.playerCardMeta}>
             <span className={styles.playerCardName}>{player.name}</span>
-            <span className={styles.playerCardRole}>{player.role}</span>
+            <span className={styles.playerCardRole}>
+              {translatePlayerPosition(t, player.role)}
+            </span>
           </div>
           {onField ? (
-            <span className={styles.playerCardFieldPill}>Terrain</span>
+            <span className={styles.playerCardFieldPill}>
+              {t("interactive.onField")}
+            </span>
           ) : (
             <span className={styles.playerCardHint} aria-hidden>
               ↓
@@ -574,42 +589,35 @@ export default function InteractiveScreen({
         </div>
       );
     },
-    [
-      dragUi,
-      fieldById,
-      handleListPointerDown,
-      removeFromField,
-    ]
+    [dragUi, fieldById, handleListPointerDown, removeFromField, t]
   );
 
   const renderSidebarContent = (players, showStatus = false) => {
     if (showStatus && isLoading) {
       return (
-        <p className={styles.listBenchHint}>Chargement de l’effectif…</p>
+        <p className={styles.listBenchHint}>{t("interactive.loadingSquad")}</p>
       );
     }
     if (showStatus && isError) {
       return (
         <div className={styles.listBenchHint}>
-          <p>Impossible de charger l’effectif.</p>
+          <p>{t("interactive.errorSquad")}</p>
           <p style={{ fontSize: "0.85em", opacity: 0.85 }}>
-            {error?.message || "Erreur réseau"}
+            {error?.message || t("interactive.networkError")}
           </p>
           <button
             type="button"
             className={styles.removeBtn}
             onClick={() => refetch()}
           >
-            Réessayer
+            {t("common.retry")}
           </button>
         </div>
       );
     }
     if (showStatus && !isLoading && !isError && squadTotal === 0) {
       return (
-        <p className={styles.listBenchHint}>
-          Aucun joueur renvoyé par l’API.
-        </p>
+        <p className={styles.listBenchHint}>{t("interactive.emptySquad")}</p>
       );
     }
     if (showList) {
@@ -653,13 +661,13 @@ export default function InteractiveScreen({
             disabled={teamPickerDisabled}
           >
             {standingsLoading ? (
-              <option value="">Chargement des équipes…</option>
+              <option value="">{t("interactive.loadingTeams")}</option>
             ) : standingsError ? (
-              <option value="">Liste indisponible</option>
+              <option value="">{t("interactive.listUnavailable")}</option>
             ) : (
-              teamOptions.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
+              teamOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
                 </option>
               ))
             )}
@@ -672,8 +680,8 @@ export default function InteractiveScreen({
           aria-pressed={browserFullscreen}
           title={
             browserFullscreen
-              ? "Quitter le plein écran (Échap)"
-              : "Afficher en plein écran"
+              ? t("interactive.exitFullscreenTitle")
+              : t("interactive.enterFullscreenTitle")
           }
         >
           <span className={styles.fullscreenToggleIcon} aria-hidden>
@@ -700,7 +708,9 @@ export default function InteractiveScreen({
             )}
           </span>
           <span className={styles.fullscreenToggleLabel}>
-            {browserFullscreen ? "Quitter plein écran" : "Plein écran"}
+            {browserFullscreen
+              ? t("interactive.exitFullscreen")
+              : t("interactive.fullscreen")}
           </span>
         </button>
         {/* <div className={styles.pageStat}>
@@ -721,7 +731,9 @@ export default function InteractiveScreen({
           <div className={styles.sidebarCard}>
             {!browserFullscreen ? (
               <div className={styles.sidebarCardHead}>
-                <h2 className={styles.sidebarTitle}>Effectif</h2>
+                <h2 className={styles.sidebarTitle}>
+                  {t("interactive.squad")}
+                </h2>
               </div>
             ) : null}
             <div className={styles.playerList}>
@@ -743,7 +755,7 @@ export default function InteractiveScreen({
                 type="button"
                 className={styles.fullscreenExitFab}
                 onClick={() => void toggleBrowserFullscreen()}
-                title="Quitter le plein écran (Échap)"
+                title={t("interactive.exitFullscreenTitle")}
               >
                 <span className={styles.fullscreenToggleIcon} aria-hidden>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -792,7 +804,9 @@ export default function InteractiveScreen({
                           <div className={styles.tokenInner}>
                             <div className={styles.tokenAvatarWrap}>
                               {player.captain ? (
-                                <span className={styles.tokenCaptain}>c</span>
+                                <span className={styles.tokenCaptain}>
+                                  {t("interactive.captain")}
+                                </span>
                               ) : null}
                               <img
                                 className={styles.tokenAvatar}
@@ -802,7 +816,7 @@ export default function InteractiveScreen({
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
                                   e.currentTarget.src =
-                                    fallbackAvatarUrl(player);
+                                    fallbackPlayerPhoto(player);
                                 }}
                               />
                               {/* <span
@@ -849,7 +863,7 @@ export default function InteractiveScreen({
             draggable={false}
             onError={(e) => {
               e.currentTarget.onerror = null;
-              e.currentTarget.src = fallbackAvatarUrl(ghostPlayer);
+              e.currentTarget.src = fallbackPlayerPhoto(ghostPlayer);
             }}
           />
           <span>{ghostPlayer.name}</span>

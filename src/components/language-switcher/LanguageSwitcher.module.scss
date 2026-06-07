@@ -1,0 +1,39 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: $radius-pill;
+  background: $primary-soft;
+  border: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.option {
+  border: none;
+  cursor: pointer;
+  min-width: 34px;
+  padding: 6px 10px;
+  border-radius: $radius-pill;
+  background: transparent;
+  color: $text-muted;
+  font-family: "Roobert", sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+.optionActive {
+  color: #fff;
+  background: $primary;
+
+  &:hover {
+    color: #fff;
+    background: $primary-dark;
+  }
+}

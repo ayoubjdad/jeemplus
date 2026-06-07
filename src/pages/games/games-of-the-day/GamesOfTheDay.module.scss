@@ -1,31 +1,44 @@
 .main {
-  gap: 16px;
-  padding: 16px;
+  gap: 0;
+  padding: 24px;
   display: grid;
-  color: #222226;
+  color: $text;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
 
   h1 {
-    color: #fff;
+    color: $text;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
   }
 }
 
 .container {
-  gap: 16px;
-  display: grid;
-  color: #222226;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  display: flex;
+  flex-direction: column;
+  color: $text;
 }
 
 .empty {
   grid-column: 1 / -1;
-  color: #c5e8e0;
-  padding: 24px;
+  color: $text-muted;
+  padding: 40px 24px;
   text-align: center;
-  opacity: 0.85;
+  background: $surface;
+  border-radius: $radius-lg;
+  border: 1px dashed $border-strong;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 18px 16px;
+  }
 }

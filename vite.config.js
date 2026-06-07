@@ -1,6 +1,15 @@
 /// <reference types="vitest/config" />
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const scssVariables = fs.readFileSync(
+  path.resolve(rootDir, "src/styles/variables.scss"),
+  "utf8",
+);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -27,6 +36,13 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `${scssVariables}\n`,
+        },
+      },
+    },
     plugins: [
       react({
         include: "**/*.{js,jsx,ts,tsx}",
@@ -36,6 +52,11 @@ export default defineConfig(({ mode }) => {
       loader: "jsx",
       include: /src\/.*\.jsx?$/,
       exclude: [],
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        loader: { ".js": "jsx" },
+      },
     },
     server: {
       proxy: footballApiProxy,

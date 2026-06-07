@@ -1,6 +1,16 @@
 import styles from "./TableView.module.scss";
 import { teamLogo } from "../../helpers/media.helpers";
 
+function thClass(index, total, option) {
+  const classes = [];
+  if (index === 0) classes.push(styles.thFirst);
+  if (index === total - 1) classes.push(styles.thLast);
+  if (option.value === "team" || option.value === "player") {
+    classes.push(styles.thLeft);
+  }
+  return classes.join(" ");
+}
+
 export default function TableView({ data, options, onTeamClick }) {
   return (
     <div className={styles.tableView}>
@@ -10,18 +20,7 @@ export default function TableView({ data, options, onTeamClick }) {
             {options.map((option, index) => (
               <th
                 key={option.value || index}
-                style={{
-                  borderRadius:
-                    index === 0
-                      ? "60px 0 0 60px"
-                      : index === options.length - 1
-                      ? "0 60px 60px 0"
-                      : 0,
-                  textAlign:
-                    option.value === "team" || option.value === "player"
-                      ? "left"
-                      : "center",
-                }}
+                className={thClass(index, options.length, option)}
               >
                 {option.label}
               </th>
@@ -37,7 +36,7 @@ export default function TableView({ data, options, onTeamClick }) {
 
                 if (value === "#") {
                   return (
-                    <td key={index} style={{ borderRadius: "60px 0 0 60px" }}>
+                    <td key={index} className={styles.tdFirst}>
                       <p className={styles.position}>
                         {row.position || idx + 1}
                       </p>
@@ -49,6 +48,9 @@ export default function TableView({ data, options, onTeamClick }) {
                   return (
                     <td
                       key={index}
+                      className={`${styles.tdLeft} ${
+                        onTeamClick ? styles.tdTeam : styles.tdTeamStatic
+                      }`}
                       role={onTeamClick ? "button" : undefined}
                       tabIndex={onTeamClick ? 0 : undefined}
                       onClick={
@@ -69,28 +71,24 @@ export default function TableView({ data, options, onTeamClick }) {
                             }
                           : undefined
                       }
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-start",
-                        cursor: onTeamClick ? "pointer" : undefined,
-                      }}
                     >
-                      <img
-                        src={teamLogo(row.team)}
-                        alt={row.team.name}
-                        width="26"
-                        height="26"
-                        style={{ marginRight: 8 }}
-                      />
-                      <span className={styles.teamName}>{row.team.name}</span>
+                      <span className={styles.teamCell}>
+                        <img
+                          className={styles.teamLogo}
+                          src={teamLogo(row.team)}
+                          alt={row.team.name}
+                          width="26"
+                          height="26"
+                        />
+                        <span className={styles.teamName}>{row.team.name}</span>
+                      </span>
                     </td>
                   );
                 }
 
                 if (value === "player") {
                   return (
-                    <td key={index} style={{ textAlign: "left" }}>
+                    <td key={index} className={styles.tdLeft}>
                       {row[value]?.name ?? ""}
                     </td>
                   );
@@ -99,11 +97,7 @@ export default function TableView({ data, options, onTeamClick }) {
                 return (
                   <td
                     key={index}
-                    style={{
-                      borderRadius:
-                        index === options.length - 1 ? "0 60px 60px 0" : 0,
-                      textAlign: "center",
-                    }}
+                    className={index === options.length - 1 ? styles.tdLast : ""}
                   >
                     {row[value] ?? "-"}
                   </td>

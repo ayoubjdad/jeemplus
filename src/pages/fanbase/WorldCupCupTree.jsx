@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./WorldCupCupTree.module.scss";
 import { teamLogo } from "../../helpers/media.helpers";
 
@@ -12,17 +13,18 @@ const PAD_TOP = 36;
 const PAD_LEFT = 12;
 const THIRD_BELOW_FINAL = 18;
 
-const ROUND_DESCRIPTION_FR = {
-  "Round of 32": "Seizièmes de finale",
-  "Round of 16": "Huitièmes de finale",
-  Quarterfinal: "Quarts de finale",
-  Semifinal: "Demi-finales",
-  Final: "Finale",
+const ROUND_KEY = {
+  "Round of 32": "round32",
+  "Round of 16": "round16",
+  Quarterfinal: "quarterFinals",
+  Semifinal: "semiFinals",
+  Final: "final",
 };
 
-function roundLabel(description) {
-  if (!description) return "Tour";
-  return ROUND_DESCRIPTION_FR[description] || description;
+function roundLabel(description, t) {
+  if (!description) return t("worldCup.round");
+  const key = ROUND_KEY[description];
+  return key ? t(`worldCup.${key}`) : description;
 }
 
 function sortBlocks(blocks) {
@@ -390,6 +392,7 @@ function BracketCanvas({
   trophyX,
   trophyY,
 }) {
+  const { t } = useTranslation();
   const {
     roundsPrepared,
     centers,
@@ -444,7 +447,7 @@ function BracketCanvas({
           }}
         >
           <span className={styles.columnRoundLabel}>
-            {roundLabel(round.description)}
+            {roundLabel(round.description, t)}
           </span>
           {(round.blocks || []).map((block, i) => {
             const cy = centers[rIdx]?.[i];
@@ -455,12 +458,18 @@ function BracketCanvas({
 
             if (isFinalRound && round.blocks.length === 2) {
               if ((block.order ?? i + 1) === 1) {
-                badge = { text: "Finale", className: styles.badgeFinal };
+                badge = {
+                  text: t("worldCup.final"),
+                  className: styles.badgeFinal,
+                };
               } else {
-                badge = { text: "3e place", className: styles.badgeThird };
+                badge = {
+                  text: t("worldCup.thirdPlace"),
+                  className: styles.badgeThird,
+                };
               }
             } else if (isFinalRound && round.blocks.length === 1) {
-              badge = { text: "Finale", className: styles.badgeFinal };
+              badge = { text: t("worldCup.final"), className: styles.badgeFinal };
             }
 
             return (
@@ -482,6 +491,7 @@ function BracketCanvas({
 }
 
 function FinalsStack({ finalRound }) {
+  const { t } = useTranslation();
   const blocks = sortBlocks(finalRound?.blocks);
   if (!blocks.length) return null;
 
@@ -492,12 +502,18 @@ function FinalsStack({ finalRound }) {
           let badge = null;
           if (blocks.length === 2) {
             if ((block.order ?? i + 1) === 1) {
-              badge = { text: "Finale", className: styles.badgeFinal };
+              badge = {
+                text: t("worldCup.final"),
+                className: styles.badgeFinal,
+              };
             } else {
-              badge = { text: "3e place", className: styles.badgeThird };
+              badge = {
+                text: t("worldCup.thirdPlace"),
+                className: styles.badgeThird,
+              };
             }
           } else {
-            badge = { text: "Finale", className: styles.badgeFinal };
+            badge = { text: t("worldCup.final"), className: styles.badgeFinal };
           }
 
           return (
@@ -548,18 +564,19 @@ function useBracketModel(tree) {
 }
 
 function CupTreeSingle({ tree }) {
+  const { t } = useTranslation();
   const model = useBracketModel(tree);
 
   const treeTitle =
     tree?.tournament?.fieldTranslations?.nameTranslation?.fr ||
     tree?.name ||
-    "Phase à élimination";
+    t("worldCup.knockoutPhase");
 
   if (model.mode === "empty") {
     return (
       <section className={styles.treeSection}>
         <h3 className={styles.treeName}>{treeTitle}</h3>
-        <div className={styles.state}>Données de tableau invalides.</div>
+        <div className={styles.state}>{t("worldCup.invalidBracket")}</div>
       </section>
     );
   }
@@ -610,26 +627,22 @@ function CupTreeSingle({ tree }) {
 }
 
 export default function WorldCupCupTree({ trees, loading, error }) {
+  const { t } = useTranslation();
   const [zoom, setZoom] = useState(1);
 
   if (loading) {
-    return <div className={styles.state}>Chargement du tableau…</div>;
+    return <div className={styles.state}>{t("worldCup.loadingBracket")}</div>;
   }
 
   if (error) {
     return (
-      <div className={styles.state}>
-        Impossible de charger le tableau. Réessayez plus tard.
-      </div>
+      <div className={styles.state}>{t("worldCup.errorBracket")}</div>
     );
   }
 
-  if (!trees?.length || !trees.some((t) => t?.rounds?.length > 0)) {
+  if (!trees?.length || !trees.some((tree) => tree?.rounds?.length > 0)) {
     return (
-      <div className={styles.state}>
-        Le tableau à élimination directe n&apos;est pas encore disponible. Les
-        phases de groupes sont visibles dans l&apos;onglet Classement.
-      </div>
+      <div className={styles.state}>{t("worldCup.emptyBracket")}</div>
     );
   }
 
@@ -662,8 +675,8 @@ export default function WorldCupCupTree({ trees, loading, error }) {
       </div>
 
       <div className={styles.bracketScroll} style={{ zoom }}>
-        {trees.map((t) => (
-          <CupTreeSingle key={t.id ?? t.name} tree={t} />
+        {trees.map((tree) => (
+          <CupTreeSingle key={tree.id ?? tree.name} tree={tree} />
         ))}
       </div>
     </div>

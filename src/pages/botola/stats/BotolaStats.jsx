@@ -1,11 +1,13 @@
 import styles from "./BotolaStats.module.scss";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Ranking from "./ranking/Ranking";
 import PlayersStats from "./players-stats/PlayersStats";
 import CompareTeams from "./compare-teams/CompareTeams";
 import TeamDetail from "./ranking/TeamDetail";
 
 export default function BotolaStats() {
+  const { t } = useTranslation();
   const [activeView, setActiveView] = useState("ranking");
   const [rankingTeamDetailOpen, setRankingTeamDetailOpen] = useState(false);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
@@ -13,7 +15,7 @@ export default function BotolaStats() {
   return (
     <section className={styles.main}>
       <header className={styles.header}>
-        <h1>Botola Pro</h1>
+        <h1>{t("botola.title")}</h1>
         <nav className={styles.nav}>
           <button
             className={activeView === "ranking" ? styles.active : ""}
@@ -23,7 +25,7 @@ export default function BotolaStats() {
               setSelectedTeamId(null);
             }}
           >
-            Classement
+            {t("botola.ranking")}
           </button>
           {/* <button
             className={activeView === "players" ? styles.active : ""}
@@ -43,7 +45,7 @@ export default function BotolaStats() {
               setSelectedTeamId(null);
             }}
           >
-            Comparaison
+            {t("botola.compare")}
           </button>
         </nav>
       </header>

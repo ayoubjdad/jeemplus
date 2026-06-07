@@ -4,10 +4,14 @@ import { teamLogo } from "../../helpers/media.helpers";
 const Team = ({ team, fromGame = false }) => {
   return (
     <div className={styles.team}>
-      <div style={{ backgroundColor: "#0a3035" }} className={styles.teamImage}>
+      <div className={styles.teamImage}>
         <img src={teamLogo(team)} alt={team?.name} />
       </div>
-      <p className={styles.teamName} style={{ height: fromGame && "auto" }}>
+      <p
+        className={`${styles.teamName} ${
+          fromGame ? styles.teamNameFromGame : ""
+        }`}
+      >
         {team?.shortName ?? team?.name}
       </p>
     </div>

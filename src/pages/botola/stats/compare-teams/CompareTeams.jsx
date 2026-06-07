@@ -1,5 +1,6 @@
 import styles from "./CompareTeams.module.scss";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Typography, Stack, Divider, Avatar } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBotolaStandingsTables } from "../../../../api/botolaStandings";
@@ -8,6 +9,7 @@ import { teamLogo } from "../../../../helpers/media.helpers";
 import { withBotolaTeamLogo } from "../../../../constants/botolaTeamLogos";
 
 export default function CompareTeams() {
+  const { t } = useTranslation();
   const { data: stats = [] } = useQuery({
     queryKey: ["stats"],
     queryFn: fetchBotolaStandingsTables,
@@ -39,7 +41,7 @@ export default function CompareTeams() {
     <div className={styles.tableView}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 2 }}>
         <div className={styles.logoPicker}>
-          <p className={styles.logoPickerTitle}>Equipe A</p>
+          <p className={styles.logoPickerTitle}>{t("compare.teamA")}</p>
           <div className={styles.logoList}>
             {teamAOptions.map((option) => (
               <button
@@ -56,7 +58,7 @@ export default function CompareTeams() {
           </div>
         </div>
         <div className={styles.logoPicker}>
-          <p className={styles.logoPickerTitle}>Equipe B</p>
+          <p className={styles.logoPickerTitle}>{t("compare.teamB")}</p>
           <div className={styles.logoList}>
             {teamBOptions.map((option) => (
               <button
@@ -81,19 +83,19 @@ export default function CompareTeams() {
             setTeamB(null);
           }}
         >
-          Réinitialiser
+          {t("common.reset")}
         </button>
       </Stack>
 
       <Divider sx={{ mb: 2 }} />
 
       {!aRow && !bRow && (
-        <Typography>Veuillez sélectionner deux équipes à comparer.</Typography>
+        <Typography>{t("compare.selectTwoTeams")}</Typography>
       )}
 
       <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-        <TeamCompareCard row={aRow} label="Équipe A" />
-        <TeamCompareCard row={bRow} label="Équipe B" />
+        <TeamCompareCard row={aRow} label={t("compare.teamA")} />
+        <TeamCompareCard row={bRow} label={t("compare.teamB")} />
       </Stack>
 
       {teamA?.id && teamB?.id && (
@@ -109,6 +111,7 @@ export default function CompareTeams() {
 }
 
 function CompareInsights({ teamAId, teamBId, teamALabel, teamBLabel }) {
+  const { t } = useTranslation();
   const { data: trendA = {} } = useQuery({
     queryKey: ["compare-form", teamAId],
     queryFn: () => getTeamForm(teamAId),
@@ -124,21 +127,21 @@ function CompareInsights({ teamAId, teamBId, teamALabel, teamBLabel }) {
   return (
     <div className={styles.insightsWrap}>
       <section className={styles.insightCard}>
-        <h3>Séries et tendances (15 derniers matchs)</h3>
+        <h3>{t("compare.trendsTitle")}</h3>
         <div className={styles.trendsGrid}>
           <div className={styles.trendCol}>
             <h4>{teamALabel}</h4>
-            <p>Sans défaite: {trendA.unbeaten ?? "—"}</p>
-            <p>Plus de 2.5 buts: {trendA.over25 ?? "—"}</p>
-            <p>Les deux marquent: {trendA.btts ?? "—"}</p>
-            <p>Premier à encaisser: {trendA.firstConceded ?? "—"}</p>
+            <p>{t("compare.unbeaten")}{trendA.unbeaten ?? "—"}</p>
+            <p>{t("compare.over25")}{trendA.over25 ?? "—"}</p>
+            <p>{t("compare.bothScore")}{trendA.btts ?? "—"}</p>
+            <p>{t("compare.firstToConcede")}{trendA.firstConceded ?? "—"}</p>
           </div>
           <div className={styles.trendCol}>
             <h4>{teamBLabel}</h4>
-            <p>Sans défaite: {trendB.unbeaten ?? "—"}</p>
-            <p>Plus de 2.5 buts: {trendB.over25 ?? "—"}</p>
-            <p>Les deux marquent: {trendB.btts ?? "—"}</p>
-            <p>Premier à encaisser: {trendB.firstConceded ?? "—"}</p>
+            <p>{t("compare.unbeaten")}{trendB.unbeaten ?? "—"}</p>
+            <p>{t("compare.over25")}{trendB.over25 ?? "—"}</p>
+            <p>{t("compare.bothScore")}{trendB.btts ?? "—"}</p>
+            <p>{t("compare.firstToConcede")}{trendB.firstConceded ?? "—"}</p>
           </div>
         </div>
       </section>
@@ -147,11 +150,12 @@ function CompareInsights({ teamAId, teamBId, teamALabel, teamBLabel }) {
 }
 
 function TeamCompareCard({ row, label }) {
+  const { t } = useTranslation();
   if (!row) {
     return (
       <div className={styles.card}>
         <h3>{label}</h3>
-        <p>Aucune équipe sélectionnée</p>
+        <p>{t("compare.noTeamSelected")}</p>
       </div>
     );
   }
@@ -169,35 +173,35 @@ function TeamCompareCard({ row, label }) {
       <table style={{ width: "100%" }}>
         <tbody>
           <tr>
-            <td>Matchs</td>
+            <td>{t("compare.matches")}</td>
             <td style={{ textAlign: "right" }}>{row.matches}</td>
           </tr>
           <tr>
-            <td>Victoires</td>
+            <td>{t("compare.wins")}</td>
             <td style={{ textAlign: "right" }}>{row.wins}</td>
           </tr>
           <tr>
-            <td>Nuls</td>
+            <td>{t("compare.draws")}</td>
             <td style={{ textAlign: "right" }}>{row.draws}</td>
           </tr>
           <tr>
-            <td>Défaites</td>
+            <td>{t("compare.losses")}</td>
             <td style={{ textAlign: "right" }}>{row.losses}</td>
           </tr>
           <tr>
-            <td>BP</td>
+            <td>{t("compare.goalsFor")}</td>
             <td style={{ textAlign: "right" }}>{row.scoresFor}</td>
           </tr>
           <tr>
-            <td>BC</td>
+            <td>{t("compare.goalsAgainst")}</td>
             <td style={{ textAlign: "right" }}>{row.scoresAgainst}</td>
           </tr>
           <tr>
-            <td>Diff</td>
+            <td>{t("compare.diff")}</td>
             <td style={{ textAlign: "right" }}>{gd}</td>
           </tr>
           <tr>
-            <td>Pts</td>
+            <td>{t("compare.points")}</td>
             <td style={{ textAlign: "right" }}>
               <strong>{row.points}</strong>
             </td>

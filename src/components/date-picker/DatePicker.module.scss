@@ -1,31 +1,35 @@
 .datePicker {
   gap: 12px;
-  border: none;
-  color: #fff;
-  padding: 12px;
+  border: 1px solid $border;
+  color: $text;
+  padding: 10px 14px;
   display: flex;
   direction: ltr;
   align-items: center;
-  border-radius: 60px;
+  border-radius: $radius-pill;
   transition: all 0.2s;
   justify-content: center;
-  background-color: #101f23;
+  background-color: $surface;
+  box-shadow: $shadow-sm;
 }
 
 .arrow {
   border: none;
   padding: 0;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
-  color: inherit;
-  border-radius: 60px;
-  background: transparent;
+  color: $primary;
+  border-radius: $radius-pill;
+  background: $primary-soft;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s ease, transform 0.12s ease;
+
   &:hover {
-    background-color: #0a3035;
+    background: rgba($primary, 0.16);
+    transform: scale(1.08);
   }
 }
 
@@ -37,6 +41,7 @@
   align-items: center;
   justify-content: center;
   min-width: 4rem;
+  font-weight: 600;
 }
 
 .dateDisplay {

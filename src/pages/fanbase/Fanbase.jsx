@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import GamesOfTheDay from "../games/games-of-the-day/GamesOfTheDay";
 import styles from "./Fanbase.module.scss";
 import MoroccanPlayers from "../games/moroccan-players/MoroccanPlayers";
 import DatePicker from "../../components/date-picker/DatePicker";
 import BotolaStats from "../botola/stats/BotolaStats";
-import logo from "../../assets/images/logo/fanBase.png";
+import logo from "../../assets/images/logo/chouftv.png";
 import InteractiveScreen from "../interactive-screen/InteractiveScreen";
 import WorldCupStandings from "./WorldCupStandings";
+import LanguageSwitcher from "../../components/language-switcher/LanguageSwitcher";
 
 export default function Fanbase() {
+  const { t } = useTranslation();
   const [tabIndex, setTabIndex] = useState(0);
   const [matchDayDate, setMatchDayDate] = useState(() => new Date());
 
@@ -18,7 +21,7 @@ export default function Fanbase() {
 
   const tabs = [
     {
-      label: "Matchs du jour",
+      label: t("tabs.matchesOfDay"),
       component: (
         <>
           <div className={styles.matchDayToolbar}>
@@ -38,15 +41,15 @@ export default function Fanbase() {
       ),
     },
     {
-      label: "Botola Pro",
+      label: t("tabs.botolaPro"),
       component: <BotolaStats />,
     },
     {
-      label: "Écran interactif",
+      label: t("tabs.interactiveScreen"),
       component: <InteractiveScreen />,
     },
     {
-      label: "Coupe du monde",
+      label: t("tabs.worldCup"),
       component: <WorldCupStandings />,
     },
   ];
@@ -54,7 +57,6 @@ export default function Fanbase() {
   return (
     <section className={styles.main}>
       <header className={styles.header}>
-        <img src={logo} alt="logo" />
         <div className={styles.headerButtons}>
           {tabs.map((tab, index) => (
             <button
@@ -68,6 +70,10 @@ export default function Fanbase() {
               {tab.label}
             </button>
           ))}
+        </div>
+        <div className={styles.headerRight}>
+          <LanguageSwitcher />
+          <img src={logo} alt="logo" />
         </div>
       </header>
 

@@ -1,137 +1,144 @@
 import { createTheme } from "@mui/material";
 
 export const theme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      light: "#9b4dc4",
+      main: "#7b2fa0",
+      dark: "#5a1f75",
+      contrastText: "#ffffff",
+    },
+    secondary: {
+      light: "#ff8c33",
+      main: "#ff6b00",
+      dark: "#e55a00",
+      contrastText: "#ffffff",
+    },
+    background: {
+      default: "#f6f6f8",
+      paper: "#ffffff",
+    },
+    text: {
+      primary: "#16161f",
+      secondary: "#6c6c7a",
+    },
+    error: {
+      main: "#e23744",
+    },
+  },
+  shape: {
+    borderRadius: 16,
+  },
+  typography: {
+    fontFamily: '"Roobert", sans-serif',
+  },
   components: {
-    // * Drawer
-    MuiDrawer: {
+    MuiCssBaseline: {
       styleOverrides: {
-        paper: {
-          color: "#fff",
-          width: "248px",
-          boxShadow: "none",
-          backgroundColor: "#040463",
+        body: {
+          backgroundColor: "#f6f6f8",
+          color: "#16161f",
         },
       },
     },
 
-    // * Button
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          color: "#16161f",
+          width: "248px",
+          boxShadow: "none",
+          backgroundColor: "#ffffff",
+          borderRight: "1px solid #ecedf2",
+        },
+      },
+    },
+
     MuiButton: {
       styleOverrides: {
         root: {
           gap: "8px",
           color: "white",
           display: "flex",
-          fontSize: "12px",
+          fontSize: "13px",
+          fontWeight: 600,
           boxShadow: "none",
-          padding: "6px 12px",
+          padding: "9px 18px",
           width: "fit-content",
           fontFamily: "inherit",
-          backgroundColor: "#040463",
+          textTransform: "none",
+          borderRadius: "999px",
+          backgroundColor: "#7b2fa0",
+          "&:hover": {
+            backgroundColor: "#5a1f75",
+            boxShadow: "none",
+          },
         },
-        startIcon: {
-          fontSize: "16px",
-          marginRight: "0px",
-          marginLeft: "0px",
-        },
-        endIcon: {
-          fontSize: "16px",
-          marginRight: "0px",
-          marginLeft: "0px",
-        },
+        startIcon: { fontSize: "16px", marginRight: "0px", marginLeft: "0px" },
+        endIcon: { fontSize: "16px", marginRight: "0px", marginLeft: "0px" },
       },
     },
 
-    // * TextField
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
           padding: "0px",
+          borderRadius: "12px",
         },
         input: {
           fontFamily: "Alexandria",
-          padding: "8px 10px",
+          padding: "10px 12px",
           fontSize: "14px",
         },
       },
     },
     MuiTextField: {
       styleOverrides: {
-        root: {
-          width: "100%",
-        },
+        root: { width: "100%" },
       },
     },
     MuiInputBase: {
       root: { padding: 0 },
     },
 
-    // * Autocomplete
     MuiAutocomplete: {
       styleOverrides: {
-        root: {
-          width: "100% !important",
-          // backgroundColor: "lightgray",
-        },
+        root: { width: "100% !important" },
         inputRoot: {
           padding: "0px",
-          "& .MuiOutlinedInput-root": {
-            padding: "0px",
-          },
+          "& .MuiOutlinedInput-root": { padding: "0px" },
         },
-        endAdornment: {
-          top: "auto",
-          height: "100%",
-          transform: "none",
-        },
-        popupIndicator: {
-          padding: 0,
-          height: "100%",
-        },
-        // * Style for the dropdown menu
+        endAdornment: { top: "auto", height: "100%", transform: "none" },
+        popupIndicator: { padding: 0, height: "100%" },
         paper: {
-          boxShadow: "none",
-          borderRadius: "4px",
-          // backgroundColor: "lightblue",
-          marginTop: "4px",
-          border: "1px solid #0000003b !important",
+          boxShadow: "0 8px 28px rgba(22, 22, 31, 0.06)",
+          borderRadius: "14px",
+          marginTop: "6px",
+          border: "1px solid #ecedf2 !important",
         },
         option: {
-          color: "black",
+          color: "#16161f",
           fontSize: "14px",
           fontFamily: "Alexandria",
           '&[aria-selected="true"]': {
-            backgroundColor: "lightgreen", // Highlight selected option
+            backgroundColor: "rgba(123, 47, 160, 0.1)",
           },
-        },
-        listbox: {
-          // list-style: none;
-          // margin: 0;
-          // padding: 8px 0;
-          // max-height: 40vh;
-          // overflow: auto;
-          // position: relative;
         },
       },
     },
 
-    // * Chip
     MuiChip: {
       styleOverrides: {
         root: { fontFamily: "inherit", fontSize: "12px" },
       },
     },
 
-    // * Tabs
     MuiTabs: {
       styleOverrides: {
         root: { borderBottom: "0px" },
-        indicator: {
-          backgroundColor: "#040463",
-          height: "2px",
-        },
-        flexContainer: {
-          justifyContent: "space-between",
-        },
+        indicator: { backgroundColor: "#7b2fa0", height: "2px" },
+        flexContainer: { justifyContent: "space-between" },
       },
     },
     MuiTab: {
@@ -139,20 +146,15 @@ export const theme = createTheme({
         root: {
           width: "40px",
           minWidth: "40px",
-          padding: "8px 16px", // Adjust padding
-          "&.Mui-selected": {
-            // color: "#1976d2", // Color of the selected tab
-          },
-          "&:hover": {
-            // color: "#1565c0", // Hover color
-          },
+          padding: "8px 16px",
+          color: "#6c6c7a",
+          "&.Mui-selected": { color: "#7b2fa0" },
         },
       },
     },
 
-    // *  Table
     MuiPaper: {
-      root: { boxShadow: "none !important" }, // background-color: #fff;
+      root: { boxShadow: "none !important" },
     },
     MuiTable: {
       styleOverrides: {
@@ -160,8 +162,8 @@ export const theme = createTheme({
           overflow: "hidden",
           borderRadius: "16px",
           borderCollapse: "inherit",
-          backgroundColor: "#f9f9f9",
-          border: "1px solid #e0e0e0",
+          backgroundColor: "#ffffff",
+          border: "1px solid #ecedf2",
         },
       },
     },
@@ -173,48 +175,43 @@ export const theme = createTheme({
           fontSize: "12px",
         },
         head: {
-          backgroundColor: "#f1f1f1",
+          backgroundColor: "#fbfbfd",
           fontWeight: "bold",
-          color: "#000",
+          color: "#16161f",
         },
-        body: {
-          backgroundColor: "#fff",
-        },
+        body: { backgroundColor: "#ffffff" },
       },
     },
     MuiTableRow: {
       styleOverrides: {
         root: {
-          "&:nth-of-type(odd)": {
-            backgroundColor: "#fafafa",
-          },
-          "&:hover": {
-            backgroundColor: "#e0f7fa",
-          },
+          "&:nth-of-type(odd)": { backgroundColor: "#fbfbfd" },
+          "&:hover": { backgroundColor: "rgba(123, 47, 160, 0.04)" },
         },
       },
     },
 
-    // * Switch
     MuiSwitch: {
       styleOverrides: {
-        root: {
-          // padding: 8,
-        },
         switchBase: {
-          color: "#040463",
-          "&.Mui-checked": {
-            color: "#040463",
-          },
-          "&.Mui-checked + .MuiSwitch-track": {
-            backgroundColor: "#020235",
-          },
+          color: "#7b2fa0",
+          "&.Mui-checked": { color: "#7b2fa0" },
+          "&.Mui-checked + .MuiSwitch-track": { backgroundColor: "#9b4dc4" },
         },
-        track: {
-          backgroundColor: "gray",
-          opacity: 1,
+        track: { backgroundColor: "#dcdce4", opacity: 1 },
+      },
+    },
+
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: "#16161f",
+          fontFamily: "inherit",
+          fontSize: "12px",
+          borderRadius: "8px",
+          padding: "6px 10px",
         },
-        thumb: {},
+        arrow: { color: "#16161f" },
       },
     },
   },

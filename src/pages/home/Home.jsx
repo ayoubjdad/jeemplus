@@ -1,5 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -72,6 +73,7 @@ function a11yProps(index) {
 }
 
 export default function Home() {
+  const { t } = useTranslation();
   const classes = useStyles();
   const [value, setValue] = React.useState(2);
 
@@ -91,15 +93,19 @@ export default function Home() {
         aria-label="sidebar tabs"
         className={classes.tabsRoot}
       >
-        <Tab className={classes.tab} label="Matchs du jour" {...a11yProps(0)} />
         <Tab
           className={classes.tab}
-          label="Internationaux Marocains"
+          label={t("tabs.matchesOfDay")}
+          {...a11yProps(0)}
+        />
+        <Tab
+          className={classes.tab}
+          label={t("tabs.internationalsMoroccan")}
           {...a11yProps(1)}
         />
         <Tab
           className={classes.tab}
-          label="Statistiques Botola"
+          label={t("tabs.botolaStats")}
           {...a11yProps(2)}
         />
       </Tabs>

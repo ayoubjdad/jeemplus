@@ -1,28 +1,24 @@
 .page {
   width: 100%;
   min-height: 100vh;
-  color: #fff;
-  padding: 16px 18px 48px;
-  // max-width: 900px;
+  color: $text;
+  padding: 24px 24px 56px;
   margin: 0 auto;
+  max-width: 960px;
   box-sizing: border-box;
-  background-color: #04080b;
-  background-image: radial-gradient(
-    ellipse 120% 80% at 50% -20%,
-    #0d2530 0%,
-    transparent 55%
-  );
+  background-color: $bg;
 }
 
 .back {
   display: inline-block;
-  color: #8fa8ad;
+  color: $text-muted;
   margin-bottom: 20px;
   text-decoration: none;
   font-size: 14px;
+  font-weight: 600;
 
   &:hover {
-    color: #fff;
+    color: $primary;
   }
 }
 
@@ -41,9 +37,9 @@
 .winnerBanner {
   margin: 0 0 8px;
   font-size: 14px;
-  font-weight: 600;
-  color: #dff6ff;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  color: $primary;
+  letter-spacing: 0.01em;
 }
 
 .meta {
@@ -52,7 +48,7 @@
   gap: 6px;
   align-items: center;
   font-size: 13px;
-  color: #8fa8ad;
+  color: $text-muted;
   margin-bottom: 12px;
 }
 
@@ -67,29 +63,29 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   letter-spacing: -0.02em;
-  color: #e8f4f8;
+  color: $text;
 }
 
 .sectionTitleMuted {
   margin: 0 0 12px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #6d8f98;
+  color: $text-subtle;
 }
 
 .syncHint {
   font-size: 11px;
-  color: #5a7d86;
+  color: $text-subtle;
   font-style: italic;
 }
 
 .tournament {
-  color: #c5d5d9;
+  color: $primary;
   font-weight: 600;
 }
 
@@ -106,17 +102,18 @@
 }
 
 .statusPill {
-  border-radius: 60px;
+  border-radius: $radius-pill;
   border: 1px solid;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .kickoff {
   font-size: 13px;
-  color: #8fa8ad;
+  color: $text-muted;
 }
 
 .scoreboard {
@@ -124,11 +121,12 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 24px 16px;
-  border-radius: 16px;
-  background: linear-gradient(165deg, #152a30 0%, #0f1c20 45%, #0c1518 100%);
+  padding: 28px 20px;
+  border-radius: $radius-lg;
+  background: $surface;
   margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid $border;
+  box-shadow: $shadow-md;
 }
 
 .side {
@@ -143,7 +141,7 @@
 .teamFull {
   margin: 12px 0 0;
   font-size: 12px;
-  color: #8fa8ad;
+  color: $text-muted;
   line-height: 1.3;
 }
 
@@ -158,16 +156,17 @@
 
 .scoreLine {
   margin: 0;
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   gap: 10px;
+  color: $text;
 }
 
 .scoreSep {
-  opacity: 0.35;
+  opacity: 0.3;
   font-weight: 400;
   font-size: 28px;
 }
@@ -175,20 +174,21 @@
 .vs {
   margin: 0;
   font-size: 22px;
-  font-weight: 600;
-  opacity: 0.6;
+  font-weight: 700;
+  opacity: 0.5;
+  color: $text-muted;
 }
 
 .half {
   margin: 8px 0 0;
   font-size: 12px;
-  color: #8fa8ad;
+  color: $text-muted;
 }
 
 .mutedSmall {
   margin: 4px 0 0;
   font-size: 11px;
-  color: #6d848c;
+  color: $text-subtle;
 }
 
 .colorDot {
@@ -197,14 +197,14 @@
   height: 8px;
   border-radius: 50%;
   margin-bottom: 4px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.12);
+  box-shadow: $shadow-xs;
 }
 
 .nameCode {
   margin: 4px 0 0 !important;
   font-size: 11px !important;
   letter-spacing: 0.06em !important;
-  color: #5c767e !important;
+  color: $text-subtle !important;
   font-weight: 600 !important;
 }
 
@@ -215,14 +215,14 @@
   gap: 10px;
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid $border;
   width: 100%;
 }
 
 .formation {
   font-size: 14px;
   font-weight: 700;
-  color: #c5d5d9;
+  color: $text;
   font-variant-numeric: tabular-nums;
 }
 
@@ -230,13 +230,13 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #5a737c;
+  color: $text-subtle;
 }
 
 .kpiGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 8px;
 
   @media (min-width: 640px) {
@@ -245,18 +245,20 @@
 }
 
 .kpiCard {
-  padding: 14px 14px 12px;
-  border-radius: 12px;
-  background: rgba(16, 31, 35, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: $radius-md;
+  background: $surface;
+  border: 1px solid $border;
   min-height: 78px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: $shadow-xs;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba($primary, 0.25);
+    box-shadow: $shadow-sm;
   }
 }
 
@@ -265,27 +267,27 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #6d8f98;
-  font-weight: 600;
+  color: $text-subtle;
+  font-weight: 700;
   line-height: 1.2;
 }
 
 .kpiValue {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: #f0f7f9;
+  font-size: 16px;
+  font-weight: 700;
+  color: $text;
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
 }
 
 .miniBarTrack {
   display: flex;
-  height: 5px;
+  height: 6px;
   border-radius: 4px;
   overflow: hidden;
   margin-top: 10px;
-  background: rgba(0, 0, 0, 0.35);
+  background: $border;
 }
 
 .miniBarSegment {
@@ -296,10 +298,11 @@
 
 .statsPanel {
   margin: 20px 0 8px;
-  padding: 18px 16px 20px;
-  border-radius: 14px;
-  background: rgba(12, 22, 26, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .statBarBlock {
@@ -323,7 +326,7 @@
   min-width: 0;
   font-size: 11px;
   font-weight: 600;
-  color: #8fa8ad;
+  color: $text-muted;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -338,8 +341,8 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #5a737c;
-  font-weight: 600;
+  color: $text-subtle;
+  font-weight: 700;
 }
 
 .statBarValues {
@@ -347,7 +350,7 @@
   justify-content: space-between;
   font-size: 13px;
   font-weight: 700;
-  color: #dff6ff;
+  color: $text;
   margin-bottom: 6px;
   font-variant-numeric: tabular-nums;
 }
@@ -357,7 +360,7 @@
   height: 8px;
   border-radius: 6px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.45);
+  background: $border;
 }
 
 .statBarFillHome {
@@ -378,40 +381,42 @@
   gap: 12px;
   margin-top: 18px;
   padding-top: 14px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  border-top: 1px dashed $border-strong;
 }
 
 .dualNum {
   flex: 1 1 120px;
   min-width: 0;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 14px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 
   strong {
     display: block;
     margin-top: 6px;
-    font-size: 17px;
-    font-weight: 700;
-    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    color: $primary;
     font-variant-numeric: tabular-nums;
   }
 }
 
 .dualLabel {
   font-size: 11px;
-  color: #6d848c;
+  color: $text-subtle;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .timelinePanel {
   margin: 20px 0 8px;
-  padding: 18px 16px;
-  border-radius: 14px;
-  background: rgba(10, 20, 24, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .timelineList {
@@ -425,8 +430,8 @@
   grid-template-columns: 52px 1fr auto;
   gap: 10px;
   align-items: start;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 0;
+  border-bottom: 1px solid $border;
 
   &:last-child {
     border-bottom: none;
@@ -437,24 +442,24 @@
 .tlMinute {
   font-size: 12px;
   font-weight: 700;
-  color: #46c6ef;
+  color: $secondary;
   font-variant-numeric: tabular-nums;
 }
 
 .tlBody {
   font-size: 13px;
-  color: #e0ecef;
+  color: $text;
   line-height: 1.35;
 }
 
 .tlAssist {
   font-size: 12px;
-  color: #7a959d;
+  color: $text-muted;
 }
 
 .tlScoreMuted {
   font-size: 11px;
-  color: #5a737c;
+  color: $text-subtle;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
@@ -471,57 +476,60 @@
 .tagLine {
   margin-top: 8px !important;
   font-size: 12px !important;
-  color: #46c6ef !important;
+  color: $secondary !important;
   font-weight: 600 !important;
 }
 
 .detail {
-  padding: 16px;
-  border-radius: 12px;
-  background: linear-gradient(160deg, #132328 0%, #101f23 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 18px;
+  border-radius: $radius-md;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-xs;
 
   h3 {
     margin: 0 0 8px;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #8fa8ad;
-    font-weight: 600;
+    color: $text-subtle;
+    font-weight: 700;
   }
 
   p {
     margin: 0;
     font-size: 14px;
     line-height: 1.4;
+    color: $text;
   }
 }
 
 .muted {
   margin-top: 4px !important;
   font-size: 13px !important;
-  color: #8fa8ad !important;
+  color: $text-muted !important;
 }
 
 .error {
-  color: #f48fb1;
+  color: $danger;
   margin-top: 16px;
 }
 
 .insights {
   margin-top: 28px;
-  padding: 18px 16px;
-  border-radius: 14px;
-  background: rgba(8, 16, 20, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 
   h3 {
     margin: 0 0 14px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    color: #6d8f98;
+    color: $primary;
   }
 }
 
@@ -538,25 +546,31 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
-  color: #aec8ce;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: $text-muted;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .chipOn {
-  color: #b8f5e8;
-  background: rgba(35, 198, 170, 0.12);
-  border-color: rgba(35, 198, 170, 0.35);
+  color: $primary-dark;
+  background: $primary-soft;
+  border-color: rgba($primary, 0.3);
 }
 
 .chipOff {
-  color: #6d848c;
+  color: $text-subtle;
   opacity: 0.85;
 }
 
 .partialNote {
   margin: 14px 0 0;
   font-size: 12px;
-  color: #8fa8ad;
+  color: $text-muted;
   line-height: 1.45;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 18px 16px 40px;
+  }
 }

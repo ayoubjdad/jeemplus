@@ -1,37 +1,26 @@
-// Tactique — aligné sur la palette Fanbase (#04080b, #101f23)
-$bg-deep: #04080b;
-$surface: rgba(16, 31, 35, 0.92);
-$surface-hover: rgba(22, 44, 52, 0.98);
-$stroke: rgba(255, 255, 255, 0.08);
-$stroke-strong: rgba(255, 255, 255, 0.14);
-$muted: rgba(255, 255, 255, 0.48);
-$accent: #5eead4;
-$danger: #f87171;
+// Écran tactique — thème clair Fynx (violet + orange)
+$stroke: $border;
+$stroke-strong: $border-strong;
+$muted: $text-muted;
+$accent: $primary;
 
 .main {
   box-sizing: border-box;
   width: 100%;
-  padding: 12px 16px 14px;
-  color: #fff;
+  padding: 16px;
+  color: $text;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(
-      ellipse 120% 80% at 50% -20%,
-      rgba(20, 60, 55, 0.35) 0%,
-      transparent 55%
-    ),
-    $bg-deep;
+  background: $bg;
 }
 
-/** Plein viewport (onglet Fanbase « Écran interactif »). */
 .mainFillViewport {
-  height: 100vh;
-  min-height: 100vh;
-  max-height: 100vh;
+  height: calc(100vh - var(--header-height, 72px));
+  min-height: calc(100vh - var(--header-height, 72px));
+  max-height: calc(100vh - var(--header-height, 72px));
   overflow: hidden;
 }
 
-/** Dans un onglet imbriqué (ex. Coupe du monde) pour éviter débordement + double scroll. */
 .mainEmbedded {
   height: auto;
   min-height: 0;
@@ -40,13 +29,13 @@ $danger: #f87171;
   overflow-x: hidden;
 }
 
-/** Écrase `.mainEmbedded` / viewport quand la zone est en `requestFullscreen()` (Navigateur plein écran). */
 .mainBrowserFullscreen {
   height: 100%;
   min-height: 100%;
   max-height: none;
   overflow: hidden;
-  padding: 8px;
+  padding: 10px;
+  background: $bg;
 }
 
 .main:fullscreen,
@@ -63,11 +52,13 @@ $danger: #f87171;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  max-width: none;
   width: 100%;
-  margin: 0 auto 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid $stroke;
+  margin: 0 auto 14px;
+  padding: 16px 18px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .pageHeaderText {
@@ -79,18 +70,19 @@ $danger: #f87171;
 .pageEyebrow {
   margin: 0 0 6px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(94, 234, 212, 0.75);
+  color: $secondary;
 }
 
 .pageTitle {
   margin: 0 0 8px;
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.15;
+  color: $text;
 }
 
 .pageSubtitle {
@@ -111,7 +103,7 @@ $danger: #f87171;
 .teamPickerLabel {
   margin: 0;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: $muted;
@@ -124,17 +116,17 @@ $danger: #f87171;
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
-  color: #fff;
-  border-radius: 12px;
-  border: 1px solid $stroke-strong;
+  color: $text;
+  border-radius: $radius-md;
+  border: 1px solid $border-strong;
   background-color: $surface;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2399f6e4' d='M3 4.5 6 8l3-3.5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237b2fa0' d='M3 4.5 6 8l3-3.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: $shadow-xs;
 
   &:focus-visible {
-    outline: 2px solid rgba(94, 234, 212, 0.45);
+    outline: 2px solid rgba($primary, 0.35);
     outline-offset: 2px;
   }
 
@@ -151,34 +143,32 @@ $danger: #f87171;
   gap: 8px;
   flex-shrink: 0;
   margin-left: auto;
-  padding: 10px 14px;
+  padding: 11px 16px;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 700;
   font-family: inherit;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.92);
-  border-radius: 12px;
-  border: 1px solid $stroke-strong;
-  background: $surface;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  color: #fff;
+  border-radius: $radius-md;
+  border: none;
+  background: $primary;
+  box-shadow: 0 4px 14px rgba($primary, 0.28);
+  transition: background 0.15s ease, transform 0.12s ease;
 
   &:hover {
-    border-color: rgba(94, 234, 212, 0.35);
-    background: $surface-hover;
-    color: #fff;
+    background: $primary-dark;
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(94, 234, 212, 0.45);
+    outline: 2px solid rgba($primary, 0.45);
     outline-offset: 2px;
   }
 }
 
 .fullscreenToggleIcon {
   display: flex;
-  color: rgba(94, 234, 212, 0.9);
+  color: #fff;
 }
 
 .fullscreenToggleLabel {
@@ -214,14 +204,9 @@ $danger: #f87171;
   flex-direction: column;
   align-items: flex-end;
   padding: 14px 20px;
-  border-radius: 16px;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(0, 0, 0, 0.25) 100%
-  );
-  border: 1px solid $stroke;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .pageStatValue {
@@ -229,23 +214,20 @@ $danger: #f87171;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
-  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.75) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: $primary;
 }
 
 .pageStatLabel {
   margin-top: 6px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: $muted;
 }
 
 .layout {
-  gap: 10px;
+  gap: 12px;
   flex: 1;
   min-height: 0;
   width: 100%;
@@ -259,7 +241,7 @@ $danger: #f87171;
 }
 
 .layoutFullscreen {
-  gap: 6px;
+  gap: 8px;
 }
 
 .sidebar {
@@ -275,12 +257,7 @@ $danger: #f87171;
 
 .sidebarRight {
   .sidebarCard {
-    background: linear-gradient(
-      225deg,
-      rgba(94, 234, 212, 0.1) 0%,
-      rgba(255, 255, 255, 0.03) 45%,
-      rgba(0, 0, 0, 0.22) 100%
-    );
+    border-color: rgba($secondary, 0.2);
   }
 }
 
@@ -290,31 +267,28 @@ $danger: #f87171;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  border-radius: 14px;
-  padding: 3px;
-  background: linear-gradient(
-    135deg,
-    rgba(94, 234, 212, 0.1) 0%,
-    rgba(255, 255, 255, 0.03) 40%,
-    rgba(0, 0, 0, 0.22) 100%
-  );
-  border: 1px solid $stroke;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+  border-radius: $radius-lg;
+  padding: 0;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .sidebarCardHead {
-  padding: 14px 16px 10px;
+  padding: 14px 16px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  border-bottom: 1px solid $border;
 }
 
 .sidebarTitle {
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: $text;
 }
 
 .sidebarTag {
@@ -322,8 +296,8 @@ $danger: #f87171;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 999px;
-  color: rgba(20, 40, 38, 0.95);
-  background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%);
+  color: #fff;
+  background: $secondary;
 }
 
 .playerList {
@@ -332,20 +306,20 @@ $danger: #f87171;
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding: 6px 8px 10px;
+  padding: 10px;
   align-content: start;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: rgba($primary, 0.2) transparent;
 
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
   }
 
   &::-webkit-scrollbar-thumb {
     border-radius: 99px;
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba($primary, 0.2);
   }
 }
 
@@ -358,7 +332,7 @@ $danger: #f87171;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.55);
+  color: $muted;
 
   p {
     margin: 0 0 8px;
@@ -377,29 +351,21 @@ $danger: #f87171;
   align-items: center;
   gap: 4px;
   text-align: center;
-  padding: 8px 4px 6px;
+  padding: 10px 4px 8px;
   min-width: 0;
-  border-radius: 10px;
+  border-radius: $radius-md;
   cursor: grab;
   user-select: none;
   transition: background 0.18s ease, border-color 0.18s ease, transform 0.16s ease,
     box-shadow 0.18s ease;
-  background: linear-gradient(
-    165deg,
-    rgba(22, 42, 46, 0.92) 0%,
-    rgba(12, 24, 28, 0.85) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-xs;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.14);
-    background: linear-gradient(
-      165deg,
-      rgba(28, 52, 56, 0.95) 0%,
-      rgba(16, 32, 36, 0.9) 100%
-    );
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.36);
+    border-color: rgba($primary, 0.3);
+    background: $primary-soft;
+    box-shadow: $shadow-sm;
   }
 
   &:active {
@@ -409,13 +375,9 @@ $danger: #f87171;
 }
 
 .playerCardOnField {
-  border-color: rgba(94, 234, 212, 0.3);
-  background: linear-gradient(
-    165deg,
-    rgba(18, 55, 52, 0.5) 0%,
-    rgba(10, 36, 38, 0.72) 100%
-  );
-  box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.12), 0 6px 16px rgba(0, 0, 0, 0.32);
+  border-color: rgba($primary, 0.45);
+  background: $primary-soft;
+  box-shadow: 0 0 0 1px rgba($primary, 0.15), $shadow-sm;
 }
 
 .playerCardDragging {
@@ -439,27 +401,27 @@ $danger: #f87171;
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
-  color: #fecaca;
+  color: #fff;
   cursor: pointer;
-  background: rgba(127, 29, 29, 0.65);
+  background: $danger;
   transition: background 0.15s ease, transform 0.12s ease;
   font-family: inherit;
 
   &:hover {
-    background: rgba(185, 28, 28, 0.82);
+    background: #c2303c;
     transform: scale(1.05);
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(248, 113, 113, 0.65);
+    outline: 2px solid rgba($danger, 0.5);
     outline-offset: 1px;
   }
 }
 
 .playerCardAvatarWrap {
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
 }
 
@@ -476,20 +438,19 @@ $danger: #f87171;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #1a1200;
-  background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
-  border: 1.5px solid rgba(8, 14, 18, 0.95);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  background: $secondary;
+  border: 1.5px solid $surface;
+  box-shadow: $shadow-xs;
 }
 
 .playerCardAvatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
-  background: #0a1618;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  background: $surface-elevated;
+  border: 2px solid $border;
 }
 
 .playerCardMeta {
@@ -510,16 +471,15 @@ $danger: #f87171;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  color: rgba(255, 255, 255, 0.94);
+  color: $text;
   letter-spacing: 0.01em;
 }
 
 .playerCardRole {
   font-size: 7px;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.02em;
+  color: $text-subtle;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -532,8 +492,8 @@ $danger: #f87171;
   height: 5px;
   margin-top: 2px;
   border-radius: 50%;
-  background: #5eead4;
-  box-shadow: 0 0 8px rgba(94, 234, 212, 0.6);
+  background: $primary;
+  box-shadow: 0 0 6px rgba($primary, 0.5);
   font-size: 0;
   overflow: hidden;
 }
@@ -542,8 +502,8 @@ $danger: #f87171;
   flex-shrink: 0;
   margin-top: 2px;
   font-size: 9px;
-  font-weight: 600;
-  color: rgba(94, 234, 212, 0.35);
+  font-weight: 700;
+  color: rgba($primary, 0.4);
   line-height: 1;
 }
 
@@ -552,24 +512,24 @@ $danger: #f87171;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  border: 1px solid rgba($danger, 0.35);
   cursor: pointer;
   font-size: 11px;
   font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 10px;
+  padding: 7px 12px;
+  border-radius: $radius-sm;
   color: $danger;
-  background: rgba(127, 29, 29, 0.35);
+  background: rgba($danger, 0.08);
   font-family: inherit;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    background: rgba(185, 28, 28, 0.5);
-    border-color: rgba(248, 113, 113, 0.55);
+    background: rgba($danger, 0.14);
+    border-color: rgba($danger, 0.55);
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(248, 113, 113, 0.6);
+    outline: 2px solid rgba($danger, 0.4);
     outline-offset: 2px;
   }
 }
@@ -599,8 +559,9 @@ $danger: #f87171;
 .pitchHeading {
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: $text;
 }
 
 .pitchHint {
@@ -614,19 +575,15 @@ $danger: #f87171;
   flex: 1;
   min-height: 0;
   width: 100%;
-  padding: 6px;
-  border-radius: 16px;
+  padding: 8px;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
   container-type: size;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(0, 0, 0, 0.32) 100%
-  );
-  border: 1px solid $stroke;
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.42);
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-md;
 }
 
 .fullscreenExitFab {
@@ -640,24 +597,22 @@ $danger: #f87171;
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
+  border: none;
+  border-radius: $radius-md;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(16, 31, 35, 0.88);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+  color: #fff;
+  background: $primary;
+  box-shadow: $shadow-md;
+  transition: background 0.15s ease, transform 0.12s ease;
   font-family: inherit;
 
   &:hover {
-    border-color: rgba(94, 234, 212, 0.4);
-    background: rgba(22, 44, 52, 0.95);
+    background: $primary-dark;
     transform: scale(1.04);
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(94, 234, 212, 0.45);
+    outline: 2px solid rgba($primary, 0.45);
     outline-offset: 2px;
   }
 }
@@ -671,17 +626,16 @@ $danger: #f87171;
   max-width: 100%;
   max-height: 100%;
   flex: 0 0 auto;
-  border-radius: 16px;
+  border-radius: $radius-md;
   overflow: visible;
   touch-action: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 12px 40px rgba(0, 0, 0, 0.55);
+  border: 2px solid rgba($primary, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), $shadow-md;
 }
 
 .pitchDropHint {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 0 0 2px rgba(94, 234, 212, 0.35), 0 12px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 0 3px rgba($secondary, 0.45), $shadow-md;
 }
 
 .pitchGrass {
@@ -692,16 +646,16 @@ $danger: #f87171;
   z-index: 0;
   background: linear-gradient(
       90deg,
-      rgba(14, 48, 40, 0.96) 0%,
-      rgba(11, 32, 28, 0.98) 50%,
-      rgba(9, 24, 22, 1) 100%
+      #41936096 0%,
+      #3a8757 50%,
+      #347d50 100%
     ),
     repeating-linear-gradient(
       180deg,
       transparent 0,
       transparent 6px,
-      rgba(255, 255, 255, 0.018) 6px,
-      rgba(255, 255, 255, 0.018) 7px
+      rgba(255, 255, 255, 0.05) 6px,
+      rgba(255, 255, 255, 0.05) 7px
     );
 }
 
@@ -734,25 +688,17 @@ $danger: #f87171;
 
   .tokenCard {
     transform: scale(1.05);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65),
-      0 0 0 1px rgba(94, 234, 212, 0.4);
+    box-shadow: $shadow-lg, 0 0 0 2px rgba($primary, 0.4);
   }
 }
 
 .tokenCard {
-  padding: 7px 5px 6px;
-  border-radius: 13px;
+  padding: 8px 5px 6px;
+  border-radius: $radius-md;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  background: linear-gradient(
-    155deg,
-    rgba(28, 52, 56, 0.98) 0%,
-    rgba(10, 22, 26, 0.95) 55%,
-    rgba(4, 12, 14, 1) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.48),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: $surface;
+  border: 2px solid $primary;
+  box-shadow: $shadow-md;
 }
 
 .tokenInner {
@@ -779,11 +725,11 @@ $danger: #f87171;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
-  color: #1a1200;
+  background: $secondary;
+  color: #fff;
   z-index: 2;
-  border: 2px solid rgba(8, 16, 18, 0.9);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 2px solid $surface;
+  box-shadow: $shadow-xs;
 }
 
 .tokenAvatar {
@@ -791,9 +737,8 @@ $danger: #f87171;
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(94, 234, 212, 0.22);
-  background: #0a1618;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba($primary, 0.3);
+  background: $surface-elevated;
 }
 
 .tokenRating {
@@ -808,9 +753,8 @@ $danger: #f87171;
   text-align: center;
   border-radius: 999px;
   color: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: $shadow-sm;
   font-variant-numeric: tabular-nums;
-  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .ratingBlue {
@@ -826,7 +770,7 @@ $danger: #f87171;
 }
 
 .ratingOrange {
-  background: linear-gradient(180deg, #fb923c 0%, #c2410c 100%);
+  background: linear-gradient(180deg, $secondary-light 0%, $secondary-dark 100%);
 }
 
 .tokenLabel {
@@ -846,8 +790,8 @@ $danger: #f87171;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
 .listDragGhost {
@@ -859,23 +803,18 @@ $danger: #f87171;
   align-items: center;
   gap: 6px;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: $radius-md;
   transform: translate(-50%, -50%);
-  background: linear-gradient(
-    165deg,
-    rgba(255, 255, 255, 0.14) 0%,
-    rgba(16, 31, 35, 0.97) 100%
-  );
-  border: 1px solid rgba(94, 234, 212, 0.25);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(0, 0, 0, 0.3);
+  background: $surface;
+  border: 2px solid $primary;
+  box-shadow: $shadow-lg;
 
   img {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 2px solid $border;
+    box-shadow: $shadow-sm;
   }
 
   span {
@@ -886,6 +825,7 @@ $danger: #f87171;
     overflow: hidden;
     text-overflow: ellipsis;
     letter-spacing: 0.01em;
+    color: $text;
   }
 }
 

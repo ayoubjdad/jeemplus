@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import TableView from "../../../../components/table/TableView";
 import { getBotolaTopPlayers } from "../../../../api/football/services/playersService";
 
 export default function PlayersStats() {
+  const { t } = useTranslation();
   const [playerSortKey] = useState("rating");
 
   const fetchPlayersStats = async () => {
@@ -27,18 +29,18 @@ export default function PlayersStats() {
   }, [playerStats, playerSortKey]);
 
   const statOptions = [
-    { value: "#", label: "#" },
-    { value: "player", label: "Joueur" },
-    { value: "team", label: "Équipe" },
+    { value: "#", label: t("players.rank") },
+    { value: "player", label: t("players.player") },
+    { value: "team", label: t("players.team") },
     {
       value: "accuratePassesPercentage",
-      label: "Pourcentage de passes réussite précis %",
+      label: t("players.passAccuracy"),
     },
-    { value: "assists", label: "Assists" },
-    { value: "goals", label: "Buts" },
-    { value: "successfulDribbles", label: "Dribbles réussis" },
-    { value: "tackles", label: "Tacles" },
-    { value: "rating", label: "Note moyenne" },
+    { value: "assists", label: t("players.assists") },
+    { value: "goals", label: t("players.goals") },
+    { value: "successfulDribbles", label: t("players.successfulDribbles") },
+    { value: "tackles", label: t("players.tackles") },
+    { value: "rating", label: t("players.averageRating") },
   ];
 
   return <TableView data={topPlayers} options={statOptions} />;

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import TableView from "../../components/table/TableView";
 import {
@@ -9,20 +10,6 @@ import WorldCupCupTree from "./WorldCupCupTree";
 import InteractiveScreen from "../interactive-screen/InteractiveScreen";
 import styles from "./WorldCupStandings.module.scss";
 
-const TABLE_OPTIONS = [
-  { label: "#", value: "#" },
-  { label: "Équipe", value: "team" },
-  { label: "Statut", value: "qualification" },
-  { label: "MJ", value: "matches" },
-  { label: "G", value: "wins" },
-  { label: "N", value: "draws" },
-  { label: "P", value: "losses" },
-  { label: "BP", value: "scoresFor" },
-  { label: "BC", value: "scoresAgainst" },
-  { label: "+/-", value: "scoreDiffFormatted" },
-  { label: "Pts", value: "points" },
-];
-
 function mapRows(rows) {
   return (rows || []).map((r) => ({
     ...r,
@@ -30,14 +17,29 @@ function mapRows(rows) {
   }));
 }
 
-function groupTitle(standing) {
+function groupTitle(standing, fallback) {
   const fr =
     standing?.tournament?.fieldTranslations?.nameTranslation?.fr;
-  return fr || standing?.name || standing?.tournament?.groupName || "Groupe";
+  return fr || standing?.name || standing?.tournament?.groupName || fallback;
 }
 
 export default function WorldCupStandings() {
+  const { t } = useTranslation();
   const [subTab, setSubTab] = useState("standings");
+
+  const TABLE_OPTIONS = [
+    { label: t("table.rank"), value: "#" },
+    { label: t("table.team"), value: "team" },
+    { label: t("table.status"), value: "qualification" },
+    { label: t("table.played"), value: "matches" },
+    { label: t("table.wins"), value: "wins" },
+    { label: t("table.draws"), value: "draws" },
+    { label: t("table.losses"), value: "losses" },
+    { label: t("table.goalsFor"), value: "scoresFor" },
+    { label: t("table.goalsAgainst"), value: "scoresAgainst" },
+    { label: t("table.goalDiff"), value: "scoreDiffFormatted" },
+    { label: t("table.points"), value: "points" },
+  ];
 
   const {
     data: standings = [],
@@ -62,11 +64,11 @@ export default function WorldCupStandings() {
       standings
         .filter((s) => s?.type === "total" && Array.isArray(s.rows))
         .map((s) => ({
-          key: String(s.id ?? s.name ?? groupTitle(s)),
-          title: groupTitle(s),
+          key: String(s.id ?? s.name ?? groupTitle(s, t("worldCup.group"))),
+          title: groupTitle(s, t("worldCup.group")),
           rows: mapRows(s.rows),
         })),
-    [standings],
+    [standings, t],
   );
 
   const worldCupInteractivePicker = useMemo(
@@ -80,22 +82,18 @@ export default function WorldCupStandings() {
 
   const standingsBody = () => {
     if (standingsLoading) {
-      return <div className={styles.state}>Chargement…</div>;
+      return <div className={styles.state}>{t("worldCup.loadingStandings")}</div>;
     }
 
     if (standingsError) {
       return (
-        <div className={styles.state}>
-          Impossible de charger le classement. Réessayez plus tard.
-        </div>
+        <div className={styles.state}>{t("worldCup.errorStandings")}</div>
       );
     }
 
     if (groups.length === 0) {
       return (
-        <div className={styles.state}>
-          Aucune donnée de classement pour le moment.
-        </div>
+        <div className={styles.state}>{t("worldCup.emptyStandings")}</div>
       );
     }
 
@@ -113,7 +111,7 @@ export default function WorldCupStandings() {
 
   return (
     <div className={styles.root}>
-      <h2 className={styles.pageTitle}>Coupe du monde</h2>
+      <h2 className={styles.pageTitle}>{t("worldCup.title")}</h2>
       <div className={styles.subNav}>
         <button
           type="button"
@@ -122,7 +120,7 @@ export default function WorldCupStandings() {
           }
           onClick={() => setSubTab("standings")}
         >
-          Classement
+          {t("worldCup.ranking")}
         </button>
         <button
           type="button"
@@ -131,7 +129,7 @@ export default function WorldCupStandings() {
           }
           onClick={() => setSubTab("bracket")}
         >
-          Tableau coupe
+          {t("worldCup.bracket")}
         </button>
         <button
           type="button"
@@ -140,7 +138,7 @@ export default function WorldCupStandings() {
           }
           onClick={() => setSubTab("interactive")}
         >
-          Écran interactif
+          {t("worldCup.interactiveScreen")}
         </button>
       </div>
       {subTab === "standings" && standingsBody()}
@@ -152,7 +150,7 @@ export default function WorldCupStandings() {
           <InteractiveScreen
             embedded
             standingsPicker={worldCupInteractivePicker}
-            teamPickerLabel="Équipe (Coupe du monde)"
+            teamPickerLabel={t("worldCup.teamPickerLabel")}
             selectId="wc-interactive-national-team"
           />
         </div>

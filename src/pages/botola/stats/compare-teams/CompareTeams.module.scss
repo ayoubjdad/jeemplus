@@ -1,30 +1,37 @@
 .button {
-  border: none;
-  color: #fff;
+  border: 1px solid $border;
+  color: $text-muted;
   cursor: pointer;
-  padding: 8px 16px;
-  background: #101f23;
-  border-radius: 60px;
+  padding: 9px 16px;
+  background: $surface;
+  border-radius: $radius-pill;
   transition: all 0.2s;
   line-height: inherit;
   font-family: "Roobert", sans-serif;
+  font-weight: 600;
 
   &:hover {
-    background: #1d2a2c;
+    border-color: $primary-light;
+    color: $primary;
+    background: $primary-soft;
   }
 }
 
 .logoPicker {
   width: 100%;
   min-width: 220px;
-  padding: 10px;
-  border-radius: 24px;
-  background: #101f23;
+  padding: 14px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .logoPickerTitle {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: 13px;
+  color: $text;
+  font-weight: 700;
 }
 
 .logoList {
@@ -37,13 +44,13 @@
 }
 
 .logoItem {
-  width: 40px;
-  height: 40px;
-  border: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid $border;
   padding: 6px;
   cursor: pointer;
-  border-radius: 60px;
-  background: #1d2a2c;
+  border-radius: $radius-md;
+  background: $surface-elevated;
   transition: all 0.2s;
 
   img {
@@ -53,22 +60,28 @@
   }
 
   &:hover {
-    background: #263436;
+    border-color: $primary-light;
+    background: $primary-soft;
   }
 }
 
 .logoItemActive {
-  background: #00fe7a;
+  background: $primary-soft;
+  border-color: $primary;
+  box-shadow: 0 0 0 2px rgba($primary, 0.2);
 }
 
 .card {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   display: flex;
-  border-radius: 24px;
-  background: #101f23;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
   flex-direction: column;
   justify-content: center;
+  color: $text;
 }
 
 .insightsWrap {
@@ -76,19 +89,23 @@
 }
 
 .insightCard {
-  padding: 16px;
+  padding: 18px;
   margin-top: 12px;
-  border-radius: 20px;
-  background: #101f23;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 
   h3 {
     margin: 0 0 12px;
     font-size: 18px;
+    font-weight: 700;
+    color: $text;
   }
 
   p {
     margin: 4px 0;
-    color: rgba(255, 255, 255, 0.85);
+    color: $text-muted;
   }
 }
 
@@ -103,14 +120,15 @@
 }
 
 .goalSplitRow {
-  padding: 12px;
-  border-radius: 14px;
-  background: #1d2a2c;
+  padding: 14px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 
   h4 {
     margin: 0 0 6px;
     font-size: 14px;
-    color: #00fe7a;
+    color: $secondary;
   }
 }
 
@@ -123,13 +141,14 @@
   gap: 10px;
   display: flex;
   flex-wrap: wrap;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #1d2a2c;
+  padding: 12px 14px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 
   span:first-child {
     min-width: 88px;
-    color: rgba(255, 255, 255, 0.62);
+    color: $text-muted;
   }
 }
 
@@ -144,13 +163,14 @@
 }
 
 .trendCol {
-  padding: 12px;
-  border-radius: 14px;
-  background: #1d2a2c;
+  padding: 14px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 
   h4 {
     margin: 0 0 8px;
     font-size: 14px;
-    color: #00fe7a;
+    color: $secondary;
   }
 }

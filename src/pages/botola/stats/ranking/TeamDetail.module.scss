@@ -1,33 +1,38 @@
 .page {
   gap: 16px;
-  color: #fff;
+  color: $text;
   display: flex;
   flex-direction: column;
 }
 
 .back {
-  border: none;
-  color: #fff;
+  border: 1px solid $border;
+  color: $text-muted;
   cursor: pointer;
-  padding: 8px 16px;
+  padding: 9px 16px;
   align-self: flex-start;
-  background: #1d2a2c;
-  border-radius: 60px;
+  background: $surface;
+  border-radius: $radius-pill;
   transition: all 0.2s;
   line-height: inherit;
   font-family: "Roobert", sans-serif;
+  font-weight: 600;
 
   &:hover {
-    background: #263436;
+    border-color: $primary-light;
+    color: $primary;
+    background: $primary-soft;
   }
 }
 
 .heroCard {
   gap: 20px;
   display: grid;
-  padding: 20px;
-  border-radius: 24px;
-  background: #1d2a2c;
+  padding: 24px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-md;
   align-items: center;
   grid-template-columns: 1fr auto;
 
@@ -45,9 +50,10 @@
 
 .logoRing {
   flex-shrink: 0;
-  padding: 10px;
-  border-radius: 60px;
-  background: #0a3035;
+  padding: 12px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .logo {
@@ -64,8 +70,10 @@
 .title {
   margin: 0 0 10px;
   font-size: clamp(1.35rem, 3vw, 1.75rem);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   line-height: 1.15;
+  color: $text;
 }
 
 .metaRow {
@@ -79,10 +87,11 @@
   display: inline-flex;
   font-size: 13px;
   padding: 6px 12px;
-  border-radius: 60px;
+  border-radius: $radius-pill;
   align-items: center;
-  background: #101f23;
-  color: rgba(255, 255, 255, 0.88);
+  background: $surface-elevated;
+  border: 1px solid $border;
+  color: $text-muted;
 }
 
 .metaFlag {
@@ -93,7 +102,7 @@
 .managerThumb {
   border-radius: 50%;
   object-fit: cover;
-  background: #1d2a2c;
+  background: $surface-elevated;
 }
 
 .heroAside {
@@ -111,22 +120,25 @@
   gap: 6px;
   display: flex;
   min-width: 140px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  padding: 14px 16px;
+  border-radius: $radius-md;
   flex-direction: column;
-  background: #101f23;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .heroMiniLabel {
   font-size: 11px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: $text-subtle;
+  font-weight: 600;
 }
 
 .heroMiniValue {
   font-size: 1.35rem;
-  font-weight: 600;
+  font-weight: 800;
+  color: $text;
 }
 
 .heroFormStrip {
@@ -147,23 +159,23 @@
 }
 
 .formBarWin {
-  background: rgba(0, 254, 122, 0.22);
-  color: #00fe7a;
+  background: rgba($success, 0.16);
+  color: $success;
 }
 
 .formBarDraw {
-  background: rgba(158, 161, 161, 0.25);
-  color: #cfd2d3;
+  background: rgba($text-subtle, 0.18);
+  color: $text-muted;
 }
 
 .formBarLoss {
-  background: rgba(255, 75, 75, 0.2);
-  color: #ff8a8a;
+  background: rgba($danger, 0.16);
+  color: $danger;
 }
 
 .formBarNeutral {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  background: $surface-elevated;
+  color: $text-muted;
 }
 
 .grid {
@@ -184,37 +196,40 @@
 }
 
 .sideCard {
-  padding: 16px;
-  border-radius: 20px;
-  background: #1d2a2c;
+  padding: 18px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .sideTitle {
   margin: 0 0 12px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: $text-subtle;
 }
 
 .sideStrong {
   margin: 0 0 6px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
+  color: $text;
 }
 
 .sideMuted {
   margin: 0 0 4px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
+  color: $text-muted;
 }
 
 .sideHint {
   margin: 12px 0 0;
   font-size: 12px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.5);
+  color: $text-subtle;
 }
 
 .formBars {
@@ -244,7 +259,7 @@
 .formBarLabel {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.55);
+  color: $text-subtle;
 }
 
 .colorSwatches {
@@ -258,7 +273,7 @@
   height: 36px;
   cursor: default;
   border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
+  border: 2px solid $border;
 }
 
 .main {
@@ -274,25 +289,30 @@
 
 .tab,
 .tabActive {
-  border: none;
+  border: 1px solid $border;
   cursor: pointer;
   padding: 10px 18px;
-  border-radius: 60px;
+  border-radius: $radius-pill;
   transition: all 0.2s;
   font-family: "Roobert", sans-serif;
   font-size: 14px;
-  color: #fff;
-  background-color: #101f23;
+  font-weight: 600;
+  color: $text-muted;
+  background-color: $surface;
 }
 
 .tab:hover {
-  background: #263436;
+  border-color: $primary-light;
+  color: $primary;
+  background: $primary-soft;
 }
 
 .tabActive {
-  background: #00fe7a;
-  color: #04080b;
+  background: $primary;
+  color: #fff;
+  border-color: $primary;
   font-weight: 600;
+  box-shadow: 0 4px 14px rgba($primary, 0.28);
 }
 
 .tabPanel {
@@ -314,39 +334,46 @@
 .statTile {
   gap: 6px;
   display: flex;
-  padding: 16px;
-  border-radius: 20px;
+  padding: 18px;
+  border-radius: $radius-lg;
   flex-direction: column;
-  background: #1d2a2c;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .statLabel {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
+  color: $text-subtle;
 }
 
 .statValue {
-  font-size: 1.35rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: $text;
 }
 
 .panelCard {
-  padding: 18px;
-  border-radius: 20px;
-  background: #1d2a2c;
+  padding: 20px;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .panelTitle {
   margin: 0 0 10px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
+  color: $text;
 }
 
 .panelMuted {
   margin: 0 0 14px;
   font-size: 13px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.6);
+  color: $text-muted;
 }
 
 .summaryTopGrid {
@@ -357,24 +384,25 @@
 }
 
 .summaryTopItem {
-  padding: 10px;
-  border-radius: 12px;
-  background: #101f23;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .summaryTopLabel {
   display: block;
   font-size: 11px;
   margin-bottom: 6px;
-  color: rgba(255, 255, 255, 0.58);
+  color: $text-subtle;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .summaryTopValue {
   font-size: 20px;
-  font-weight: 700;
-  color: #ffffff;
+  font-weight: 800;
+  color: $text;
 }
 
 .statsColumns {
@@ -388,17 +416,17 @@
 }
 
 .statsColumn {
-  padding: 12px;
-  border-radius: 12px;
-  background: #101f23;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .statsColumnTitle {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
+  color: $text;
 }
 
 .statsList {
@@ -410,10 +438,10 @@
     gap: 8px;
     display: flex;
     font-size: 13px;
-    padding: 6px 0;
+    padding: 8px 0;
     align-items: baseline;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid $border;
 
     &:last-child {
       border-bottom: 0;
@@ -421,12 +449,12 @@
   }
 
   span {
-    color: rgba(255, 255, 255, 0.72);
+    color: $text-muted;
   }
 
   strong {
-    color: #fff;
-    font-weight: 600;
+    color: $text;
+    font-weight: 700;
     text-align: right;
   }
 }
@@ -438,10 +466,10 @@
 }
 
 .competitionCard {
-  padding: 12px;
-  border-radius: 14px;
-  background: #101f23;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px;
+  border-radius: $radius-md;
+  background: $surface-elevated;
+  border: 1px solid $border;
 }
 
 .competitionAccent {
@@ -455,31 +483,33 @@
 .competitionTitle {
   margin: 0 0 6px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  color: $text;
 }
 
 .competitionMeta {
   margin: 0;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.62);
+  color: $text-muted;
 }
 
 .chartPlaceholder {
   height: 140px;
-  border-radius: 12px;
+  border-radius: $radius-md;
   background: linear-gradient(
     180deg,
-    rgba(0, 254, 122, 0.06) 0%,
-    rgba(16, 31, 35, 0.9) 55%,
-    #101f23 100%
+    $primary-soft 0%,
+    $surface-elevated 100%
   );
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed $border-strong;
 }
 
 .tableWrap {
   overflow-x: auto;
-  border-radius: 20px;
-  background: #1d2a2c;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .dataTable {
@@ -491,13 +521,13 @@
   td {
     padding: 12px 16px;
     text-align: left;
-    border-bottom: 1px solid #101f23;
+    border-bottom: 1px solid $border;
   }
 
   th {
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.55);
-    background: #101f23;
+    font-weight: 700;
+    color: $text-subtle;
+    background: $surface-elevated;
   }
 
   tr:last-child td {
@@ -505,7 +535,7 @@
   }
 
   tbody tr:hover {
-    background: rgba(0, 254, 122, 0.04);
+    background: $primary-soft;
   }
 }
 
@@ -517,21 +547,24 @@
 
 .aboutCard {
   padding: 22px;
-  border-radius: 20px;
-  background: #1d2a2c;
+  border-radius: $radius-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
 }
 
 .aboutTitle {
   margin: 0 0 16px;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: $text;
 }
 
 .aboutPara {
   margin: 0 0 12px;
   font-size: 14px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
+  color: $text-muted;
 
   &:last-child {
     margin-bottom: 0;
@@ -548,18 +581,18 @@
     padding: 8px 10px;
     text-align: left;
     vertical-align: top;
-    border-bottom: 1px solid #101f23;
+    border-bottom: 1px solid $border;
   }
 
   th {
     width: 32%;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.55);
+    font-weight: 600;
+    color: $text-subtle;
     word-break: break-word;
   }
 
   td {
-    color: rgba(255, 255, 255, 0.92);
+    color: $text;
     word-break: break-word;
   }
 
@@ -579,5 +612,5 @@
 }
 
 .empty {
-  color: rgba(255, 255, 255, 0.45);
+  color: $text-subtle;
 }

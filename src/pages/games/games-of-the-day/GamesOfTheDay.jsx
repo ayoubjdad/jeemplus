@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./GamesOfTheDay.module.scss";
 import { useQuery } from "@tanstack/react-query";
 import DatePicker from "../../../components/date-picker/DatePicker";
 import GameCard from "../../../components/game-card/GameCard";
+import GamesByCompetition from "../../../components/games-by-competition/GamesByCompetition";
 import Loader from "../../../layouts/loader/Loader";
 import { gamesFormatDate } from "../../../helpers/global.helper";
+import { groupGamesByCompetition } from "../../../helpers/groupGamesByCompetition";
 import {
   getFixturesByDate,
   filterHighlightedGames,
@@ -26,6 +29,7 @@ export default function GamesOfTheDay({
   setDate: controlledSetDate,
   hideDatePicker = false,
 }) {
+  const { t } = useTranslation();
   const [internalDate, setInternalDate] = useState(new Date());
   const isControlled =
     controlledDate !== undefined && controlledSetDate !== undefined;
@@ -38,22 +42,30 @@ export default function GamesOfTheDay({
     staleTime: 60_000,
   });
 
-  const highlightedGames = useMemo(() => games, [games]);
+  const competitionGroups = useMemo(
+    () => groupGamesByCompetition(games),
+    [games],
+  );
 
   if (gamesLoading) return <Loader />;
 
   return (
     <section className={styles.main}>
       <div className={styles.header}>
-        <h1>Matchs du jour</h1>
+        <h1>{t("games.title")}</h1>
         {!hideDatePicker && <DatePicker date={date} setDate={setDate} />}
       </div>
 
       <div className={styles.container}>
-        {highlightedGames.length === 0 ? (
-          <p className={styles.empty}>Aucun match pour cette date.</p>
+        {competitionGroups.length === 0 ? (
+          <p className={styles.empty}>{t("games.empty")}</p>
         ) : (
-          highlightedGames.map((game) => <GameCard key={game.id} game={game} />)
+          <GamesByCompetition
+            groups={competitionGroups}
+            renderItem={(game) => (
+              <GameCard key={game.id} game={game} hideLeagueLabel />
+            )}
+          />
         )}
       </div>
     </section>

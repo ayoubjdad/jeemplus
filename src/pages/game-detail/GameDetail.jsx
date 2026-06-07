@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "../../layouts/loader/Loader";
 import Team from "../../components/team/Team";
@@ -137,18 +138,17 @@ function winnerLabel(event) {
   const code = event.winnerCode;
   if (code === 1) return event.homeTeam?.shortName ?? event.homeTeam?.name;
   if (code === 2) return event.awayTeam?.shortName ?? event.awayTeam?.name;
-  if (code === 3) return "Match nul";
   return null;
 }
 
-function FormationLineups({ lineupsPayload }) {
+function FormationLineups({ lineupsPayload, formationLabel }) {
   const fh = lineupsPayload?.home?.formation;
   const fa = lineupsPayload?.away?.formation;
   if (!fh && !fa) return null;
   return (
     <div className={styles.formationStrip}>
       <span className={styles.formation}>{fh || "?"}</span>
-      <span className={styles.formationMuted}>formation</span>
+      <span className={styles.formationMuted}>{formationLabel}</span>
       <span className={styles.formation}>{fa || "?"}</span>
     </div>
   );
@@ -200,6 +200,7 @@ function StatBars({
 }
 
 export default function GameDetail() {
+  const { t } = useTranslation();
   const { eventId } = useParams();
 
   const {
@@ -224,10 +225,10 @@ export default function GameDetail() {
     return (
       <section className={styles.page}>
         <Link className={styles.back} to="/">
-          ← Retour
+          ← {t("common.back")}
         </Link>
         <p className={styles.error}>
-          {error?.message || "Impossible de charger ce match."}
+          {error?.message || t("gameDetail.errorLoad")}
         </p>
       </section>
     );
@@ -248,8 +249,8 @@ export default function GameDetail() {
   const goalDiff =
     homeScore != null && awayScore != null ? homeScore - awayScore : null;
 
-  const homeColor = palette.blue.main;
-  const awayColor = palette.gray.main;
+  const homeColor = palette.purple.main;
+  const awayColor = palette.orange.main;
   const categoryName = event.tournament?.category?.name;
 
   const statRows = flattenStatistics(detail.statistics ?? null);
@@ -272,14 +273,15 @@ export default function GameDetail() {
     event.awayTeam?.id,
   );
 
-  const winText = isFinished ? winnerLabel(event) : null;
+  const isDraw = isFinished && event.winnerCode === 3;
+  const winnerName = isFinished ? winnerLabel(event) : null;
   const statsPanelReady =
     (possession && possHomeKnown != null) || shotsTotal || corners;
 
   return (
     <section className={styles.page}>
       <Link className={styles.back} to="/">
-        ← Retour
+        ← {t("common.back")}
       </Link>
 
       <header className={styles.hero}>
@@ -318,9 +320,11 @@ export default function GameDetail() {
           </span>
         </div>
 
-        {winText && (
+        {(isDraw || winnerName) && (
           <p className={styles.winnerBanner}>
-            {winText === "Match nul" ? winText : `Vainqueur : ${winText}`}
+            {isDraw
+              ? t("gameDetail.draw")
+              : `${t("gameDetail.winnerPrefix")}${winnerName}`}
           </p>
         )}
       </header>
@@ -339,16 +343,20 @@ export default function GameDetail() {
               <span>{awayScore}</span>
             </p>
           ) : (
-            <p className={styles.vs}>vs</p>
+            <p className={styles.vs}>{t("common.vs")}</p>
           )}
 
           {(isFinished || isLive) && event.homeScore?.period1 != null && (
             <p className={styles.half}>
-              MT {event.homeScore.period1}–{event.awayScore.period1}
+              {t("gameDetail.halfTimePrefix")}
+              {event.homeScore.period1}–{event.awayScore.period1}
             </p>
           )}
 
-          <FormationLineups lineupsPayload={detail.lineups} />
+          <FormationLineups
+            lineupsPayload={detail.lineups}
+            formationLabel={t("gameDetail.formation")}
+          />
         </div>
 
         <div className={styles.side}>
@@ -358,9 +366,9 @@ export default function GameDetail() {
       </div>
 
       <div className={styles.sectionTitleRow}>
-        <h2 className={styles.sectionTitle}>Indicateurs clés</h2>
+        <h2 className={styles.sectionTitle}>{t("gameDetail.keyIndicators")}</h2>
         {isFetching && (
-          <span className={styles.syncHint}>Mise à jour des stats…</span>
+          <span className={styles.syncHint}>{t("gameDetail.updatingStats")}</span>
         )}
       </div>
 
@@ -368,11 +376,11 @@ export default function GameDetail() {
         {!notStarted && (
           <>
             <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>Total buts</p>
+              <p className={styles.kpiLabel}>{t("gameDetail.totalGoals")}</p>
               <p className={styles.kpiValue}>{safe(totalGoals)}</p>
             </div>
             <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>Écart au score</p>
+              <p className={styles.kpiLabel}>{t("gameDetail.goalGap")}</p>
               <p className={styles.kpiValue}>
                 {goalDiff == null
                   ? "—"
@@ -387,14 +395,14 @@ export default function GameDetail() {
         {(isFinished || isLive) && (
           <>
             <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>Cartons</p>
+              <p className={styles.kpiLabel}>{t("gameDetail.cards")}</p>
               <p className={styles.kpiValue}>
                 🟨 {incSummary.yellowHome}–{incSummary.yellowAway} · 🟥{" "}
                 {incSummary.redHome}–{incSummary.redAway}
               </p>
             </div>
             <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>Remplacements</p>
+              <p className={styles.kpiLabel}>{t("gameDetail.substitutions")}</p>
               <p className={styles.kpiValue}>
                 {incSummary.subsHome} – {incSummary.subsAway}
               </p>
@@ -405,12 +413,14 @@ export default function GameDetail() {
 
       {(isFinished || isLive) && statsPanelReady && (
         <div className={styles.statsPanel}>
-          <h3 className={styles.sectionTitleMuted}>Synthèse chiffrée</h3>
+          <h3 className={styles.sectionTitleMuted}>
+            {t("gameDetail.statsSummary")}
+          </h3>
           {possession != null && possHomeKnown != null && (
             <StatBars
-              label="Possession"
-              homeLabel={event.homeTeam?.shortName ?? "Loc."}
-              awayLabel={event.awayTeam?.shortName ?? "Vis."}
+              label={t("gameDetail.possession")}
+              homeLabel={event.homeTeam?.shortName ?? t("gameDetail.home")}
+              awayLabel={event.awayTeam?.shortName ?? t("gameDetail.away")}
               homePct={possHomeKnown}
               homeDisplay={possession.home ?? "—"}
               awayDisplay={possession.away ?? "—"}
@@ -421,14 +431,18 @@ export default function GameDetail() {
           {shotsTotal && (
             <div className={styles.dualNumRow}>
               <div className={styles.dualNum}>
-                <span className={styles.dualLabel}>Tirs (total)</span>
+                <span className={styles.dualLabel}>
+                  {t("gameDetail.shotsTotal")}
+                </span>
                 <strong>
                   {shotsTotal.home} – {shotsTotal.away}
                 </strong>
               </div>
               {shotsOn && (
                 <div className={styles.dualNum}>
-                  <span className={styles.dualLabel}>Cadrés</span>
+                  <span className={styles.dualLabel}>
+                    {t("gameDetail.shotsOnTarget")}
+                  </span>
                   <strong>
                     {shotsOn.home} – {shotsOn.away}
                   </strong>
@@ -436,7 +450,7 @@ export default function GameDetail() {
               )}
               {xg && (
                 <div className={styles.dualNum}>
-                  <span className={styles.dualLabel}>xG</span>
+                  <span className={styles.dualLabel}>{t("gameDetail.xg")}</span>
                   <strong>
                     {xg.home} – {xg.away}
                   </strong>
@@ -449,11 +463,14 @@ export default function GameDetail() {
 
       {incSummary.timeline?.length > 0 && (
         <div className={styles.timelinePanel}>
-          <h3 className={styles.sectionTitleMuted}>Fil des buts</h3>
+          <h3 className={styles.sectionTitleMuted}>
+            {t("gameDetail.goalsTimeline")}
+          </h3>
           <ul className={styles.timelineList}>
             {incSummary.timeline.map((inc, idx) => {
               const mins = `${inc.time ?? ""}'`;
-              const who = inc.player?.shortName || inc.player?.name || "Év.";
+              const who =
+                inc.player?.shortName || inc.player?.name || t("common.dash");
               return (
                 <li key={`${idx}-${inc.time}-${who}`}>
                   <span className={styles.tlMinute}>{mins}</span>
@@ -468,26 +485,32 @@ export default function GameDetail() {
       <div className={styles.detailsGrid}>
         {event.venue?.name && (
           <div className={styles.detail}>
-            <h3>Stade</h3>
+            <h3>{t("gameDetail.stadium")}</h3>
             <p>{event.venue.name}</p>
             <p className={styles.muted}>{event.venue.city?.name}</p>
           </div>
         )}
         {event.referee?.name && (
           <div className={styles.detail}>
-            <h3>Arbitrage</h3>
+            <h3>{t("gameDetail.referee")}</h3>
             <p>{event.referee.name}</p>
           </div>
         )}
         {event.homeTeam?.manager?.name && (
           <div className={styles.detail}>
-            <h3>Entraîneur · {event.homeTeam.shortName}</h3>
+            <h3>
+              {t("gameDetail.managerPrefix")}
+              {event.homeTeam.shortName}
+            </h3>
             <p>{event.homeTeam.manager.name}</p>
           </div>
         )}
         {event.awayTeam?.manager?.name && (
           <div className={styles.detail}>
-            <h3>Entraîneur · {event.awayTeam.shortName}</h3>
+            <h3>
+              {t("gameDetail.managerPrefix")}
+              {event.awayTeam.shortName}
+            </h3>
             <p>{event.awayTeam.manager.name}</p>
           </div>
         )}

@@ -1,13 +1,9 @@
 import styles from "./TeamDetail.module.scss";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { getTeamDetail } from "../../../../api/football/services/teamsService";
 import { teamLogo } from "../../../../helpers/media.helpers";
-
-const TABS = [
-  { id: "stats", label: "Statistiques" },
-  { id: "resume", label: "Résumé" },
-];
 
 function flagEmoji(alpha2) {
   if (!alpha2 || alpha2.length !== 2) return "";
@@ -54,7 +50,13 @@ function perMatch(value, matches, digits = 1) {
 }
 
 export default function TeamDetail({ teamId, onBack }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState("stats");
+
+  const TABS = [
+    { id: "stats", label: t("teamDetail.stats") },
+    { id: "resume", label: t("teamDetail.summary") },
+  ];
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["team-detail", teamId],
@@ -74,9 +76,9 @@ export default function TeamDetail({ teamId, onBack }) {
     return (
       <div className={styles.page}>
         <button type="button" className={styles.back} onClick={onBack}>
-          Retour au classement
+          {t("teamDetail.backToRanking")}
         </button>
-        <div className={styles.panelCard}>Aucune équipe sélectionnée.</div>
+        <div className={styles.panelCard}>{t("teamDetail.noTeamSelected")}</div>
       </div>
     );
   }
@@ -85,11 +87,9 @@ export default function TeamDetail({ teamId, onBack }) {
     return (
       <div className={styles.page}>
         <button type="button" className={styles.back} onClick={onBack}>
-          Retour au classement
+          {t("teamDetail.backToRanking")}
         </button>
-        <div className={styles.panelCard}>
-          Chargement des données de l'équipe...
-        </div>
+        <div className={styles.panelCard}>{t("teamDetail.loadingTeam")}</div>
       </div>
     );
   }
@@ -98,9 +98,9 @@ export default function TeamDetail({ teamId, onBack }) {
     return (
       <div className={styles.page}>
         <button type="button" className={styles.back} onClick={onBack}>
-          Retour au classement
+          {t("teamDetail.backToRanking")}
         </button>
-        <div className={styles.panelCard}>Impossible de charger l'équipe.</div>
+        <div className={styles.panelCard}>{t("teamDetail.errorTeam")}</div>
       </div>
     );
   }
@@ -139,7 +139,7 @@ export default function TeamDetail({ teamId, onBack }) {
       <div className={styles.grid}>
         <aside className={styles.sidebar}>
           <section className={styles.sideCard}>
-            <h2 className={styles.sideTitle}>Forme actuelle</h2>
+            <h2 className={styles.sideTitle}>{t("teamDetail.currentForm")}</h2>
             <div className={styles.formBars} role="img" aria-label="Forme">
               {(pregameForm?.form || []).map((letter, i) => (
                 <div key={i} className={styles.formBarWrap}>
@@ -152,19 +152,22 @@ export default function TeamDetail({ teamId, onBack }) {
               ))}
             </div>
             <p className={styles.sideHint}>
-              Classement : #{pregameForm?.position} · {pregameForm?.value} pts
+              {t("teamDetail.rankPrefix")}
+              {pregameForm?.position} · {pregameForm?.value}
+              {t("teamDetail.pointsSuffix")}
             </p>
           </section>
 
           {team.venue?.name && (
             <section className={styles.sideCard}>
-              <h2 className={styles.sideTitle}>Stade</h2>
+              <h2 className={styles.sideTitle}>{t("teamDetail.stadium")}</h2>
               <p className={styles.sideStrong}>{team.venue.name}</p>
               <p className={styles.sideMuted}>{team.venue.city?.name}</p>
               {team.venue.capacity && (
                 <p className={styles.sideMuted}>
-                  Capacité : {team.venue.capacity.toLocaleString("fr-FR")}{" "}
-                  places
+                  {t("teamDetail.capacityPrefix")}
+                  {team.venue.capacity.toLocaleString("fr-FR")}
+                  {t("teamDetail.capacitySuffix")}
                 </p>
               )}
             </section>
@@ -173,14 +176,14 @@ export default function TeamDetail({ teamId, onBack }) {
 
         <div className={styles.main}>
           <nav className={styles.tabs} aria-label="Sections équipe">
-            {TABS.map((t) => (
+            {TABS.map((tabItem) => (
               <button
-                key={t.id}
+                key={tabItem.id}
                 type="button"
-                className={tab === t.id ? styles.tabActive : styles.tab}
-                onClick={() => setTab(t.id)}
+                className={tab === tabItem.id ? styles.tabActive : styles.tab}
+                onClick={() => setTab(tabItem.id)}
               >
-                {t.label}
+                {tabItem.label}
               </button>
             ))}
           </nav>
@@ -189,13 +192,17 @@ export default function TeamDetail({ teamId, onBack }) {
             <div className={styles.tabPanel}>
               <div className={styles.statGrid}>
                 <div className={styles.statTile}>
-                  <span className={styles.statLabel}>Position Botola</span>
+                  <span className={styles.statLabel}>
+                    {t("teamDetail.botolaPosition")}
+                  </span>
                   <span className={styles.statValue}>
                     {pregameForm?.position}
                   </span>
                 </div>
                 <div className={styles.statTile}>
-                  <span className={styles.statLabel}>Points</span>
+                  <span className={styles.statLabel}>
+                    {t("teamDetail.points")}
+                  </span>
                   <span className={styles.statValue}>{pregameForm?.value}</span>
                 </div>
               </div>
@@ -206,19 +213,21 @@ export default function TeamDetail({ teamId, onBack }) {
             <div className={styles.tabPanel}>
               <section className={styles.panelCard}>
                 <h2 className={styles.panelTitle}>
-                  Performance des derniers matchs
+                  {t("teamDetail.recentPerformance")}
                 </h2>
                 {performanceEvents.length === 0 ? (
-                  <p className={styles.panelMuted}>Aucun match récent.</p>
+                  <p className={styles.panelMuted}>
+                    {t("teamDetail.noRecentMatch")}
+                  </p>
                 ) : (
                   <div className={styles.tableWrap}>
                     <table className={styles.dataTable}>
                       <thead>
                         <tr>
-                          <th>Date</th>
-                          <th>Compétition</th>
-                          <th>Match</th>
-                          <th>Score</th>
+                          <th>{t("teamDetail.date")}</th>
+                          <th>{t("teamDetail.competition")}</th>
+                          <th>{t("teamDetail.match")}</th>
+                          <th>{t("teamDetail.score")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -239,7 +248,7 @@ export default function TeamDetail({ teamId, onBack }) {
                               <td>{dateLabel}</td>
                               <td>{ev.league?.name ?? "—"}</td>
                               <td>
-                                {ev.homeTeam?.shortName} vs{" "}
+                                {ev.homeTeam?.shortName} {t("common.vs")}{" "}
                                 {ev.awayTeam?.shortName}
                               </td>
                               <td>{score}</td>
@@ -253,30 +262,38 @@ export default function TeamDetail({ teamId, onBack }) {
               </section>
 
               <section className={styles.panelCard}>
-                <h2 className={styles.panelTitle}>Statistiques saison</h2>
+                <h2 className={styles.panelTitle}>
+                  {t("teamDetail.seasonStats")}
+                </h2>
                 <div className={styles.summaryTopGrid}>
                   <div className={styles.summaryTopItem}>
-                    <span className={styles.summaryTopLabel}>Matchs</span>
+                    <span className={styles.summaryTopLabel}>
+                      {t("teamDetail.matches")}
+                    </span>
                     <span className={styles.summaryTopValue}>
                       {formatNumber(overallStats.matches)}
                     </span>
                   </div>
                   <div className={styles.summaryTopItem}>
-                    <span className={styles.summaryTopLabel}>Buts marqués</span>
+                    <span className={styles.summaryTopLabel}>
+                      {t("teamDetail.goalsScored")}
+                    </span>
                     <span className={styles.summaryTopValue}>
                       {formatNumber(overallStats.goalsScored)}
                     </span>
                   </div>
                   <div className={styles.summaryTopItem}>
                     <span className={styles.summaryTopLabel}>
-                      Buts encaissés
+                      {t("teamDetail.goalsConceded")}
                     </span>
                     <span className={styles.summaryTopValue}>
                       {formatNumber(overallStats.goalsConceded)}
                     </span>
                   </div>
                   <div className={styles.summaryTopItem}>
-                    <span className={styles.summaryTopLabel}>Buts / match</span>
+                    <span className={styles.summaryTopLabel}>
+                      {t("teamDetail.goalsPerMatch")}
+                    </span>
                     <span className={styles.summaryTopValue}>
                       {perMatch(overallStats.goalsScored, matchesCount, 1)}
                     </span>
@@ -286,7 +303,9 @@ export default function TeamDetail({ teamId, onBack }) {
 
               {uniqueTournaments.length > 0 && (
                 <section className={styles.panelCard}>
-                  <h2 className={styles.panelTitle}>Compétitions</h2>
+                  <h2 className={styles.panelTitle}>
+                    {t("teamDetail.competitions")}
+                  </h2>
                   <div className={styles.competitionsGrid}>
                     {uniqueTournaments.map((tournament) => (
                       <article

@@ -4,14 +4,23 @@
   position: relative;
   text-align: center;
   align-items: center;
-  justify-items: center;
   justify-content: center;
-  background-color: #1d2a2c;
+  background-color: $surface;
+  border: 2px solid $surface;
+  border-radius: $radius-pill;
+  box-shadow: $shadow-sm;
+  transition: border-color 0.2s ease, transform 0.18s ease;
 
-  border-radius: 60px;
+  &:hover {
+    border-color: $primary-light;
+    transform: scale(1.06);
+    z-index: 2;
+  }
 }
 
 .playerImage {
   width: 50px;
   height: 50px;
+  object-fit: cover;
+  border-radius: $radius-pill;
 }
