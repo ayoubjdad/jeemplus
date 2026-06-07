@@ -5,6 +5,7 @@
   "packageManager": "pnpm@9.15.9",
   "type": "module",
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@flaticon/flaticon-uicons": "^3.3.1",
