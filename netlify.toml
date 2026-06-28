@@ -1,5 +1,7 @@
 # Netlify: clear “Build settings” overrides in the dashboard if present, or this file is ignored.
 # Expect: build command `pnpm install && pnpm run build` (or `corepack enable && pnpm install && pnpm run build`), publish `dist`.
+# Required env vars (Site settings → Environment variables):
+#   API_FOOTBALL_KEY, VITE_FOOTBALL_API_BASE, VITE_SERVER_URL
 
 [build]
   command = "pnpm run build"

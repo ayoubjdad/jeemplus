@@ -10,34 +10,39 @@ Football fan app for Botola Pro, daily matches, Moroccan internationals, and Wor
 - **API-Football v3** (via server-side Netlify proxy)
 - Netlify (hosting + functions)
 
+## Environment variables (Netlify)
+
+Configure these in **Site settings → Environment variables** (same value for all deploy contexts):
+
+| Variable | Purpose |
+|----------|---------|
+| `API_FOOTBALL_KEY` | API-Football v3 key (server-side only — Netlify function + dev proxy) |
+| `VITE_FOOTBALL_API_BASE` | Browser base path for football API (e.g. `/football-api`) |
+| `VITE_SERVER_URL` | Backend URL for news/images (must allow your Netlify origin in CORS) |
+
+Do **not** prefix the API key with `VITE_` — it must stay server-side.
+
 ## Local development
 
-1. Copy environment file:
-
-```bash
-cp .env.example .env
-```
-
-2. Add your API-Football key to `.env`:
-
-```env
-API_FOOTBALL_KEY=your_key_here
-```
-
-3. Install and run:
+1. Install dependencies:
 
 ```bash
 pnpm install
-pnpm dev
 ```
 
-The Vite dev server proxies `/football-api/*` to API-Football and injects your key from `API_FOOTBALL_KEY`.
+2. Run with Netlify CLI so env vars from the dashboard are injected (recommended):
+
+```bash
+npx netlify dev
+```
+
+Alternatively, export the same variables in your shell before `pnpm dev`.
+
+The dev server proxies `/football-api/*` to API-Football and injects `API_FOOTBALL_KEY` from the environment.
 
 ## Production (Netlify)
 
-1. Set **`API_FOOTBALL_KEY`** in Netlify environment variables (Site settings → Environment variables).
-2. Do **not** expose the key via `VITE_*` variables.
-3. Deploy — `netlify.toml` routes `/football-api/*` to the `football-api` serverless function with caching headers.
+Deploy — `netlify.toml` routes `/football-api/*` to the `football-api` serverless function with caching headers. Build-time `VITE_*` variables are read from Netlify environment variables automatically.
 
 ## Architecture
 

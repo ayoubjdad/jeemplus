@@ -46,7 +46,7 @@ export async function footballGet(path, params = {}) {
     const status = err?.response?.status;
     if (status === 403) {
       throw new Error(
-        "API-Football refused the request (403). Check API_FOOTBALL_KEY in .env and restart the dev server.",
+        "API-Football refused the request (403). Check API_FOOTBALL_KEY in Netlify environment variables.",
       );
     }
     if (status === 429) {
