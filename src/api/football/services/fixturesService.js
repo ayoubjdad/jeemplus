@@ -16,6 +16,15 @@ function isTopTeamGame(game) {
   );
 }
 
+export function isHighlightedFixture(game) {
+  if (mappedFixtureHasIsrael(game)) return false;
+
+  const leagueId = Number(game.league?.id);
+  if (PRIORITY_LEAGUE_IDS.includes(leagueId)) return true;
+
+  return isTopTeamGame(game);
+}
+
 function getGameSortPriority(game) {
   if (game.league?.id === LEAGUES.BOTOLA_PRO.id_v3) return 0;
   if (isTopTeamGame(game)) return 1;
@@ -41,14 +50,26 @@ export async function getFixturesByDate(date) {
 
 export function filterHighlightedGames(games) {
   const withoutIsrael = games.filter((game) => !mappedFixtureHasIsrael(game));
-  const result = withoutIsrael.filter((game) =>
-    PRIORITY_LEAGUE_IDS.includes(game.league?.id),
+  const result = sortHighlightedGames(
+    withoutIsrael.filter(isHighlightedFixture),
   );
 
   if (result.length === 0)
     return sortHighlightedGames(withoutIsrael.slice(0, 10));
 
-  return sortHighlightedGames(result);
+  return result;
+}
+
+/** Split fixtures into curated highlighted set vs everything else. */
+export function partitionHighlightedGames(games) {
+  const withoutIsrael = games.filter((game) => !mappedFixtureHasIsrael(game));
+  const highlighted = sortHighlightedGames(
+    withoutIsrael.filter(isHighlightedFixture),
+  );
+  const highlightedIds = new Set(highlighted.map((g) => g.id));
+  const rest = withoutIsrael.filter((g) => !highlightedIds.has(g.id));
+
+  return { highlighted, rest };
 }
 
 export function isPriorityLeague(leagueId) {

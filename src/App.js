@@ -12,6 +12,7 @@ import Fanbase from "./pages/fanbase/Fanbase";
 import GameDetail from "./pages/game-detail/GameDetail";
 import { queryClient } from "./api/queryClient";
 import { getDirection } from "./i18n";
+import Landing from "./pages/landing/Landing";
 
 const ltrCache = createCache({ key: "mui", stylisPlugins: [prefixer] });
 const rtlCache = createCache({
@@ -25,7 +26,7 @@ function App() {
 
   const theme = useMemo(
     () => createTheme(baseTheme, { direction }),
-    [direction],
+    [direction]
   );
   const cache = direction === "rtl" ? rtlCache : ltrCache;
 
@@ -36,7 +37,7 @@ function App() {
           <CssBaseline />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Fanbase />} />
+              <Route path="/" element={<Landing />} />
               <Route path="/game/:eventId" element={<GameDetail />} />
             </Routes>
           </BrowserRouter>

@@ -2,7 +2,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
@@ -11,8 +11,9 @@ const scssVariables = fs.readFileSync(
   "utf8",
 );
 
-export default defineConfig(() => {
-  const apiKey = process.env.API_FOOTBALL_KEY ?? "";
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, rootDir, "");
+  const apiKey = env.API_FOOTBALL_KEY ?? process.env.API_FOOTBALL_KEY ?? "";
 
   const footballApiProxy = {
     "/football-api": {
@@ -26,7 +27,7 @@ export default defineConfig(() => {
             proxyReq.setHeader("x-apisports-key", apiKey);
           } else {
             console.warn(
-              "[football-api proxy] API_FOOTBALL_KEY is missing — set it in Netlify environment variables (or export it locally / use `netlify dev`)",
+              "[football-api proxy] API_FOOTBALL_KEY is missing — add it to `.env` locally or Netlify env vars in production",
             );
           }
         });
