@@ -78,6 +78,217 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
 // ── Left sidebar ──────────────────────────────────────────────
 
+.standingsCard {
+  overflow: hidden;
+  padding: 14px 16px 12px;
+  border-radius: $fm-radius;
+  background: $fm-surface;
+  border: 1px solid $fm-border;
+  box-shadow: $fm-shadow;
+}
+
+.standingsNav {
+  gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.standingsNavBtn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  display: flex;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: $fm-pill;
+  color: $fm-text;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: $fm-pill-hover;
+  }
+}
+
+.standingsDots {
+  gap: 6px;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.standingsDot {
+  width: 6px;
+  height: 6px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  background: $fm-pill-hover;
+  transition: background 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    background: $fm-text-subtle;
+  }
+}
+
+.standingsDotActive {
+  background: $fm-green;
+  transform: scale(1.15);
+}
+
+.standingsHeader {
+  gap: 12px;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.standingsHeaderText {
+  min-width: 0;
+}
+
+.standingsTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: $fm-text;
+}
+
+.standingsCountry {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: $fm-text-muted;
+}
+
+.standingsLeagueLogo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: $fm-pill;
+
+  img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+}
+
+.standingsTableHead {
+  gap: 6px;
+  display: grid;
+  align-items: center;
+  padding: 0 0 6px 10px;
+  grid-template-columns: 18px 22px 1fr repeat(3, 28px);
+  font-size: 11px;
+  font-weight: 600;
+  color: $fm-text-subtle;
+  border-bottom: 1px solid $fm-border-subtle;
+}
+
+.standingsColRank {
+  text-align: center;
+}
+
+.standingsColStat {
+  text-align: center;
+}
+
+.standingsLoading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.standingsEmpty {
+  margin: 0;
+  padding: 24px 8px;
+  font-size: 13px;
+  text-align: center;
+  color: $fm-text-muted;
+}
+
+.standingsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.standingsRow {
+  gap: 6px;
+  display: grid;
+  position: relative;
+  align-items: center;
+  padding: 7px 0 7px 10px;
+  grid-template-columns: 18px 22px 1fr repeat(3, 28px);
+  border-bottom: 1px solid $fm-border-subtle;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.standingsBar,
+.standingsBarPlaceholder {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+}
+
+.standingsBarUcl {
+  background: $fm-green;
+}
+
+.standingsBarUel {
+  background: #1e88e5;
+}
+
+.standingsRank {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: $fm-text-muted;
+}
+
+.standingsTeamLogo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.standingsTeamName {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: $fm-text;
+}
+
+.standingsStat {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: $fm-text;
+}
+
 .leagueList {
   margin: 0;
   padding: 0;

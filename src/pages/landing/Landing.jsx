@@ -7,19 +7,27 @@ import { gamesFormatDate } from "../../helpers/global.helper";
 import { groupGamesByCompetition } from "../../helpers/groupGamesByCompetition";
 import { getFixturesByDate } from "../../api/football/services/fixturesService";
 import { getMoroccanPlayersForDate } from "../../api/football/services/playersService";
-import { LEAGUES, PRIORITY_LEAGUE_IDS } from "../../api/football/constants";
+import { getLeagueStandings } from "../../api/football/services/standingsService";
+import {
+  LEAGUES,
+  PRIORITY_LEAGUE_IDS,
+  CURRENT_SEASON,
+} from "../../api/football/constants";
 import Loader from "../../layouts/loader/Loader";
 import PlayerCard from "../../components/player-card/PlayerCard";
 
 const TOP_LEAGUES = [
-  { id: 1, name: "Coupe du monde - FIFA" },
-  { id: 6, name: "Coupe d'Afrique des Nations" },
-  { id: 39, name: "Premier League" },
-  { id: 140, name: "LaLiga" },
-  { id: 135, name: "Serie A" },
-  { id: 61, name: "Ligue 1" },
-  { id: 78, name: "Bundesliga" },
-  { id: 200, name: "Botola Pro" },
+  { id: 200, name: "Botola Pro", country: "Maroc", season: CURRENT_SEASON },
+  {
+    id: 39,
+    name: "Premier League",
+    country: "Angleterre",
+    season: CURRENT_SEASON,
+  },
+  { id: 140, name: "LaLiga", country: "Espagne", season: CURRENT_SEASON },
+  { id: 135, name: "Serie A", country: "Italie", season: CURRENT_SEASON },
+  { id: 61, name: "Ligue 1", country: "France", season: CURRENT_SEASON },
+  { id: 78, name: "Bundesliga", country: "Allemagne", season: CURRENT_SEASON },
 ];
 
 const TOP_TRANSFERS = [
@@ -136,6 +144,142 @@ const fetchGames = async ({ queryKey }) => {
     return [];
   }
 };
+
+function getQualificationBar(position) {
+  if (position <= 4) return "ucl";
+  if (position === 5) return "uel";
+  return null;
+}
+
+function LeagueRankingsCard() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeLeague = TOP_LEAGUES[activeIndex];
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["league-standings", activeLeague.id, activeLeague.season],
+    queryFn: () => getLeagueStandings(activeLeague.id, activeLeague.season),
+    staleTime: 5 * 60_000,
+  });
+
+  const goPrev = () =>
+    setActiveIndex((i) => (i === 0 ? TOP_LEAGUES.length - 1 : i - 1));
+  const goNext = () =>
+    setActiveIndex((i) => (i === TOP_LEAGUES.length - 1 ? 0 : i + 1));
+
+  const rows = data?.rows ?? [];
+  const subtitle = data?.groupName ?? activeLeague.country;
+
+  return (
+    <div className={styles.standingsCard}>
+      <div className={styles.standingsNav}>
+        <button
+          type="button"
+          className={styles.standingsNavBtn}
+          aria-label="Ligue précédente"
+          onClick={goPrev}
+        >
+          <i className="fi fi-rr-angle-small-left" />
+        </button>
+        <div
+          className={styles.standingsDots}
+          role="tablist"
+          aria-label="Ligues"
+        >
+          {TOP_LEAGUES.map((league, idx) => (
+            <button
+              key={league.id}
+              type="button"
+              role="tab"
+              aria-selected={idx === activeIndex}
+              aria-label={league.name}
+              className={`${styles.standingsDot} ${
+                idx === activeIndex ? styles.standingsDotActive : ""
+              }`}
+              onClick={() => setActiveIndex(idx)}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          className={styles.standingsNavBtn}
+          aria-label="Ligue suivante"
+          onClick={goNext}
+        >
+          <i className="fi fi-rr-angle-small-right" />
+        </button>
+      </div>
+
+      <div className={styles.standingsHeader}>
+        <div className={styles.standingsLeagueLogo}>
+          <img src={leagueLogo(activeLeague.id)} alt="" loading="lazy" />
+        </div>
+        <div className={styles.standingsHeaderText}>
+          <h2 className={styles.standingsTitle}>{activeLeague.name}</h2>
+          <span className={styles.standingsCountry}>{subtitle}</span>
+        </div>
+      </div>
+
+      <div className={styles.standingsTableHead}>
+        <span className={styles.standingsColRank}>#</span>
+        <span className={styles.standingsColTeam} />
+        <span className={styles.standingsColStat}>J</span>
+        <span className={styles.standingsColStat}>DB</span>
+        <span className={styles.standingsColStat}>PTS</span>
+      </div>
+
+      {isLoading ? (
+        <div className={styles.standingsLoading}>
+          <Loader />
+        </div>
+      ) : isError || rows.length === 0 ? (
+        <p className={styles.standingsEmpty}>Classement indisponible.</p>
+      ) : (
+        <ul className={styles.standingsList}>
+          {rows.map((row) => {
+            const bar = getQualificationBar(row.position);
+            const goalDiff = row.scoresFor - row.scoresAgainst;
+            const diffLabel = goalDiff > 0 ? `+${goalDiff}` : String(goalDiff);
+
+            return (
+              <li
+                key={row.team?.id ?? row.position}
+                className={styles.standingsRow}
+              >
+                {bar ? (
+                  <span
+                    className={`${styles.standingsBar} ${
+                      bar === "ucl"
+                        ? styles.standingsBarUcl
+                        : styles.standingsBarUel
+                    }`}
+                  />
+                ) : (
+                  <span className={styles.standingsBarPlaceholder} />
+                )}
+                <span className={styles.standingsRank}>{row.position}</span>
+                <img
+                  src={row.team?.logo}
+                  alt=""
+                  className={styles.standingsTeamLogo}
+                  loading="lazy"
+                />
+                <span
+                  className={styles.standingsTeamName}
+                  title={row.team?.name}
+                >
+                  {row.team?.name}
+                </span>
+                <span className={styles.standingsStat}>{row.matches}</span>
+                <span className={styles.standingsStat}>{diffLabel}</span>
+                <span className={styles.standingsStat}>{row.points}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function TopLeaguesCard() {
   return (
@@ -656,6 +800,7 @@ export default function Landing() {
     <section className={styles.page}>
       <div className={styles.grid}>
         <aside className={styles.left}>
+          <LeagueRankingsCard />
           <TopLeaguesCard />
           <AllLeaguesCard />
         </aside>
