@@ -30,61 +30,6 @@ const TOP_LEAGUES = [
   { id: 78, name: "Bundesliga", country: "Allemagne", season: CURRENT_SEASON },
 ];
 
-const TOP_TRANSFERS = [
-  {
-    player: "Neymar",
-    from: {
-      name: "Al-Hilal",
-      logo: "https://media.api-sports.io/football/teams/2939.png",
-    },
-    to: {
-      name: "Santos",
-      logo: "https://media.api-sports.io/football/teams/128.png",
-    },
-    value: "135 M €",
-    photo: "https://media.api-sports.io/football/players/276.png",
-  },
-  {
-    player: "Luis Suárez",
-    from: {
-      name: "Inter Miami",
-      logo: "https://media.api-sports.io/football/teams/9568.png",
-    },
-    to: {
-      name: "Sporting KC",
-      logo: "https://media.api-sports.io/football/teams/1611.png",
-    },
-    value: "6 M €",
-    photo: "https://media.api-sports.io/football/players/184.png",
-  },
-  {
-    player: "Raphinha",
-    from: {
-      name: "Leeds",
-      logo: "https://media.api-sports.io/football/teams/63.png",
-    },
-    to: {
-      name: "Barcelona",
-      logo: "https://media.api-sports.io/football/teams/529.png",
-    },
-    value: "58 M €",
-    photo: "https://media.api-sports.io/football/players/1496.png",
-  },
-  {
-    player: "Antony",
-    from: {
-      name: "Man United",
-      logo: "https://media.api-sports.io/football/teams/33.png",
-    },
-    to: {
-      name: "Real Betis",
-      logo: "https://media.api-sports.io/football/teams/543.png",
-    },
-    value: "25 M €",
-    photo: "https://media.api-sports.io/football/players/9971.png",
-  },
-];
-
 const isPriorityGame = (game) =>
   PRIORITY_LEAGUE_IDS.includes(Number(game.league?.id));
 
@@ -455,11 +400,6 @@ function MatchRow({ game }) {
           {game.awayTeam.name}
         </span>
       </div>
-
-      {/* <div className={styles.matchActions}>
-        <i className="fi fi-rr-headphones" title="Commentary" />
-        <i className="fi fi-rr-screen" title="TV" />
-      </div> */}
     </Link>
   );
 }
@@ -751,59 +691,6 @@ function MoroccanPlayersCard({ date }) {
   );
 }
 
-function PredictCard() {
-  return (
-    <div className={styles.predictCard}>
-      <div className={styles.predictShapes} aria-hidden />
-      <div className={styles.predictContent}>
-        <span className={styles.predictLabel}>Predict</span>
-        <p className={styles.predictText}>Pronostics &amp; analyses du jour</p>
-      </div>
-      <div className={styles.predictLogo}>
-        <i className="fi fi-rr-football" />
-      </div>
-    </div>
-  );
-}
-
-function TopTransfersCard() {
-  return (
-    <div className={styles.card}>
-      <div className={styles.transfersHeader}>
-        <div>
-          <h2 className={styles.cardTitle}>Meilleurs transferts</h2>
-          <span className={styles.transfersSub}>Par date</span>
-        </div>
-        <div className={styles.transfersIcon}>
-          <i className="fi fi-rr-arrows-repeat" />
-        </div>
-      </div>
-
-      <ul className={styles.transferList}>
-        {TOP_TRANSFERS.map((transfer) => (
-          <li key={transfer.player} className={styles.transferItem}>
-            <img
-              src={transfer.photo}
-              alt=""
-              className={styles.transferPhoto}
-              loading="lazy"
-            />
-            <div className={styles.transferMeta}>
-              <span className={styles.transferPlayer}>{transfer.player}</span>
-              <div className={styles.transferClubs}>
-                <img src={transfer.from.logo} alt="" loading="lazy" />
-                <i className="fi fi-rr-arrow-small-right" />
-                <img src={transfer.to.logo} alt="" loading="lazy" />
-              </div>
-            </div>
-            <span className={styles.transferValue}>{transfer.value}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export default function Landing() {
   const [date, setDate] = useState(new Date());
   const [activeFilter, setActiveFilter] = useState(null);
@@ -836,9 +723,7 @@ export default function Landing() {
 
         <aside className={styles.right}>
           <SquadBuilderCard />
-          {/* <PredictCard /> */}
           <MoroccanPlayersCard date={date} />
-          <TopTransfersCard />
         </aside>
       </div>
     </section>

@@ -4,7 +4,6 @@ import { isIsraelTeam } from "../exclusions/israelExclusion.js";
 import {
   mapStandingRow,
   mapStandingsTable,
-  mapStandingsGroups,
 } from "../mappers/mapStandingRow.js";
 
 export async function getBotolaStandings() {
@@ -18,12 +17,6 @@ export async function getBotolaStandings() {
 /** Same shape Ranking expects: standings array with rows */
 export async function fetchBotolaStandingsTables() {
   return getBotolaStandings();
-}
-
-export async function getWorldCupGroups() {
-  const { id_v3, season } = LEAGUES.WORLD_CUP;
-  const data = await footballGet("standings", { league: id_v3, season });
-  return mapStandingsGroups(extractResponse(data));
 }
 
 /** Standings for a single league (domestic table or first group for tournaments). */

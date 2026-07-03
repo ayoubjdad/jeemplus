@@ -11,7 +11,6 @@ import { isIsraelTeam } from "../exclusions/israelExclusion.js";
 import {
   mapPlayer,
   mapSquadPlayers,
-  mapTopPlayerRow,
   mapPlayerToTactic,
 } from "../mappers/mapPlayer.js";
 
@@ -28,24 +27,6 @@ export async function getTeamSquadAsTactic(teamId) {
     .map((row) => mapPlayerToTactic(row.player))
     .filter(Boolean);
   return { players };
-}
-
-export async function getBotolaTopPlayers() {
-  const { id_v3, season } = LEAGUES.BOTOLA_PRO;
-
-  try {
-    const data = await footballGet("players/topscorers", {
-      league: id_v3,
-      season,
-    });
-    const rows = extractResponse(data).map(mapTopPlayerRow);
-    if (rows.length > 0) return rows;
-  } catch {
-    /* fallback below */
-  }
-
-  const data = await footballGet("players", { league: id_v3, season, page: 1 });
-  return extractResponse(data).map(mapTopPlayerRow);
 }
 
 function isMoroccanLeague(game) {

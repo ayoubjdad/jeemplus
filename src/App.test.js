@@ -3,10 +3,10 @@ import { render, screen } from "@testing-library/react";
 import App from "./App";
 
 describe("App", () => {
-  it("renders fanbase navigation", () => {
+  it("renders landing page", () => {
     render(<App />);
     expect(
-      screen.getByRole("button", { name: /matchs du jour/i }),
+      screen.getByRole("heading", { name: /meilleures ligues/i }),
     ).toBeInTheDocument();
   });
 });

@@ -727,18 +727,6 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   color: $fm-text;
 }
 
-.matchActions {
-  gap: 10px;
-  display: flex;
-  justify-content: flex-end;
-
-  i {
-    font-size: 14px;
-    color: $fm-text-subtle;
-    cursor: default;
-  }
-}
-
 .emptyState {
   text-align: center;
   color: $fm-text-muted;
@@ -769,69 +757,6 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
 .restSectionLabel {
   margin-top: 12px;
-}
-
-// ── Right sidebar ───────────────────────────────────────────
-
-.predictCard {
-  position: relative;
-  overflow: hidden;
-  min-height: 140px;
-  border-radius: $fm-radius;
-  border: 1px solid $fm-border;
-  box-shadow: $fm-shadow;
-}
-
-.predictShapes {
-  inset: 0;
-  position: absolute;
-  background: radial-gradient(
-      circle at 85% 20%,
-      rgba(0, 200, 83, 0.35) 0%,
-      transparent 45%
-    ),
-    radial-gradient(
-      circle at 20% 80%,
-      rgba(30, 77, 140, 0.45) 0%,
-      transparent 50%
-    ),
-    linear-gradient(135deg, #1a3d72 0%, #1faa5a 100%);
-}
-
-.predictContent {
-  z-index: 1;
-  position: relative;
-  padding: 20px 18px;
-  color: #fff;
-}
-
-.predictLabel {
-  display: block;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.predictText {
-  margin: 6px 0 0;
-  font-size: 13px;
-  opacity: 0.85;
-}
-
-.predictLogo {
-  z-index: 1;
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  position: absolute;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  backdrop-filter: blur(4px);
 }
 
 // ── Squad builder ─────────────────────────────────────────────
@@ -1092,106 +1017,6 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   > *:not(:first-child) {
     margin-left: -10px;
   }
-}
-
-.transfersHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 8px;
-
-  .cardTitle {
-    margin-bottom: 2px;
-  }
-}
-
-.transfersSub {
-  font-size: 12px;
-  color: $fm-text-muted;
-}
-
-.transfersIcon {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: $fm-green-soft;
-  color: $fm-green;
-
-  i {
-    font-size: 15px;
-  }
-}
-
-.transferList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.transferItem {
-  gap: 12px;
-  display: flex;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid $fm-border-subtle;
-
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-}
-
-.transferPhoto {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  object-fit: cover;
-  border-radius: 50%;
-  background: $fm-pill;
-}
-
-.transferMeta {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.transferPlayer {
-  font-size: 14px;
-  font-weight: 700;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.transferClubs {
-  gap: 6px;
-  display: flex;
-  align-items: center;
-
-  img {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-  }
-
-  i {
-    font-size: 10px;
-    color: $fm-green;
-  }
-}
-
-.transferValue {
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: $fm-text-muted;
 }
 
 // ── Responsive ────────────────────────────────────────────────

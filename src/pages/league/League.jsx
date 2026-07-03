@@ -8,20 +8,13 @@ import {
   resolveLeagueContext,
   getLeagueStandings,
   getLeagueFixtures,
-  getLeaguePlayerStats,
-  getLeagueTeamStats,
   getLeagueRounds,
 } from "../../api/football/services/leagueService";
 import { applyStandingsFilter } from "../../api/football/mappers/mapStandingRow";
 import { formatSeasonLabel } from "../../api/football/leagueCatalog";
 import { gamesFormatDate } from "../../helpers/global.helper";
 
-const TAB_IDS = [
-  "overview",
-  "standings",
-  "matches",
-  //  "players", "teams"
-];
+const TAB_IDS = ["overview", "standings", "matches"];
 
 const STANDINGS_FILTER_IDS = ["total", "home", "away"];
 
@@ -36,26 +29,6 @@ function getQualificationBar(position, total) {
   if (position <= 6) return "uel";
   if (position >= total - 2) return "rel";
   return null;
-}
-
-function buildNextOpponentMap(fixtures) {
-  const now = Date.now() / 1000;
-  const upcoming = [...fixtures]
-    .filter(
-      (g) =>
-        g.status?.type === "notstarted" ||
-        (g.startTimestamp && g.startTimestamp > now)
-    )
-    .sort((a, b) => (a.startTimestamp ?? 0) - (b.startTimestamp ?? 0));
-
-  const map = {};
-  for (const game of upcoming) {
-    const homeId = game.homeTeam?.id;
-    const awayId = game.awayTeam?.id;
-    if (homeId && !map[homeId]) map[homeId] = game.awayTeam;
-    if (awayId && !map[awayId]) map[awayId] = game.homeTeam;
-  }
-  return map;
 }
 
 function formatMatchTime(timestamp, locale) {
@@ -103,17 +76,7 @@ function FormDots({ form }) {
   );
 }
 
-function ValueBadge({ value, variant }) {
-  const cls =
-    variant === "green"
-      ? styles.valueBadgeGreen
-      : variant === "red"
-      ? styles.valueBadgeRed
-      : "";
-  return <span className={`${styles.valueBadge} ${cls}`}>{value}</span>;
-}
-
-function StandingsTable({ rows, nextOpponents = {}, showLegend = true }) {
+function StandingsTable({ rows, showLegend = true }) {
   const { t } = useTranslation();
 
   const filtered = useMemo(() => {
@@ -135,7 +98,6 @@ function StandingsTable({ rows, nextOpponents = {}, showLegend = true }) {
         <span className={styles.colStat}>{t("league.goalDiffShort")}</span>
         <span className={styles.colStat}>{t("table.points")}</span>
         <span className={styles.colStat}>{t("league.form")}</span>
-        {/* <span className={styles.colStat}>{t("league.nextOpponent")}</span> */}
       </div>
 
       <ul className={styles.tableList}>
@@ -151,7 +113,6 @@ function StandingsTable({ rows, nextOpponents = {}, showLegend = true }) {
               : bar === "rel"
               ? styles.qualBarRel
               : null;
-          // const nextTeam = nextOpponents[row.team?.id];
 
           return (
             <li key={row.team?.id ?? row.position} className={styles.tableRow}>
@@ -179,18 +140,6 @@ function StandingsTable({ rows, nextOpponents = {}, showLegend = true }) {
               <span className={styles.stat}>{diffLabel}</span>
               <span className={styles.stat}>{row.points}</span>
               <FormDots form={row.form} />
-              {/* <span className={styles.nextOpponent}>
-                {nextTeam?.logo ? (
-                  <img
-                    src={nextTeam.logo}
-                    alt=""
-                    title={nextTeam.name}
-                    loading="lazy"
-                  />
-                ) : (
-                  t("common.dash")
-                )}
-              </span> */}
             </li>
           );
         })}
@@ -271,78 +220,6 @@ function MatchRowLink({ game, showBadge = false }) {
   );
 }
 
-function StatLeaderCard({
-  title,
-  items,
-  valueKey,
-  variant,
-  formatValue,
-  showFooter = false,
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <div className={styles.statCard}>
-      <div className={styles.statCardHead}>
-        <h3 className={styles.statCardTitle}>{title}</h3>
-        <i className={`fi fi-rr-angle-small-right ${styles.statCardChevron}`} />
-      </div>
-      <ul className={styles.statCardList}>
-        {items.map((item, idx) => (
-          <li key={item.id ?? idx} className={styles.statCardRow}>
-            {item.player ? (
-              <>
-                <img
-                  src={item.player.photo}
-                  alt=""
-                  className={styles.playerAvatar}
-                  loading="lazy"
-                />
-                <div className={styles.playerMeta}>
-                  <span className={styles.playerName}>{item.player.name}</span>
-                  <span className={styles.playerTeam}>
-                    {item.team?.logo ? (
-                      <img src={item.team.logo} alt="" loading="lazy" />
-                    ) : null}
-                    {item.team?.name}
-                  </span>
-                </div>
-              </>
-            ) : (
-              <>
-                <img
-                  src={item.team?.logo}
-                  alt=""
-                  className={styles.teamAvatar}
-                  loading="lazy"
-                />
-                <div className={styles.playerMeta}>
-                  <span className={styles.playerName}>{item.team?.name}</span>
-                </div>
-              </>
-            )}
-            <ValueBadge
-              value={formatValue ? formatValue(item[valueKey]) : item[valueKey]}
-              variant={idx === 0 ? variant : undefined}
-            />
-          </li>
-        ))}
-      </ul>
-      {showFooter ? (
-        <button type="button" className={styles.cardFooterBtn}>
-          {t("league.viewAll")}
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-function topN(list, key, n = 3, desc = true) {
-  return [...list]
-    .sort((a, b) => (desc ? b[key] - a[key] : a[key] - b[key]))
-    .slice(0, n);
-}
-
 function useFixtureDateLabel() {
   const { t, i18n } = useTranslation();
   const locale = getDateLocale(i18n.language);
@@ -366,7 +243,7 @@ function useFixtureDateLabel() {
   };
 }
 
-function OverviewTab({ rows, fixtures, players }) {
+function OverviewTab({ rows, fixtures }) {
   const { t } = useTranslation();
   const formatFixtureDate = useFixtureDateLabel();
   const [roundIndex, setRoundIndex] = useState(-1);
@@ -397,24 +274,13 @@ function OverviewTab({ rows, fixtures, players }) {
     return [...map.entries()];
   }, [roundGames]);
 
-  const topScorers = topN(players, "goals");
-  const topAssists = topN(players, "assists");
-  const nextOpponents = useMemo(
-    () => buildNextOpponentMap(fixtures),
-    [fixtures]
-  );
-
   return (
     <>
       <div className={styles.overviewGrid}>
         <div className={styles.standingsPanel}>
           {rows.length ? (
             <div className={styles.standingsPanelScroll}>
-              <StandingsTable
-                rows={rows}
-                nextOpponents={nextOpponents}
-                showLegend={false}
-              />
+              <StandingsTable rows={rows} showLegend={false} />
             </div>
           ) : (
             <p className={styles.emptyState}>
@@ -466,33 +332,13 @@ function OverviewTab({ rows, fixtures, players }) {
           )}
         </div>
       </div>
-
-      {/* <div className={styles.bottomGrid}>
-        <StatLeaderCard
-          title={t("league.topScorers")}
-          items={topScorers}
-          valueKey="goals"
-          showFooter
-        />
-        <StatLeaderCard
-          title={t("league.topAssists")}
-          items={topAssists}
-          valueKey="assists"
-          variant="green"
-          showFooter
-        />
-      </div> */}
     </>
   );
 }
 
-function StandingsTab({ rows, fixtures }) {
+function StandingsTab({ rows }) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState("total");
-  const nextOpponents = useMemo(
-    () => buildNextOpponentMap(fixtures),
-    [fixtures]
-  );
 
   const filterLabels = {
     total: t("league.filterAll"),
@@ -527,7 +373,7 @@ function StandingsTab({ rows, fixtures }) {
         ))}
       </div>
       {displayRows.length ? (
-        <StandingsTable rows={displayRows} nextOpponents={nextOpponents} />
+        <StandingsTable rows={displayRows} />
       ) : (
         <p className={styles.emptyState}>{t("league.standingsUnavailable")}</p>
       )}
@@ -597,175 +443,10 @@ function MatchesTab({ fixtures }) {
   );
 }
 
-function PlayerStatsTab({ players }) {
-  const { t } = useTranslation();
-
-  if (!players.length) {
-    return (
-      <div className={styles.contentCard}>
-        <p className={styles.emptyState}>
-          {t("league.playerStatsUnavailable")}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.contentCard}>
-      <div className={styles.statsPage}>
-        <div className={styles.sectionBlock}>
-          <h2 className={styles.sectionTitle}>{t("league.topStats")}</h2>
-          <div className={styles.statGrid3}>
-            <StatLeaderCard
-              title={t("league.scorers")}
-              items={topN(players, "goals")}
-              valueKey="goals"
-            />
-            <StatLeaderCard
-              title={t("league.topAssists")}
-              items={topN(players, "assists")}
-              valueKey="assists"
-              variant="green"
-            />
-            <StatLeaderCard
-              title={t("league.goalsAndAssists")}
-              items={topN(players, "goalContributions")}
-              valueKey="goalContributions"
-            />
-          </div>
-        </div>
-
-        <div className={styles.sectionBlock}>
-          <h2 className={styles.sectionTitle}>{t("league.discipline")}</h2>
-          <div className={styles.statGrid2}>
-            <StatLeaderCard
-              title={t("league.yellowCards")}
-              items={topN(players, "yellowCards")}
-              valueKey="yellowCards"
-              variant="green"
-            />
-            <StatLeaderCard
-              title={t("league.redCards")}
-              items={topN(players, "redCards")}
-              valueKey="redCards"
-              variant="red"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TeamStatsTab({ rows, leagueId, season }) {
-  const { t } = useTranslation();
-  const teamIds = rows.map((r) => r.team?.id).filter(Boolean);
-
-  const { data: teamStats = [], isLoading } = useQuery({
-    queryKey: ["league-team-stats", leagueId, season, teamIds.join(",")],
-    queryFn: () => getLeagueTeamStats(teamIds, leagueId, season),
-    enabled: teamIds.length > 0 && Boolean(leagueId && season),
-    staleTime: 10 * 60_000,
-  });
-
-  const fromStandings = useMemo(() => {
-    return rows.map((row) => ({
-      id: row.team?.id,
-      team: row.team,
-      goalsPerMatch: row.matches ? row.scoresFor / row.matches : 0,
-      concededPerMatch: row.matches ? row.scoresAgainst / row.matches : 0,
-      cleanSheets: null,
-      yellowCards: 0,
-      redCards: 0,
-    }));
-  }, [rows]);
-
-  const stats = teamStats.length ? teamStats : fromStandings;
-
-  if (isLoading && !stats.length) {
-    return (
-      <div className={styles.contentCard}>
-        <div className={styles.loadingWrap}>
-          <Loader />
-        </div>
-      </div>
-    );
-  }
-
-  const fmt = (v) => (typeof v === "number" ? v.toFixed(1) : v);
-  const cleanSheetLeaders = topN(
-    stats.filter((s) => typeof s.cleanSheets === "number"),
-    "cleanSheets"
-  );
-
-  return (
-    <div className={styles.contentCard}>
-      <div className={styles.statsPage}>
-        <div className={styles.sectionBlock}>
-          <h2 className={styles.sectionTitle}>{t("league.topStats")}</h2>
-          <div className={styles.statGrid3}>
-            <StatLeaderCard
-              title={t("league.goalsPerMatch")}
-              items={topN(stats, "goalsPerMatch")}
-              valueKey="goalsPerMatch"
-              variant="green"
-              formatValue={fmt}
-            />
-            <StatLeaderCard
-              title={t("league.goalsConcededPerMatch")}
-              items={topN(stats, "concededPerMatch", 3, false)}
-              valueKey="concededPerMatch"
-              formatValue={fmt}
-            />
-            {cleanSheetLeaders.length ? (
-              <StatLeaderCard
-                title={t("league.cleanSheets")}
-                items={cleanSheetLeaders}
-                valueKey="cleanSheets"
-                variant="green"
-              />
-            ) : (
-              <div className={styles.statCard}>
-                <div className={styles.statCardHead}>
-                  <h3 className={styles.statCardTitle}>
-                    {t("league.cleanSheets")}
-                  </h3>
-                </div>
-                <p className={styles.emptyState}>
-                  {t("league.dataUnavailable")}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.sectionBlock}>
-          <h2 className={styles.sectionTitle}>{t("league.discipline")}</h2>
-          <div className={styles.statGrid2}>
-            <StatLeaderCard
-              title={t("league.yellowCards")}
-              items={topN(stats, "yellowCards")}
-              valueKey="yellowCards"
-            />
-            <StatLeaderCard
-              title={t("league.redCards")}
-              items={topN(stats, "redCards")}
-              valueKey="redCards"
-              variant="red"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const TAB_LABEL_KEYS = {
   overview: "league.tabOverview",
   standings: "league.tabStandings",
   matches: "league.tabMatches",
-  players: "league.tabPlayers",
-  teams: "league.tabTeams",
 };
 
 export default function League() {
@@ -793,15 +474,11 @@ export default function League() {
   const activeSeason = season ?? league?.season ?? null;
   const leagueNumericId = league?.id;
 
-  const needsStandings =
-    activeTab === "overview" ||
-    activeTab === "standings" ||
-    activeTab === "teams";
+  const needsStandings = activeTab === "overview" || activeTab === "standings";
   const needsFixtures =
     activeTab === "overview" ||
     activeTab === "standings" ||
     activeTab === "matches";
-  const needsPlayers = activeTab === "overview" || activeTab === "players";
 
   const { data: standingsData, isLoading: standingsLoading } = useQuery({
     queryKey: ["league-standings", leagueNumericId, activeSeason],
@@ -815,13 +492,6 @@ export default function League() {
     queryFn: () => getLeagueFixtures(leagueNumericId, activeSeason),
     enabled: Boolean(leagueNumericId && activeSeason && needsFixtures),
     staleTime: 5 * 60_000,
-  });
-
-  const { data: players = [], isLoading: playersLoading } = useQuery({
-    queryKey: ["league-players", leagueNumericId, activeSeason],
-    queryFn: () => getLeaguePlayerStats(leagueNumericId, activeSeason),
-    enabled: Boolean(leagueNumericId && activeSeason && needsPlayers),
-    staleTime: 10 * 60_000,
   });
 
   useQuery({
@@ -867,8 +537,7 @@ export default function League() {
 
   const isLoading =
     (needsStandings && standingsLoading) ||
-    (needsFixtures && fixturesLoading) ||
-    (needsPlayers && playersLoading);
+    (needsFixtures && fixturesLoading);
   const isMatchesLoading = activeTab === "matches" && fixturesLoading;
 
   const handleSeasonChange = (e) => {
@@ -939,36 +608,16 @@ export default function League() {
         ) : null}
 
         {!isLoading && activeTab === "overview" ? (
-          <OverviewTab rows={rows} fixtures={fixtures} players={players} />
+          <OverviewTab rows={rows} fixtures={fixtures} />
         ) : null}
 
         {!isLoading && activeTab === "standings" ? (
-          <StandingsTab rows={rows} fixtures={fixtures} />
+          <StandingsTab rows={rows} />
         ) : null}
 
         {!isMatchesLoading && activeTab === "matches" ? (
           <MatchesTab fixtures={fixtures} />
         ) : null}
-
-        {activeTab === "players" && playersLoading ? (
-          <div className={styles.contentCard}>
-            <div className={styles.loadingWrap}>
-              <Loader />
-            </div>
-          </div>
-        ) : null}
-
-        {/* {!playersLoading && activeTab === "players" ? (
-          <PlayerStatsTab players={players} />
-        ) : null}
-
-        {activeTab === "teams" ? (
-          <TeamStatsTab
-            rows={rows}
-            leagueId={leagueNumericId}
-            season={activeSeason}
-          />
-        ) : null} */}
       </div>
     </section>
   );

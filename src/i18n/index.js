@@ -4,7 +4,6 @@ import LanguageDetector from "i18next-browser-languagedetector";
 
 import ar from "./locales/ar.json";
 import fr from "./locales/fr.json";
-import en from "./locales/en.json";
 
 export const SUPPORTED_LANGUAGES = ["ar", "fr"];
 export const RTL_LANGUAGES = ["ar"];
