@@ -14,6 +14,7 @@ import { queryClient } from "./api/queryClient";
 import { getDirection } from "./i18n";
 import Landing from "./pages/landing/Landing";
 import InteractiveScreen from "./pages/interactive-screen/InteractiveScreen";
+import League from "./pages/league/League";
 
 const ltrCache = createCache({ key: "mui", stylisPlugins: [prefixer] });
 const rtlCache = createCache({
@@ -23,7 +24,7 @@ const rtlCache = createCache({
 
 function App() {
   const { i18n } = useTranslation();
-  const direction = getDirection(i18n.language);
+  const direction = "ltr"; // getDirection(i18n.language);
 
   const theme = useMemo(
     () => createTheme(baseTheme, { direction }),
@@ -39,6 +40,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
+              <Route path="/league/:leagueId" element={<League />} />
               <Route path="/game/:eventId" element={<GameDetail />} />
               <Route path="/squad-builder" element={<InteractiveScreen />} />
             </Routes>

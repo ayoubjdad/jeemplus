@@ -31,11 +31,11 @@ export async function getTeamSquadAsTactic(teamId) {
 }
 
 export async function getBotolaTopPlayers() {
-  const { id, season } = LEAGUES.BOTOLA_PRO;
+  const { id_v3, season } = LEAGUES.BOTOLA_PRO;
 
   try {
     const data = await footballGet("players/topscorers", {
-      league: id,
+      league: id_v3,
       season,
     });
     const rows = extractResponse(data).map(mapTopPlayerRow);
@@ -44,7 +44,7 @@ export async function getBotolaTopPlayers() {
     /* fallback below */
   }
 
-  const data = await footballGet("players", { league: id, season, page: 1 });
+  const data = await footballGet("players", { league: id_v3, season, page: 1 });
   return extractResponse(data).map(mapTopPlayerRow);
 }
 

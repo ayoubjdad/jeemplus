@@ -210,13 +210,18 @@ function LeagueRankingsCard() {
       </div>
 
       <div className={styles.standingsHeader}>
-        <div className={styles.standingsLeagueLogo}>
-          <img src={leagueLogo(activeLeague.id)} alt="" loading="lazy" />
-        </div>
-        <div className={styles.standingsHeaderText}>
-          <h2 className={styles.standingsTitle}>{activeLeague.name}</h2>
-          <span className={styles.standingsCountry}>{subtitle}</span>
-        </div>
+        <Link
+          to={`/league/${activeLeague.id}`}
+          className={styles.standingsHeaderLink}
+        >
+          <div className={styles.standingsLeagueLogo}>
+            <img src={leagueLogo(activeLeague.id)} alt="" loading="lazy" />
+          </div>
+          <div className={styles.standingsHeaderText}>
+            <h2 className={styles.standingsTitle}>{activeLeague.name}</h2>
+            <span className={styles.standingsCountry}>{subtitle}</span>
+          </div>
+        </Link>
       </div>
 
       <div className={styles.standingsTableHead}>
@@ -288,13 +293,15 @@ function TopLeaguesCard() {
       <ul className={styles.leagueList}>
         {TOP_LEAGUES.map((league) => (
           <li key={league.id} className={styles.leagueItem}>
-            <img
-              src={leagueLogo(league.id)}
-              alt=""
-              className={styles.leagueIcon}
-              loading="lazy"
-            />
-            <span>{league.name}</span>
+            <Link to={`/league/${league.id}`} className={styles.leagueItemLink}>
+              <img
+                src={leagueLogo(league.id)}
+                alt=""
+                className={styles.leagueIcon}
+                loading="lazy"
+              />
+              <span>{league.name}</span>
+            </Link>
           </li>
         ))}
       </ul>
@@ -482,7 +489,13 @@ function CompetitionGroup({ group, expanded, onToggle }) {
               loading="lazy"
             />
           ) : null}
-          <span>{title}</span>
+          {group.id ? (
+            <Link to={`/league/${group.id}`} className={styles.competitionLink}>
+              {title}
+            </Link>
+          ) : (
+            <span>{title}</span>
+          )}
         </div>
         <div className={styles.competitionHeaderActions}>
           {!expanded ? (

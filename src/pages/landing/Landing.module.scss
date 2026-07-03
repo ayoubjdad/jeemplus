@@ -149,6 +149,21 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 14px;
 }
 
+.standingsHeaderLink {
+  gap: 12px;
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  border-radius: $fm-radius-sm;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: $fm-pill;
+  }
+}
+
 .standingsHeaderText {
   min-width: 0;
 }
@@ -296,6 +311,10 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .leagueItem {
+  list-style: none;
+}
+
+.leagueItemLink {
   gap: 12px;
   display: flex;
   cursor: pointer;
@@ -305,6 +324,7 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 10px 4px;
   border-radius: $fm-radius-sm;
   color: $fm-text;
+  text-decoration: none;
   transition: background 0.15s ease;
 
   &:hover {
@@ -592,10 +612,21 @@ $fm-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   align-items: center;
   text-align: left;
 
-  span {
+  span,
+  .competitionLink {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+}
+
+.competitionLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $fm-green;
   }
 }
 
