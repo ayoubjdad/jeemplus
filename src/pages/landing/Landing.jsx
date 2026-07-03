@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./Landing.module.scss";
@@ -124,7 +124,7 @@ const getScoreOrTime = (game) => {
 const getMatchBadge = (game) => {
   if (game?.status?.type === "inprogress") return "•";
   if (game?.status?.type === "finished") return "FT";
-  return "FM";
+  return null;
 };
 
 const fetchGames = async ({ queryKey }) => {
@@ -267,9 +267,11 @@ function MatchRow({ game }) {
   return (
     <Link to={`/game/${game.id}`} className={styles.matchRow}>
       <div
-        className={`${styles.matchBadge} ${
-          isLive ? styles.matchBadgeLive : ""
-        }`}
+        className={
+          !badge
+            ? null
+            : `${styles.matchBadge} ${isLive ? styles.matchBadgeLive : ""}`
+        }
         title={game?.status?.description}
       >
         {badge}
@@ -303,10 +305,10 @@ function MatchRow({ game }) {
         </span>
       </div>
 
-      <div className={styles.matchActions}>
+      {/* <div className={styles.matchActions}>
         <i className="fi fi-rr-headphones" title="Commentary" />
         <i className="fi fi-rr-screen" title="TV" />
-      </div>
+      </div> */}
     </Link>
   );
 }
@@ -455,8 +457,14 @@ function CompetitionGroupWithState({ group, defaultExpanded = true }) {
 }
 
 function SquadBuilderCard() {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/squad-builder");
+  };
+
   return (
-    <div className={styles.squadBuilderCard}>
+    <div className={styles.squadBuilderCard} onClick={handleClick}>
       <div className={styles.squadBuilderHeader}>
         <div className={styles.squadBuilderCopy}>
           <h2 className={styles.squadBuilderTitle}>Composez votre propre 11</h2>

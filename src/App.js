@@ -13,6 +13,7 @@ import GameDetail from "./pages/game-detail/GameDetail";
 import { queryClient } from "./api/queryClient";
 import { getDirection } from "./i18n";
 import Landing from "./pages/landing/Landing";
+import InteractiveScreen from "./pages/interactive-screen/InteractiveScreen";
 
 const ltrCache = createCache({ key: "mui", stylisPlugins: [prefixer] });
 const rtlCache = createCache({
@@ -39,6 +40,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/game/:eventId" element={<GameDetail />} />
+              <Route path="/squad-builder" element={<InteractiveScreen />} />
             </Routes>
           </BrowserRouter>
         </ThemeProvider>

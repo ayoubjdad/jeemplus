@@ -199,6 +199,20 @@
     "exitFullscreen": "الخروج من ملء الشاشة",
     "fullscreen": "ملء الشاشة",
     "squad": "التشكيلة",
-    "pitch": "الميدان"
+    "pitch": "الميدان",
+    "lineupCreator": "منشئ التشكيلة",
+    "prefillTitle": "تعبئة التشكيلة مسبقًا",
+    "prefillSubtitle": "اختر فريقًا للتعديل",
+    "searchTeams": "بحث",
+    "noTeamsFound": "لم يُعثر على فرق",
+    "formation": "الخطة",
+    "displayFilters": "فلاتر العرض",
+    "moreOptions": "المزيد من الخيارات",
+    "filter": {
+      "club": "النادي",
+      "country": "البلد",
+      "transferValue": "قيمة الانتقال",
+      "age": "العمر"
+    }
   }
 }

@@ -199,6 +199,20 @@
     "exitFullscreen": "Quitter plein écran",
     "fullscreen": "Plein écran",
     "squad": "Effectif",
-    "pitch": "Terrain"
+    "pitch": "Terrain",
+    "lineupCreator": "Créateur de Composition",
+    "prefillTitle": "Pré-remplir la composition",
+    "prefillSubtitle": "Choisissez une équipe à modifier",
+    "searchTeams": "Rechercher",
+    "noTeamsFound": "Aucune équipe trouvée",
+    "formation": "Formation",
+    "displayFilters": "Filtres d'affichage",
+    "moreOptions": "Plus d'options",
+    "filter": {
+      "club": "Club",
+      "country": "Pays",
+      "transferValue": "Valeur de transfert",
+      "age": "Âge"
+    }
   }
 }

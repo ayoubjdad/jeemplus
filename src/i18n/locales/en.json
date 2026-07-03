@@ -199,6 +199,20 @@
     "exitFullscreen": "Exit fullscreen",
     "fullscreen": "Fullscreen",
     "squad": "Squad",
-    "pitch": "Pitch"
+    "pitch": "Pitch",
+    "lineupCreator": "Lineup Creator",
+    "prefillTitle": "Pre-fill the lineup",
+    "prefillSubtitle": "Choose a team to edit",
+    "searchTeams": "Search",
+    "noTeamsFound": "No teams found",
+    "formation": "Formation",
+    "displayFilters": "Display filters",
+    "moreOptions": "More options",
+    "filter": {
+      "club": "Club",
+      "country": "Country",
+      "transferValue": "Transfer value",
+      "age": "Age"
+    }
   }
 }

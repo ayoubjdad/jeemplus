@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import styles from "./InteractiveScreen.module.scss";
@@ -13,8 +7,97 @@ import { fetchTeamPlayersRoster } from "./teamPlayersApi";
 import {
   fallbackPlayerPhoto,
   playerPhoto,
+  teamLogo,
 } from "../../helpers/media.helpers";
 import { translatePlayerPosition } from "../../helpers/translatePosition";
+
+const FORMATION_OPTIONS = ["4-4-2", "4-2-3-1", "4-3-3", "3-5-2"];
+
+/** Horizontal pitch slots: GK on the left, attack toward the right. */
+const FORMATION_SLOTS = {
+  "4-4-2": [
+    { g: "G", x: 7, y: 50 },
+    { g: "D", x: 22, y: 18 },
+    { g: "D", x: 22, y: 38 },
+    { g: "D", x: 22, y: 62 },
+    { g: "D", x: 22, y: 82 },
+    { g: "M", x: 42, y: 15 },
+    { g: "M", x: 42, y: 38 },
+    { g: "M", x: 42, y: 62 },
+    { g: "M", x: 42, y: 85 },
+    { g: "F", x: 62, y: 38 },
+    { g: "F", x: 62, y: 62 },
+  ],
+  "4-2-3-1": [
+    { g: "G", x: 7, y: 50 },
+    { g: "D", x: 22, y: 18 },
+    { g: "D", x: 22, y: 38 },
+    { g: "D", x: 22, y: 62 },
+    { g: "D", x: 22, y: 82 },
+    { g: "M", x: 36, y: 38 },
+    { g: "M", x: 36, y: 62 },
+    { g: "M", x: 52, y: 18 },
+    { g: "M", x: 52, y: 50 },
+    { g: "M", x: 52, y: 82 },
+    { g: "F", x: 68, y: 50 },
+  ],
+  "4-3-3": [
+    { g: "G", x: 7, y: 50 },
+    { g: "D", x: 22, y: 18 },
+    { g: "D", x: 22, y: 38 },
+    { g: "D", x: 22, y: 62 },
+    { g: "D", x: 22, y: 82 },
+    { g: "M", x: 42, y: 25 },
+    { g: "M", x: 42, y: 50 },
+    { g: "M", x: 42, y: 75 },
+    { g: "F", x: 62, y: 18 },
+    { g: "F", x: 62, y: 50 },
+    { g: "F", x: 62, y: 82 },
+  ],
+  "3-5-2": [
+    { g: "G", x: 7, y: 50 },
+    { g: "D", x: 22, y: 28 },
+    { g: "D", x: 22, y: 50 },
+    { g: "D", x: 22, y: 72 },
+    { g: "M", x: 38, y: 12 },
+    { g: "M", x: 38, y: 32 },
+    { g: "M", x: 38, y: 50 },
+    { g: "M", x: 38, y: 68 },
+    { g: "M", x: 38, y: 88 },
+    { g: "F", x: 62, y: 38 },
+    { g: "F", x: 62, y: 62 },
+  ],
+};
+
+function playerGroupKey(player) {
+  const pg = String(player?.positionGroup || player?.role?.charAt(0) || "?")
+    .trim()
+    .toUpperCase();
+  if (pg === "G") return "G";
+  if (pg === "D") return "D";
+  if (pg === "M") return "M";
+  return "F";
+}
+
+function buildFormationField(formation, roster) {
+  const slots = FORMATION_SLOTS[formation];
+  if (!slots?.length || !roster?.length) return {};
+
+  const pools = { G: [], D: [], M: [], F: [] };
+  for (const player of roster) {
+    pools[playerGroupKey(player)].push(player);
+  }
+
+  const next = {};
+  for (const slot of slots) {
+    const player = pools[slot.g].shift();
+    if (!player) continue;
+    next[player.id] = { x: slot.x, y: slot.y };
+  }
+  return next;
+}
+
+const DISPLAY_FILTERS = ["club", "country", "transferValue", "age"];
 
 /** Tracage FIFA — terrain 105 m × 68 m (viewBox métrique). */
 function PitchMarkingsSvg({ className }) {
@@ -216,6 +299,9 @@ export default function InteractiveScreen({
 
   /** User-chosen team; falls back to `initialTeamId` / first row du sélecteur. */
   const [pickedTeamId, setPickedTeamId] = useState(null);
+  const [formation, setFormation] = useState("4-4-2");
+  const [displayFilter, setDisplayFilter] = useState("country");
+  const [teamSearch, setTeamSearch] = useState("");
 
   const [browserFullscreen, setBrowserFullscreen] = useState(false);
 
@@ -305,6 +391,7 @@ export default function InteractiveScreen({
       out.push({
         id: tm.id,
         label: tm.shortName || tm.name || `#${tm.id}`,
+        team: tm,
       });
     }
     const lang = (i18n.language || "ar").split("-")[0];
@@ -326,6 +413,17 @@ export default function InteractiveScreen({
     return teamOptions[0]?.id ?? null;
   }, [pickedTeamId, teamOptions, initialTeamId]);
 
+  const selectedTeam = useMemo(() => {
+    const row = standingsRows.find((r) => r?.team?.id === resolvedTeamId);
+    return row?.team ?? null;
+  }, [standingsRows, resolvedTeamId]);
+
+  const filteredTeamOptions = useMemo(() => {
+    const q = teamSearch.trim().toLowerCase();
+    if (!q) return teamOptions;
+    return teamOptions.filter((opt) => opt.label.toLowerCase().includes(q));
+  }, [teamOptions, teamSearch]);
+
   const {
     data: roster = [],
     isLoading,
@@ -344,8 +442,12 @@ export default function InteractiveScreen({
   const [fieldById, setFieldById] = useState({});
 
   useEffect(() => {
-    setFieldById({});
-  }, [resolvedTeamId]);
+    if (!roster.length) {
+      setFieldById({});
+      return;
+    }
+    setFieldById(buildFormationField(formation, roster));
+  }, [resolvedTeamId, formation, roster]);
 
   /** 'token' | 'list' + playerId — drives z-index / ghost */
   const [dragUi, setDragUi] = useState(null);
@@ -475,12 +577,7 @@ export default function InteractiveScreen({
         }
       );
     },
-    [
-      attachWindowDrag,
-      fieldById,
-      flushPendingPosition,
-      schedulePosition,
-    ]
+    [attachWindowDrag, fieldById, flushPendingPosition, schedulePosition]
   );
 
   const handleListPointerDown = useCallback(
@@ -500,10 +597,7 @@ export default function InteractiveScreen({
         (ev, s) => {
           const pitchRect = pitchRef.current?.getBoundingClientRect();
 
-          if (
-            pitchRect &&
-            pointInRect(ev.clientX, ev.clientY, pitchRect)
-          ) {
+          if (pitchRect && pointInRect(ev.clientX, ev.clientY, pitchRect)) {
             const { x, y } = pctFromCenterPx(ev.clientX, ev.clientY, pitchRect);
             placeOnField(s.playerId, x, y);
           }
@@ -632,221 +726,342 @@ export default function InteractiveScreen({
     teamOptions.length === 0 ||
     resolvedTeamId == null;
 
+  const selectedTeamLabel =
+    selectedTeam?.shortName || selectedTeam?.name || teamPickerLabel;
+
+  const getTokenMeta = useCallback(
+    (player) => {
+      if (displayFilter === "club") {
+        return translatePlayerPosition(t, player.role);
+      }
+      if (displayFilter === "country") {
+        return selectedTeam?.shortName || selectedTeam?.name || "";
+      }
+      if (displayFilter === "transferValue") {
+        return player.rating != null ? String(player.rating) : "—";
+      }
+      if (displayFilter === "age") {
+        return player.number != null ? `#${player.number}` : "—";
+      }
+      return "";
+    },
+    [displayFilter, selectedTeam, t]
+  );
+
+  const showTokenMeta = displayFilter !== "country";
+
   return (
-    <div
-      ref={mainRef}
-      className={`${styles.main} ${
-        embedded ? styles.mainEmbedded : styles.mainFillViewport
-      } ${browserFullscreen ? styles.mainBrowserFullscreen : ""}`}
-    >
-      {!browserFullscreen ? (
-      <header className={styles.pageHeader}>
-        {/* <div className={styles.pageHeaderText}>
-          <p className={styles.pageEyebrow}>Écran tactique</p>
-          <h1 className={styles.pageTitle}>Composer la formation</h1>
-          <p className={styles.pageSubtitle}>
-            Glissez les joueurs sur le terrain ; ils suivent le curseur en
-            direct. Retirez-les via le bouton ou la zone de retrait.
-          </p>
-        </div> */}
-        <div className={styles.teamPicker}>
-          <label htmlFor={selectId} className={styles.teamPickerLabel}>
-            {teamPickerLabel}
-          </label>
-          <select
-            id={selectId}
-            className={styles.teamSelect}
-            value={resolvedTeamId != null ? String(resolvedTeamId) : ""}
-            onChange={(e) => setPickedTeamId(Number(e.target.value))}
-            disabled={teamPickerDisabled}
-          >
-            {standingsLoading ? (
-              <option value="">{t("interactive.loadingTeams")}</option>
-            ) : standingsError ? (
-              <option value="">{t("interactive.listUnavailable")}</option>
-            ) : (
-              teamOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
-                </option>
-              ))
-            )}
-          </select>
-        </div>
-        <button
-          type="button"
-          className={styles.fullscreenToggle}
-          onClick={() => void toggleBrowserFullscreen()}
-          aria-pressed={browserFullscreen}
-          title={
-            browserFullscreen
-              ? t("interactive.exitFullscreenTitle")
-              : t("interactive.enterFullscreenTitle")
-          }
-        >
-          <span className={styles.fullscreenToggleIcon} aria-hidden>
-            {browserFullscreen ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M9 4H4v5M15 20h5v-5M4 15v5h5M20 9V4h-5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </span>
-          <span className={styles.fullscreenToggleLabel}>
-            {browserFullscreen
-              ? t("interactive.exitFullscreen")
-              : t("interactive.fullscreen")}
-          </span>
-        </button>
-        {/* <div className={styles.pageStat}>
-          <span className={styles.pageStatValue}>
-            {onPitchCount}/{squadTotal || "—"}
-          </span>
-          <span className={styles.pageStatLabel}>sur le terrain</span>
-        </div> */}
-      </header>
-      ) : null}
-
+    <div className={styles.page}>
       <div
-        className={`${styles.layout} ${
-          browserFullscreen ? styles.layoutFullscreen : ""
+        className={`${styles.grid} ${
+          browserFullscreen ? styles.gridFullscreen : ""
         }`}
+        ref={mainRef}
       >
-        <aside className={styles.sidebar}>
-          <div className={styles.sidebarCard}>
-            {!browserFullscreen ? (
-              <div className={styles.sidebarCardHead}>
-                <h2 className={styles.sidebarTitle}>
-                  {t("interactive.squad")}
-                </h2>
+        <main className={styles.center}>
+          <div className={styles.pitchCard}>
+            <header className={styles.pitchCardHeader}>
+              <div className={styles.pitchCardTeam}>
+                {selectedTeam ? (
+                  <img
+                    className={styles.pitchCardLogo}
+                    src={teamLogo(selectedTeam)}
+                    alt=""
+                  />
+                ) : (
+                  <div className={styles.pitchCardLogo} aria-hidden />
+                )}
+                <div className={styles.pitchCardTitles}>
+                  <h1 className={styles.pitchCardName}>{selectedTeamLabel}</h1>
+                  <p className={styles.pitchCardSubtitle}>
+                    {t("interactive.lineupCreator")}
+                  </p>
+                </div>
               </div>
-            ) : null}
-            <div className={styles.playerList}>
-              {renderSidebarContent(leftRoster, true)}
-            </div>
-          </div>
-        </aside>
+              <div className={styles.pitchCardActions}>
+                {!browserFullscreen ? (
+                  <button
+                    type="button"
+                    className={styles.iconBtn}
+                    onClick={() => void toggleBrowserFullscreen()}
+                    aria-pressed={browserFullscreen}
+                    title={t("interactive.enterFullscreenTitle")}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  aria-label={t("interactive.moreOptions")}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="5" cy="12" r="1.8" />
+                    <circle cx="12" cy="12" r="1.8" />
+                    <circle cx="19" cy="12" r="1.8" />
+                  </svg>
+                </button>
+              </div>
+            </header>
 
-        <div className={styles.pitchColumn}>
-          {/* <div className={styles.pitchColumnHead}>
-            <h2 className={styles.pitchHeading}>Terrain</h2>
-            <p className={styles.pitchHint}>
-              But à gauche / à droite · repositionnement libre
-            </p>
-          </div> */}
-          <div className={styles.pitchWrap}>
-            {browserFullscreen ? (
+            <div className={styles.pitchBody}>
+              <div className={styles.pitchWrap}>
+                {browserFullscreen ? (
+                  <button
+                    type="button"
+                    className={styles.fullscreenExitFab}
+                    onClick={() => void toggleBrowserFullscreen()}
+                    title={t("interactive.exitFullscreenTitle")}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M9 4H4v5M15 20h5v-5M4 15v5h5M20 9V4h-5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                ) : null}
+                <div
+                  ref={pitchRef}
+                  className={`${styles.pitch} ${
+                    dragUi?.mode === "list" ? styles.pitchDropHint : ""
+                  }`}
+                >
+                  <div className={styles.pitchGrass} aria-hidden />
+                  <PitchMarkingsSvg className={styles.pitchSvg} />
+
+                  {showList
+                    ? roster.map((player) => {
+                        const pos = fieldById[player.id];
+                        if (!pos) return null;
+                        const isDraggingToken =
+                          dragUi?.mode === "token" &&
+                          dragUi.playerId === player.id;
+                        const tokenMeta = getTokenMeta(player);
+                        return (
+                          <div
+                            key={player.id}
+                            className={`${styles.token} ${
+                              isDraggingToken ? styles.tokenDragging : ""
+                            }`}
+                            style={{
+                              left: `${pos.x}%`,
+                              top: `${pos.y}%`,
+                              transform: "translate(-50%, -50%)",
+                            }}
+                            onPointerDown={(e) =>
+                              handleTokenPointerDown(e, player.id)
+                            }
+                          >
+                            <div className={styles.tokenInner}>
+                              <div className={styles.tokenAvatarWrap}>
+                                {player.captain ? (
+                                  <span className={styles.tokenCaptain}>
+                                    {t("interactive.captain")}
+                                  </span>
+                                ) : null}
+                                <img
+                                  className={styles.tokenAvatar}
+                                  src={playerPhoto(player)}
+                                  alt=""
+                                  draggable={false}
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src =
+                                      fallbackPlayerPhoto(player);
+                                  }}
+                                />
+                                {displayFilter === "country" && selectedTeam ? (
+                                  <img
+                                    className={styles.tokenBadge}
+                                    src={teamLogo(selectedTeam)}
+                                    alt=""
+                                  />
+                                ) : null}
+                              </div>
+                              <div className={styles.tokenLabel}>
+                                <span className={styles.tokenName}>
+                                  {player.shortName || player.name}
+                                </span>
+                                {showTokenMeta && tokenMeta ? (
+                                  <span className={styles.tokenMeta}>
+                                    {tokenMeta}
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    : null}
+                </div>
+              </div>
+            </div>
+
+            <footer className={styles.pitchToolbar}>
+              <div className={styles.formationPicker}>
+                <select
+                  id={`${selectId}-formation`}
+                  className={styles.formationSelect}
+                  value={formation}
+                  onChange={(e) => setFormation(e.target.value)}
+                  aria-label={t("interactive.formation")}
+                >
+                  {FORMATION_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.filterPills} role="group" aria-label={t("interactive.displayFilters")}>
+                {DISPLAY_FILTERS.map((filterKey) => (
+                  <button
+                    key={filterKey}
+                    type="button"
+                    className={`${styles.filterPill} ${
+                      displayFilter === filterKey ? styles.filterPillActive : ""
+                    }`}
+                    aria-pressed={displayFilter === filterKey}
+                    onClick={() => setDisplayFilter(filterKey)}
+                  >
+                    {t(`interactive.filter.${filterKey}`)}
+                  </button>
+                ))}
+              </div>
+
               <button
                 type="button"
-                className={styles.fullscreenExitFab}
-                onClick={() => void toggleBrowserFullscreen()}
-                title={t("interactive.exitFullscreenTitle")}
+                className={styles.filterIconBtn}
+                aria-label={t("interactive.displayFilters")}
               >
-                <span className={styles.fullscreenToggleIcon} aria-hidden>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 7h16M7 12h10M10 17h4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </footer>
+          </div>
+        </main>
+
+        {!browserFullscreen ? (
+          <aside className={styles.right}>
+            <div className={styles.teamPanel}>
+              <div className={styles.teamPanelTop}>
+                <div className={styles.teamPanelHead}>
+                  <h2 className={styles.teamPanelTitle}>
+                    {t("interactive.prefillTitle")}
+                  </h2>
+                  <p className={styles.teamPanelSubtitle}>
+                    {t("interactive.prefillSubtitle")}
+                  </p>
+                </div>
+
+                <div className={styles.teamSearchWrap}>
+                  <svg
+                    className={styles.teamSearchIcon}
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden
+                  >
+                    <circle
+                      cx="11"
+                      cy="11"
+                      r="7"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
                     <path
-                      d="M9 4H4v5M15 20h5v-5M4 15v5h5M20 9V4h-5"
+                      d="M20 20l-4-4"
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
-                      strokeLinejoin="round"
                     />
                   </svg>
-                </span>
-              </button>
-            ) : null}
-            <div
-              ref={pitchRef}
-              className={`${styles.pitch} ${
-                dragUi?.mode === "list" ? styles.pitchDropHint : ""
-              }`}
-            >
-              <div className={styles.pitchGrass} aria-hidden />
-              <PitchMarkingsSvg className={styles.pitchSvg} />
+                  <input
+                    type="search"
+                    className={styles.teamSearch}
+                    value={teamSearch}
+                    onChange={(e) => setTeamSearch(e.target.value)}
+                    placeholder={t("interactive.searchTeams")}
+                    aria-label={t("interactive.searchTeams")}
+                  />
+                </div>
+              </div>
 
-              {showList
-                ? roster.map((player) => {
-                    const pos = fieldById[player.id];
-                    if (!pos) return null;
-                    const isDraggingToken =
-                      dragUi?.mode === "token" && dragUi.playerId === player.id;
+              <ul className={styles.teamList}>
+                {standingsLoading ? (
+                  <li className={styles.teamListHint}>
+                    {t("interactive.loadingTeams")}
+                  </li>
+                ) : standingsError ? (
+                  <li className={styles.teamListHint}>
+                    {t("interactive.listUnavailable")}
+                  </li>
+                ) : filteredTeamOptions.length === 0 ? (
+                  <li className={styles.teamListHint}>
+                    {t("interactive.noTeamsFound")}
+                  </li>
+                ) : (
+                  filteredTeamOptions.map((opt) => {
+                    const active = opt.id === resolvedTeamId;
                     return (
-                      <div
-                        key={player.id}
-                        className={`${styles.token} ${
-                          isDraggingToken ? styles.tokenDragging : ""
-                        }`}
-                        style={{
-                          left: `${pos.x}%`,
-                          top: `${pos.y}%`,
-                          transform: "translate(-50%, -50%)",
-                        }}
-                        onPointerDown={(e) =>
-                          handleTokenPointerDown(e, player.id)
-                        }
-                      >
-                        <div className={styles.tokenCard}>
-                          <div className={styles.tokenInner}>
-                            <div className={styles.tokenAvatarWrap}>
-                              {player.captain ? (
-                                <span className={styles.tokenCaptain}>
-                                  {t("interactive.captain")}
-                                </span>
-                              ) : null}
-                              <img
-                                className={styles.tokenAvatar}
-                                src={playerPhoto(player)}
-                                alt=""
-                                draggable={false}
-                                onError={(e) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src =
-                                    fallbackPlayerPhoto(player);
-                                }}
-                              />
-                              {/* <span
-                                className={`${styles.tokenRating} ${ratingClass}`}
-                              >
-                                {player.rating}
-                              </span> */}
-                            </div>
-                            <div className={styles.tokenLabel}>
-                              <span className={styles.tokenName}>
-                                {player.name}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <li key={opt.id} className={styles.teamListRow}>
+                        <button
+                          type="button"
+                          className={`${styles.teamItem} ${
+                            active ? styles.teamItemActive : ""
+                          }`}
+                          onClick={() => setPickedTeamId(opt.id)}
+                          disabled={teamPickerDisabled}
+                        >
+                          <span className={styles.teamItemLogoWrap}>
+                            <img
+                              className={styles.teamItemLogo}
+                              src={teamLogo(opt.team)}
+                              alt=""
+                            />
+                          </span>
+                          <span className={styles.teamItemName}>{opt.label}</span>
+                        </button>
+                      </li>
                     );
                   })
-                : null}
+                )}
+              </ul>
             </div>
-          </div>
-        </div>
 
-        <aside className={`${styles.sidebar} ${styles.sidebarRight}`}>
-          <div className={styles.sidebarCard}>
-            <div className={styles.playerList}>
-              {renderSidebarContent(rightRoster)}
+            <div className={styles.squadPanel}>
+              <div className={styles.squadPanelHead}>
+                <h2 className={styles.squadPanelTitle}>
+                  {t("interactive.squad")}
+                </h2>
+              </div>
+              <div className={styles.playerList}>
+                {renderSidebarContent(leftRoster, true)}
+                {renderSidebarContent(rightRoster)}
+              </div>
             </div>
-          </div>
-        </aside>
+          </aside>
+        ) : null}
       </div>
 
       {listGhost && ghostPlayer ? (
