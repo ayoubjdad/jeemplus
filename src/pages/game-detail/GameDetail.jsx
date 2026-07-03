@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "../../layouts/loader/Loader";
-import Team from "../../components/team/Team";
-import { palette } from "../../themes/palette";
+import { teamLogo } from "../../helpers/media.helpers";
 import styles from "./GameDetail.module.scss";
 import { getFixtureDetail } from "../../api/football/services/fixtureDetailService";
+
+const TABS = ["summary", "feed", "lineups", "standings", "h2h"];
 
 const queryRetry = (failureCount, error) => {
   const status = error?.response?.status;
@@ -15,11 +17,10 @@ const queryRetry = (failureCount, error) => {
 
 const formatKickoff = (timestamp) => {
   if (!timestamp) return "—";
-  return new Date(timestamp * 1000).toLocaleString(undefined, {
+  return new Date(timestamp * 1000).toLocaleString("fr-FR", {
     weekday: "short",
     day: "numeric",
-    month: "short",
-    year: "numeric",
+    month: "long",
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -46,8 +47,6 @@ function flattenStatistics(statsPayload) {
         name: it.name,
         home: it.home ?? it.homeValue,
         away: it.away ?? it.awayValue,
-        homeValue: it.homeValue,
-        awayValue: it.awayValue,
       });
     }
   }
@@ -78,6 +77,61 @@ function parsePossessionPct(value) {
   return n <= 1 ? Math.round(n * 100) : Math.round(Math.min(n, 100));
 }
 
+function formatGoalMinute(inc) {
+  const base = inc.time ?? 0;
+  const extra = inc.addedTime ?? 0;
+  if (extra > 0) return `${base}+${extra}'`;
+  return `${base}'`;
+}
+
+function isPenaltyGoal(inc) {
+  return String(inc.detail ?? "")
+    .toLowerCase()
+    .includes("pen");
+}
+
+function playerLastName(player) {
+  const name = player?.shortName || player?.name || "?";
+  const parts = name.trim().split(/\s+/);
+  return parts[parts.length - 1] ?? name;
+}
+
+function groupScorersBySide(timeline, isHome) {
+  const filtered = timeline.filter((g) => g.isHome === isHome);
+  const byPlayer = new Map();
+
+  for (const goal of filtered) {
+    const name = playerLastName(goal.player);
+    const minute = formatGoalMinute(goal);
+    const suffix = isPenaltyGoal(goal) ? " (Pen)" : "";
+    const entry = `${minute}${suffix}`;
+    if (!byPlayer.has(name)) byPlayer.set(name, []);
+    byPlayer.get(name).push(entry);
+  }
+
+  return Array.from(byPlayer.entries()).map(
+    ([name, minutes]) => `${name} ${minutes.join(", ")}`,
+  );
+}
+
+function buildGoalEventsWithHalftime(goals, htHome, htAway) {
+  const sorted = [...goals].sort(
+    (a, b) => Number(a.time ?? 0) - Number(b.time ?? 0),
+  );
+  const items = [];
+  let htInserted = htHome == null;
+
+  for (const goal of sorted) {
+    if (!htInserted && Number(goal.time ?? 0) > 45) {
+      items.push({ kind: "halftime", home: htHome, away: htAway });
+      htInserted = true;
+    }
+    items.push({ kind: "goal", ...goal });
+  }
+
+  return items;
+}
+
 function summarizeIncidents(raw, homeTeamId, awayTeamId) {
   const incidents = Array.isArray(raw?.incidents) ? raw.incidents : [];
   const sorted = [...incidents].sort(
@@ -85,14 +139,9 @@ function summarizeIncidents(raw, homeTeamId, awayTeamId) {
       Number(a.timeSeconds ?? a.time ?? 0) - Number(b.timeSeconds ?? b.time ?? 0),
   );
 
-  let yellowHome = 0;
-  let yellowAway = 0;
-  let redHome = 0;
-  let redAway = 0;
-  let subsHome = 0;
-  let subsAway = 0;
-
   const sideOf = (inc) => {
+    if (inc.isHome === true) return "home";
+    if (inc.isHome === false) return "away";
     const pid = inc.teamId;
     if (pid != null && homeTeamId != null && Number(pid) === Number(homeTeamId))
       return "home";
@@ -101,57 +150,33 @@ function summarizeIncidents(raw, homeTeamId, awayTeamId) {
     return null;
   };
 
-  for (const inc of sorted) {
-    const t = inc.incidentType ?? inc.type;
-    if (t === "card") {
-      const side = sideOf(inc);
-      const klass = inc.incidentClass ?? "";
-      if (side === "home") {
-        if (klass === "yellow" || klass === "yellowRed") yellowHome++;
-        if (klass === "red") redHome++;
-      } else if (side === "away") {
-        if (klass === "yellow" || klass === "yellowRed") yellowAway++;
-        if (klass === "red") redAway++;
-      }
-    }
-    if (t === "substitution") {
-      const side = sideOf(inc);
-      if (side === "home") subsHome++;
-      else if (side === "away") subsAway++;
-    }
-  }
-
   const timelineGoals = sorted.filter((i) => i.incidentType === "goal");
 
   return {
-    yellowHome,
-    yellowAway,
-    redHome,
-    redAway,
-    subsHome,
-    subsAway,
+    all: sorted,
     timeline: timelineGoals,
   };
 }
 
-function winnerLabel(event) {
-  const code = event.winnerCode;
-  if (code === 1) return event.homeTeam?.shortName ?? event.homeTeam?.name;
-  if (code === 2) return event.awayTeam?.shortName ?? event.awayTeam?.name;
-  return null;
-}
+function incidentLabel(inc, t) {
+  const type = inc.incidentType ?? inc.type;
+  const player = inc.player?.shortName || inc.player?.name || t("common.dash");
 
-function FormationLineups({ lineupsPayload, formationLabel }) {
-  const fh = lineupsPayload?.home?.formation;
-  const fa = lineupsPayload?.away?.formation;
-  if (!fh && !fa) return null;
-  return (
-    <div className={styles.formationStrip}>
-      <span className={styles.formation}>{fh || "?"}</span>
-      <span className={styles.formationMuted}>{formationLabel}</span>
-      <span className={styles.formation}>{fa || "?"}</span>
-    </div>
-  );
+  if (type === "goal") {
+    const pen = isPenaltyGoal(inc) ? ` ${t("gameDetail.penaltyShort")}` : "";
+    return `${player}${pen}`;
+  }
+  if (type === "card") {
+    const card =
+      inc.incidentClass === "red"
+        ? t("gameDetail.redCard")
+        : t("gameDetail.yellowCard");
+    return `${player} · ${card}`;
+  }
+  if (type === "substitution") {
+    return `${player} · ${t("gameDetail.substitution")}`;
+  }
+  return player;
 }
 
 function StatBars({
@@ -161,13 +186,10 @@ function StatBars({
   homePct,
   homeDisplay,
   awayDisplay,
-  homeBarColor,
-  awayBarColor,
 }) {
   if (homePct == null) return null;
   const h = Math.max(0, Math.min(100, homePct));
-  const hc = homeBarColor ?? "#23c6f3";
-  const ac = awayBarColor ?? "#9b86c9";
+
   return (
     <div className={styles.statBarBlock}>
       <div className={styles.statBarHeader}>
@@ -184,14 +206,14 @@ function StatBars({
           className={styles.statBarFillHome}
           style={{
             width: `${h}%`,
-            background: `linear-gradient(90deg, ${hc}aa 0%, ${hc} 100%)`,
+            background: "linear-gradient(90deg, #1e4d8caa 0%, #1e4d8c 100%)",
           }}
         />
         <div
           className={styles.statBarFillAway}
           style={{
             width: `${100 - h}%`,
-            background: `linear-gradient(270deg, ${ac}aa 0%, ${ac} 100%)`,
+            background: "linear-gradient(270deg, #28a865aa 0%, #28a865 100%)",
           }}
         />
       </div>
@@ -199,16 +221,203 @@ function StatBars({
   );
 }
 
+function EventsCard({ title, items, halfTimePrefix }) {
+  if (!items.length) return null;
+
+  return (
+    <div className={styles.contentCard}>
+      <h2 className={styles.cardTitle}>{title}</h2>
+      <ul className={styles.eventsList}>
+        {items.map((item, idx) => {
+          if (item.kind === "halftime") {
+            return (
+              <li key={`ht-${idx}`} className={styles.halftimeRow}>
+                {halfTimePrefix}
+                {item.home} - {item.away}
+              </li>
+            );
+          }
+
+          const who =
+            item.player?.shortName || item.player?.name || "—";
+          const score =
+            item.homeScore != null && item.awayScore != null
+              ? ` (${item.homeScore} - ${item.awayScore})`
+              : "";
+
+          return (
+            <li key={`${idx}-${item.time}-${who}`} className={styles.eventRow}>
+              <span className={styles.eventBody}>
+                {who}
+                <span className={styles.eventScore}>{score}</span>
+              </span>
+              <i className={`fi fi-rr-football ${styles.eventIcon}`} />
+              <span className={styles.eventMinute}>
+                {formatGoalMinute(item)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function LineupsPanel({ lineups, event, t }) {
+  const home = lineups?.home;
+  const away = lineups?.away;
+  const hasLineups =
+    (home?.players?.length ?? 0) > 0 || (away?.players?.length ?? 0) > 0;
+
+  if (!hasLineups) {
+    return (
+      <div className={styles.contentCard}>
+        <p className={styles.emptyTab}>{t("gameDetail.lineupsEmpty")}</p>
+      </div>
+    );
+  }
+
+  const renderSide = (side, team) => (
+    <div className={styles.lineupBlock}>
+      <div className={styles.lineupHeader}>
+        <img
+          src={teamLogo(team)}
+          alt=""
+          className={styles.lineupTeamLogo}
+          loading="lazy"
+        />
+        <span className={styles.lineupTeamName}>{team?.name}</span>
+        {side?.formation ? (
+          <span className={styles.lineupFormation}>{side.formation}</span>
+        ) : null}
+      </div>
+      <ul className={styles.lineupPlayers}>
+        {(side?.players ?? []).map((row) => (
+          <li
+            key={row.player?.id ?? row.player?.name}
+            className={styles.lineupPlayer}
+          >
+            <span className={styles.lineupNumber}>
+              {row.player?.number ?? "—"}
+            </span>
+            <span>{row.player?.name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  return (
+    <div className={styles.contentCard}>
+      <div className={styles.lineupsGrid}>
+        {renderSide(home, event.homeTeam)}
+        {renderSide(away, event.awayTeam)}
+      </div>
+    </div>
+  );
+}
+
+function FeedPanel({ incidents, t }) {
+  if (!incidents.length) {
+    return (
+      <div className={styles.contentCard}>
+        <p className={styles.emptyTab}>{t("gameDetail.feedEmpty")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.contentCard}>
+      <ul className={styles.feedList}>
+        {incidents.map((inc, idx) => (
+          <li key={`${idx}-${inc.time}-${inc.incidentType}`} className={styles.feedItem}>
+            <span className={styles.feedMinute}>{formatGoalMinute(inc)}</span>
+            <div className={styles.feedBody}>
+              {incidentLabel(inc, t)}
+              {inc.homeScore != null && inc.awayScore != null ? (
+                <p className={styles.feedMeta}>
+                  {inc.homeScore} - {inc.awayScore}
+                </p>
+              ) : null}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function StatsPanel({
+  event,
+  possession,
+  possHomeKnown,
+  shotsTotal,
+  shotsOn,
+  xg,
+  t,
+}) {
+  const statsPanelReady =
+    (possession && possHomeKnown != null) || shotsTotal;
+
+  if (!statsPanelReady) return null;
+
+  return (
+    <div className={styles.contentCard}>
+      <h3 className={styles.statsTitle}>{t("gameDetail.statsSummary")}</h3>
+      {possession != null && possHomeKnown != null && (
+        <StatBars
+          label={t("gameDetail.possession")}
+          homeLabel={event.homeTeam?.shortName ?? t("gameDetail.home")}
+          awayLabel={event.awayTeam?.shortName ?? t("gameDetail.away")}
+          homePct={possHomeKnown}
+          homeDisplay={possession.home ?? "—"}
+          awayDisplay={possession.away ?? "—"}
+        />
+      )}
+      {shotsTotal && (
+        <div className={styles.dualNumRow}>
+          <div className={styles.dualNum}>
+            <span className={styles.dualLabel}>
+              {t("gameDetail.shotsTotal")}
+            </span>
+            <strong>
+              {shotsTotal.home} – {shotsTotal.away}
+            </strong>
+          </div>
+          {shotsOn && (
+            <div className={styles.dualNum}>
+              <span className={styles.dualLabel}>
+                {t("gameDetail.shotsOnTarget")}
+              </span>
+              <strong>
+                {shotsOn.home} – {shotsOn.away}
+              </strong>
+            </div>
+          )}
+          {xg && (
+            <div className={styles.dualNum}>
+              <span className={styles.dualLabel}>{t("gameDetail.xg")}</span>
+              <strong>
+                {xg.home} – {xg.away}
+              </strong>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function GameDetail() {
   const { t } = useTranslation();
   const { eventId } = useParams();
+  const [activeTab, setActiveTab] = useState("summary");
 
   const {
     data: detail,
     isLoading,
     isError,
     error,
-    isFetching,
   } = useQuery({
     queryKey: ["fixture-detail", eventId],
     queryFn: () => getFixtureDetail(eventId),
@@ -224,12 +433,14 @@ export default function GameDetail() {
   if (isError || !event) {
     return (
       <section className={styles.page}>
-        <Link className={styles.back} to="/">
-          ← {t("common.back")}
-        </Link>
-        <p className={styles.error}>
-          {error?.message || t("gameDetail.errorLoad")}
-        </p>
+        <div className={styles.errorCard}>
+          <Link className={styles.backLabel} to="/">
+            ← {t("gameDetail.matches")}
+          </Link>
+          <p className={styles.error}>
+            {error?.message || t("gameDetail.errorLoad")}
+          </p>
+        </div>
       </section>
     );
   }
@@ -244,15 +455,6 @@ export default function GameDetail() {
   const awayScore =
     isFinished || isLive ? event.awayScore?.display ?? null : null;
 
-  const totalGoals =
-    homeScore != null && awayScore != null ? homeScore + awayScore : null;
-  const goalDiff =
-    homeScore != null && awayScore != null ? homeScore - awayScore : null;
-
-  const homeColor = palette.purple.main;
-  const awayColor = palette.orange.main;
-  const categoryName = event.tournament?.category?.name;
-
   const statRows = flattenStatistics(detail.statistics ?? null);
   const possession = findStatRow(statRows, ["Ball possession", "possession"]);
   const homePoss = possession ? parsePossessionPct(possession.home) : null;
@@ -262,10 +464,7 @@ export default function GameDetail() {
 
   const shotsTotal = findStatRow(statRows, ["total shots", "Total Shots"]);
   const shotsOn = findStatRow(statRows, ["shots on goal", "Shots on Goal"]);
-  const corners = findStatRow(statRows, ["corner", "Corner Kicks"]);
   const xg = findStatRow(statRows, ["expected goals", "Expected Goals"]);
-  const offsides = findStatRow(statRows, ["offside", "Offsides"]);
-  const fouls = findStatRow(statRows, ["foul", "Fouls"]);
 
   const incSummary = summarizeIncidents(
     detail.incidents,
@@ -273,248 +472,196 @@ export default function GameDetail() {
     event.awayTeam?.id,
   );
 
-  const isDraw = isFinished && event.winnerCode === 3;
-  const winnerName = isFinished ? winnerLabel(event) : null;
-  const statsPanelReady =
-    (possession && possHomeKnown != null) || shotsTotal || corners;
+  const homeScorers = groupScorersBySide(incSummary.timeline, true);
+  const awayScorers = groupScorersBySide(incSummary.timeline, false);
+
+  const htHome = event.homeScore?.period1;
+  const htAway = event.awayScore?.period1;
+  const goalEvents = buildGoalEventsWithHalftime(
+    incSummary.timeline,
+    htHome,
+    htAway,
+  );
+
+  const tournamentLabel =
+    [event.league?.round, event.tournament?.uniqueTournament?.name]
+      .filter(Boolean)
+      .join(" ") ||
+    event.tournament?.name ||
+    "—";
+
+  const leagueLogoSrc =
+    event.league?.logo ||
+    (event.league?.id
+      ? `https://media.api-sports.io/football/leagues/${event.league.id}.png`
+      : null);
+
+  const statusLabel = isLive
+    ? event.status?.description || t("gameCard.live")
+    : isFinished
+      ? t("gameDetail.fullTime")
+      : formatKickoff(event.startTimestamp);
+
+  const tabLabels = {
+    summary: t("gameDetail.tabSummary"),
+    feed: t("gameDetail.tabFeed"),
+    lineups: t("gameDetail.tabLineups"),
+    standings: t("gameDetail.tabStandings"),
+    h2h: t("gameDetail.tabH2h"),
+  };
 
   return (
     <section className={styles.page}>
-      <Link className={styles.back} to="/">
-        ← {t("common.back")}
-      </Link>
+      <div className={styles.matchCard}>
+        <div className={styles.topNav}>
+          <div className={styles.navLeft}>
+            <Link to="/" className={styles.backBtn} aria-label={t("common.back")}>
+              <i className="fi fi-rr-angle-small-left" />
+            </Link>
+            <Link to="/" className={styles.backLabel}>
+              {t("gameDetail.matches")}
+            </Link>
+          </div>
 
-      <header className={styles.hero}>
-        <div className={styles.meta}>
-          <span className={styles.tournament}>
-            {event.tournament?.uniqueTournament?.name || event.tournament?.name}
-          </span>
-          {categoryName ? (
-            <>
-              <span className={styles.dot}>·</span>
-              <span>{categoryName}</span>
-            </>
-          ) : null}
-          <span className={styles.dot}>·</span>
-          <span>{event.season?.name}</span>
-          {event.roundInfo?.round ? (
-            <>
-              <span className={styles.dot}>·</span>
-              <span>{event.roundInfo.round}</span>
-            </>
-          ) : null}
+          <div className={styles.tournamentCenter}>
+            {leagueLogoSrc ? (
+              <img
+                src={leagueLogoSrc}
+                alt=""
+                className={styles.tournamentLogo}
+                loading="lazy"
+              />
+            ) : null}
+            <span className={styles.tournamentName}>{tournamentLabel}</span>
+          </div>
+
+          <button type="button" className={styles.followBtn}>
+            {t("gameDetail.follow")}
+          </button>
         </div>
 
-        <div className={styles.statusRow}>
-          <span
-            className={styles.statusPill}
-            style={{
-              borderColor: isLive ? palette.red.main : palette.gray.main,
-              color: isLive ? palette.red.main : palette.gray.main,
-            }}
-          >
-            {event.status?.description}
-          </span>
-          <span className={styles.kickoff}>
+        <div className={styles.metaRow}>
+          <span className={styles.metaItem}>
+            <i className="fi fi-rr-calendar" />
             {formatKickoff(event.startTimestamp)}
           </span>
+          {event.venue?.name ? (
+            <span className={styles.metaItem}>
+              <i className="fi fi-rr-marker" />
+              {event.venue.name}
+            </span>
+          ) : null}
+          {event.referee?.name ? (
+            <span className={styles.metaItem}>
+              <i className="fi fi-rr-whistle" />
+              {event.referee.name}
+            </span>
+          ) : null}
         </div>
 
-        {(isDraw || winnerName) && (
-          <p className={styles.winnerBanner}>
-            {isDraw
-              ? t("gameDetail.draw")
-              : `${t("gameDetail.winnerPrefix")}${winnerName}`}
-          </p>
+        <div className={styles.scoreboard}>
+          <div className={`${styles.teamSide} ${styles.teamHome}`}>
+            <span className={styles.teamName}>{event.homeTeam?.name}</span>
+            <img
+              src={teamLogo(event.homeTeam)}
+              alt=""
+              className={styles.teamLogo}
+              loading="lazy"
+            />
+          </div>
+
+          <div className={styles.scoreCenter}>
+            {homeScore != null ? (
+              <p className={styles.scoreLine}>
+                {homeScore} - {awayScore}
+              </p>
+            ) : (
+              <p className={styles.vsLine}>{t("common.vs")}</p>
+            )}
+            <p
+              className={`${styles.statusLabel} ${isLive ? styles.statusLive : ""}`}
+            >
+              {statusLabel}
+            </p>
+          </div>
+
+          <div className={`${styles.teamSide} ${styles.teamAway}`}>
+            <img
+              src={teamLogo(event.awayTeam)}
+              alt=""
+              className={styles.teamLogo}
+              loading="lazy"
+            />
+            <span className={styles.teamName}>{event.awayTeam?.name}</span>
+          </div>
+        </div>
+
+        {(homeScorers.length > 0 || awayScorers.length > 0) && (
+          <div className={styles.scorersRow}>
+            <div className={`${styles.scorersSide} ${styles.scorersHome}`}>
+              {homeScorers.map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </div>
+            <i className={`fi fi-rr-football ${styles.scorersIcon}`} />
+            <div className={`${styles.scorersSide} ${styles.scorersAway}`}>
+              {awayScorers.map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </div>
+          </div>
         )}
-      </header>
 
-      <div className={styles.scoreboard}>
-        <div className={styles.side}>
-          <Team team={event.homeTeam} fromGame />
-          <p className={styles.teamFull}>{event.homeTeam?.name}</p>
+        <div className={styles.tabList} role="tablist">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab}
+              className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tabLabels[tab]}
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className={styles.centerScore}>
-          {homeScore != null ? (
-            <p className={styles.scoreLine}>
-              <span>{homeScore}</span>
-              <span className={styles.scoreSep}>—</span>
-              <span>{awayScore}</span>
-            </p>
-          ) : (
-            <p className={styles.vs}>{t("common.vs")}</p>
-          )}
-
-          {(isFinished || isLive) && event.homeScore?.period1 != null && (
-            <p className={styles.half}>
-              {t("gameDetail.halfTimePrefix")}
-              {event.homeScore.period1}–{event.awayScore.period1}
-            </p>
-          )}
-
-          <FormationLineups
-            lineupsPayload={detail.lineups}
-            formationLabel={t("gameDetail.formation")}
+      {activeTab === "summary" && (
+        <>
+          <EventsCard
+            title={t("gameDetail.events")}
+            items={goalEvents}
+            halfTimePrefix={t("gameDetail.halfTimePrefix")}
           />
-        </div>
-
-        <div className={styles.side}>
-          <Team team={event.awayTeam} fromGame />
-          <p className={styles.teamFull}>{event.awayTeam?.name}</p>
-        </div>
-      </div>
-
-      <div className={styles.sectionTitleRow}>
-        <h2 className={styles.sectionTitle}>{t("gameDetail.keyIndicators")}</h2>
-        {isFetching && (
-          <span className={styles.syncHint}>{t("gameDetail.updatingStats")}</span>
-        )}
-      </div>
-
-      <div className={styles.kpiGrid}>
-        {!notStarted && (
-          <>
-            <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>{t("gameDetail.totalGoals")}</p>
-              <p className={styles.kpiValue}>{safe(totalGoals)}</p>
-            </div>
-            <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>{t("gameDetail.goalGap")}</p>
-              <p className={styles.kpiValue}>
-                {goalDiff == null
-                  ? "—"
-                  : goalDiff > 0
-                    ? `+${goalDiff}`
-                    : goalDiff}
-              </p>
-            </div>
-          </>
-        )}
-
-        {(isFinished || isLive) && (
-          <>
-            <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>{t("gameDetail.cards")}</p>
-              <p className={styles.kpiValue}>
-                🟨 {incSummary.yellowHome}–{incSummary.yellowAway} · 🟥{" "}
-                {incSummary.redHome}–{incSummary.redAway}
-              </p>
-            </div>
-            <div className={styles.kpiCard}>
-              <p className={styles.kpiLabel}>{t("gameDetail.substitutions")}</p>
-              <p className={styles.kpiValue}>
-                {incSummary.subsHome} – {incSummary.subsAway}
-              </p>
-            </div>
-          </>
-        )}
-      </div>
-
-      {(isFinished || isLive) && statsPanelReady && (
-        <div className={styles.statsPanel}>
-          <h3 className={styles.sectionTitleMuted}>
-            {t("gameDetail.statsSummary")}
-          </h3>
-          {possession != null && possHomeKnown != null && (
-            <StatBars
-              label={t("gameDetail.possession")}
-              homeLabel={event.homeTeam?.shortName ?? t("gameDetail.home")}
-              awayLabel={event.awayTeam?.shortName ?? t("gameDetail.away")}
-              homePct={possHomeKnown}
-              homeDisplay={possession.home ?? "—"}
-              awayDisplay={possession.away ?? "—"}
-              homeBarColor={homeColor}
-              awayBarColor={awayColor}
+          {!notStarted && (
+            <StatsPanel
+              event={event}
+              possession={possession}
+              possHomeKnown={possHomeKnown}
+              shotsTotal={shotsTotal}
+              shotsOn={shotsOn}
+              xg={xg}
+              t={t}
             />
           )}
-          {shotsTotal && (
-            <div className={styles.dualNumRow}>
-              <div className={styles.dualNum}>
-                <span className={styles.dualLabel}>
-                  {t("gameDetail.shotsTotal")}
-                </span>
-                <strong>
-                  {shotsTotal.home} – {shotsTotal.away}
-                </strong>
-              </div>
-              {shotsOn && (
-                <div className={styles.dualNum}>
-                  <span className={styles.dualLabel}>
-                    {t("gameDetail.shotsOnTarget")}
-                  </span>
-                  <strong>
-                    {shotsOn.home} – {shotsOn.away}
-                  </strong>
-                </div>
-              )}
-              {xg && (
-                <div className={styles.dualNum}>
-                  <span className={styles.dualLabel}>{t("gameDetail.xg")}</span>
-                  <strong>
-                    {xg.home} – {xg.away}
-                  </strong>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        </>
       )}
 
-      {incSummary.timeline?.length > 0 && (
-        <div className={styles.timelinePanel}>
-          <h3 className={styles.sectionTitleMuted}>
-            {t("gameDetail.goalsTimeline")}
-          </h3>
-          <ul className={styles.timelineList}>
-            {incSummary.timeline.map((inc, idx) => {
-              const mins = `${inc.time ?? ""}'`;
-              const who =
-                inc.player?.shortName || inc.player?.name || t("common.dash");
-              return (
-                <li key={`${idx}-${inc.time}-${who}`}>
-                  <span className={styles.tlMinute}>{mins}</span>
-                  <span className={styles.tlBody}>{who}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+      {activeTab === "feed" && (
+        <FeedPanel incidents={incSummary.all} t={t} />
       )}
 
-      <div className={styles.detailsGrid}>
-        {event.venue?.name && (
-          <div className={styles.detail}>
-            <h3>{t("gameDetail.stadium")}</h3>
-            <p>{event.venue.name}</p>
-            <p className={styles.muted}>{event.venue.city?.name}</p>
-          </div>
-        )}
-        {event.referee?.name && (
-          <div className={styles.detail}>
-            <h3>{t("gameDetail.referee")}</h3>
-            <p>{event.referee.name}</p>
-          </div>
-        )}
-        {event.homeTeam?.manager?.name && (
-          <div className={styles.detail}>
-            <h3>
-              {t("gameDetail.managerPrefix")}
-              {event.homeTeam.shortName}
-            </h3>
-            <p>{event.homeTeam.manager.name}</p>
-          </div>
-        )}
-        {event.awayTeam?.manager?.name && (
-          <div className={styles.detail}>
-            <h3>
-              {t("gameDetail.managerPrefix")}
-              {event.awayTeam.shortName}
-            </h3>
-            <p>{event.awayTeam.manager.name}</p>
-          </div>
-        )}
-      </div>
+      {activeTab === "lineups" && (
+        <LineupsPanel lineups={detail.lineups} event={event} t={t} />
+      )}
+
+      {(activeTab === "standings" || activeTab === "h2h") && (
+        <div className={styles.contentCard}>
+          <p className={styles.emptyTab}>{t("gameDetail.comingSoon")}</p>
+        </div>
+      )}
     </section>
   );
 }

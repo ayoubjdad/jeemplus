@@ -669,9 +669,9 @@ export default function Landing() {
         </main>
 
         <aside className={styles.right}>
-          <PredictCard />
-          <MoroccanPlayersCard date={date} />
           <SquadBuilderCard />
+          {/* <PredictCard /> */}
+          <MoroccanPlayersCard date={date} />
           <TopTransfersCard />
         </aside>
       </div>
