@@ -12,6 +12,13 @@
   to = "/.netlify/functions/football-api"
   status = 200
 
+# Fotmob API proxy (same-origin, avoids browser CORS / 403)
+[[redirects]]
+  force = true
+  from = "/fotmob-api/*"
+  to = "https://www.fotmob.com/:splat"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

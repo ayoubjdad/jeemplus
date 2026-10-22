@@ -24,6 +24,18 @@ export default defineConfig(({ mode }) => {
         });
       },
     },
+    "/fotmob-api": {
+      target: "https://www.fotmob.com",
+      changeOrigin: true,
+      secure: true,
+      rewrite: (path) => path.replace(/^\/fotmob-api/, ""),
+      configure: (proxy) => {
+        proxy.on("proxyReq", (proxyReq) => {
+          proxyReq.setHeader("origin", "https://www.fotmob.com");
+          proxyReq.setHeader("referer", "https://www.fotmob.com/");
+        });
+      },
+    },
   };
 
   return {

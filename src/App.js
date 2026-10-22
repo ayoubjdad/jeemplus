@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Fanbase from "./pages/fanbase/Fanbase";
 import GameDetail from "./pages/game-detail/GameDetail";
 import { queryClient } from "./api/queryClient";
+import HomePage from "./pages/home-page/HomePage";
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
       <ThemeProvider theme={theme}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Fanbase />} />
+            {/* <Route path="/" element={<Fanbase />} /> */}
+            <Route path="/" element={<HomePage />} />
             <Route path="/game/:eventId" element={<GameDetail />} />
           </Routes>
         </BrowserRouter>
